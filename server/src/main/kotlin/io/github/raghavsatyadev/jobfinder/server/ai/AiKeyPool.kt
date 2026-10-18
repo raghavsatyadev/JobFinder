@@ -258,7 +258,10 @@ class AiKeyPool(
     keys.addUsage(keyId, today(), 1, tokens)
   }
 
-  /** The provider said "too many requests": [keyId] rests a while. */
+  /**
+   * The provider said "too many requests" ([COOLDOWN_MS]), or failed to answer ([FAILED_REST_MS]):
+   * [keyId] rests a while, so the next calls go straight to the next model.
+   */
   fun rest(keyId: String, ms: Long = COOLDOWN_MS) {
     restUntil[keyId] = clock() + ms
   }
@@ -334,8 +337,12 @@ class AiKeyPool(
   companion object {
     private const val MINUTE_MS = 60_000L
     private const val COOLDOWN_MS = 60_000L
+
+    /** How long a key that timed out or gave no answer is passed over. */
+    const val FAILED_REST_MS = 10 * 60_000L
     private const val MODELS_TIMEOUT_MS = 15_000L
-    private const val ONLINE_TIMEOUT_MS = 3 * 60_000L
+    /** Online models answer in seconds; one that takes longer is stuck (it is tried twice). */
+    private const val ONLINE_TIMEOUT_MS = 75_000L
 
     fun secretName(id: String) = "ai-key-id-$id"
 

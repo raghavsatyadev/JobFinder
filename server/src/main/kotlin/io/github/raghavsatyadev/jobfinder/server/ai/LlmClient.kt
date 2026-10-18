@@ -234,6 +234,10 @@ class LlmClient(
     } catch (e: RateLimitedException) {
       keyId?.let { pool?.rest(it) }
       throw e
+    } catch (e: LlmException) {
+      // A stuck or empty model would cost every following call the same wait.
+      if (keyId != null && !cli) pool?.rest(keyId, AiKeyPool.FAILED_REST_MS)
+      throw e
     }
   }
 
