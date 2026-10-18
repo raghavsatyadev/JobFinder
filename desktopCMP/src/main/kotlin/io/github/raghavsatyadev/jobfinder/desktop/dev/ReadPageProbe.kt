@@ -17,14 +17,14 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Developer check of the browser extension's `readPage`, end to end: opens the app's end of the
- * native host link in `%LOCALAPPDATA%\jobfinder` (point `LOCALAPPDATA` at a scratch folder, and
- * close the app), waits for a browser with the extension to connect, then asks it to read the URL.
- * Run as `./gradlew :desktopCMP:readPageProbe --args="<url> [waitSeconds]"`.
+ * native host link in `%LOCALAPPDATA%\jobfinder-data` (point `LOCALAPPDATA` at a scratch folder,
+ * and close the app), waits for a browser with the extension to connect, then asks it to read the
+ * URL. Run as `./gradlew :desktopCMP:readPageProbe --args="<url> [waitSeconds]"`.
  */
 fun main(args: Array<String>) {
   val url = args.getOrNull(0) ?: "https://example.com/"
   val waitSeconds = args.getOrNull(1)?.toLongOrNull() ?: DEFAULT_WAIT_S
-  val data = File(System.getenv("LOCALAPPDATA"), "jobfinder").apply { mkdirs() }
+  val data = File(System.getenv("LOCALAPPDATA"), "jobfinder-data").apply { mkdirs() }
   val scratch = Files.createTempDirectory("f2a-readpage").toFile()
   val db = ServerDatabaseFactory.create(File(scratch, "probe.db").toPath())
   val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)

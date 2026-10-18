@@ -5,7 +5,7 @@ import org.cef.CefSettings
 import org.cef.callback.CefCommandLine
 
 /**
- * Folders the desktop app keeps under `%LOCALAPPDATA%\jobfinder`.
+ * Folders the desktop app keeps under `%LOCALAPPDATA%\jobfinder-data`.
  *
  * @property root the app's data folder.
  */
@@ -23,7 +23,10 @@ data class AppPaths(val root: File) {
   val instanceLock: File = File(root, "instance.lock")
 
   companion object {
-    /** `%LOCALAPPDATA%\jobfinder`, or `~/.jobfinder` where LOCALAPPDATA is not set. */
+    /**
+     * `%LOCALAPPDATA%\jobfinder-data`, or `~/.jobfinder-data` where LOCALAPPDATA is not set. Not
+     * `jobfinder`: Windows installs the app in `%LOCALAPPDATA%\JobFinder`, the same folder.
+     */
     fun default(
       env: Map<String, String> = System.getenv(),
       userHome: String = System.getProperty("user.home"),
@@ -31,25 +34,47 @@ data class AppPaths(val root: File) {
       val localAppData = env["LOCALAPPDATA"]?.takeIf { it.isNotBlank() }
       fun dir(name: String) =
         if (localAppData != null) File(localAppData, name) else File(userHome, ".$name")
-      return AppPaths(moveOldData(dir(OLD_APP_DIR), dir(APP_DIR)))
+      return AppPaths(moveOldData(listOf(dir(SHORT_APP_DIR), dir(OLD_APP_DIR)), dir(APP_DIR)))
     }
 
     /**
-     * Moves the data of the app's old name (first2apply) to [root] once, renaming the database with
-     * it. Returns the folder to use: the old one while it can't be moved, so the data is never
-     * split.
+     * Moves the data of an older version (the first of [olds] holding a database) to [root] once,
+     * renaming the database with it. Returns the folder to use: the old one while it can't be
+     * moved, so the data is never split.
      */
-    private fun moveOldData(old: File, root: File): File {
-      val use = if (!root.exists() && old.isDirectory && !old.renameTo(root)) old else root
-      if (File(use, "$OLD_APP_DIR.db").exists() && !File(use, "$APP_DIR.db").exists()) {
-        for (suffix in listOf("", "-wal", "-shm")) {
-          File(use, "$OLD_APP_DIR.db$suffix").renameTo(File(use, "$APP_DIR.db$suffix"))
+    private fun moveOldData(olds: List<File>, root: File): File {
+      if (root.exists()) return root
+      val old = olds.firstOrNull { it.isDirectory && hasDatabase(it) } ?: return root
+      // Windows: that folder is also the app's install folder; move the data out of it.
+      val use =
+        if (File(old, APP_EXE).exists()) moveData(old, root)
+        else if (old.renameTo(root)) root else old
+      for (name in listOf(OLD_APP_DIR, SHORT_APP_DIR)) {
+        if (File(use, "$name.db").exists() && !File(use, "$DB.db").exists()) {
+          for (suffix in listOf("", "-wal", "-shm")) {
+            File(use, "$name.db$suffix").renameTo(File(use, "$DB.db$suffix"))
+          }
         }
       }
       return use
     }
 
-    private const val APP_DIR = "jobfinder"
+    private fun hasDatabase(dir: File) =
+      listOf(OLD_APP_DIR, SHORT_APP_DIR).any { File(dir, "$it.db").exists() }
+
+    /** Moves everything but the app's own files from [from] to [to]; [from] if any can't move. */
+    private fun moveData(from: File, to: File): File {
+      to.mkdirs()
+      val items = from.listFiles().orEmpty().filter { it.name !in INSTALL_FILES }
+      return if (items.all { it.renameTo(File(to, it.name)) }) to else from
+    }
+
+    private const val APP_DIR = "jobfinder-data"
+    /** 0.0.33 and 0.0.34 kept the data here. */
+    private const val SHORT_APP_DIR = "jobfinder"
+    private const val DB = "jobfinder"
+    private const val APP_EXE = "JobFinder.exe"
+    private val INSTALL_FILES = setOf(APP_EXE, "app", "runtime", "JobFinder.ico")
     private const val OLD_APP_DIR = "first2apply"
   }
 }

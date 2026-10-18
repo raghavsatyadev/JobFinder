@@ -91,7 +91,7 @@ opens no ports and sends page data nowhere else. See
 ## Privacy
 
 - No account, no sign-up, no telemetry, no server of ours.
-- Your data is in one folder on your computer (`%LOCALAPPDATA%\jobfinder`, or `~/.jobfinder` on Linux).
+- Your data is in one folder on your computer (`%LOCALAPPDATA%\jobfinder-data`, or `~/.jobfinder-data` on Linux).
 - Job boards see the same requests your own browser makes when you search.
 - The phone connects only on your local network, and only after you allow it on the computer.
 - Online AI is off until you add a key. The app shows which provider handles each kind of work.

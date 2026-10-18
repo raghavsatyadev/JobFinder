@@ -100,7 +100,7 @@ import org.koin.dsl.onClose
  * to the in-process implementations (no HTTP round trip); [ApiServerHost] serves the same objects
  * to paired phones.
  *
- * @param dataDir `%LOCALAPPDATA%\jobfinder`.
+ * @param dataDir `%LOCALAPPDATA%\jobfinder-data`.
  */
 fun serverModule(dataDir: File) = module {
   single<ServerDatabase> { ServerDatabaseFactory.create(dataDir.resolve(DB_FILE).toPath()) } onClose

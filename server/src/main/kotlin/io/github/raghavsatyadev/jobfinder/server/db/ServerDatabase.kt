@@ -101,7 +101,7 @@ class AppModelRename : AutoMigrationSpec {
 
 /** Opens [ServerDatabase]. A new database gets the job boards from [SiteSeed]. */
 object ServerDatabaseFactory {
-  /** `%LOCALAPPDATA%\jobfinder` (`~/.local/share/jobfinder` off Windows). */
+  /** `%LOCALAPPDATA%\jobfinder-data` (`~/.local/share/jobfinder` off Windows). */
   fun defaultDataDir(): Path {
     val base =
       System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
@@ -109,7 +109,7 @@ object ServerDatabaseFactory {
     return base.resolve("jobfinder")
   }
 
-  /** `%LOCALAPPDATA%\jobfinder\jobfinder.db`. */
+  /** `%LOCALAPPDATA%\jobfinder-data\jobfinder.db`. */
   fun defaultPath(): Path = defaultDataDir().resolve("jobfinder.db")
 
   /** Opens (and creates, with parent folders) the database file at [path]. */

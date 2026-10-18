@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
   val report = File(args.getOrNull(0) ?: "ai-replay.md")
   val jobLimit = args.getOrNull(1)?.toIntOrNull() ?: DEFAULT_JOBS
   val only = args.getOrNull(2)?.ifBlank { null }
-  val data = File(System.getenv("LOCALAPPDATA"), "jobfinder")
+  val data = File(System.getenv("LOCALAPPDATA"), "jobfinder-data")
   val copy = Files.createTempDirectory("f2a-replay").toFile()
   for (suffix in listOf("", "-wal", "-shm")) {
     val from = File(data, "jobfinder.db$suffix")

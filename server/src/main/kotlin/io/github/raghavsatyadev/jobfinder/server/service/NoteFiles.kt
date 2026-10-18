@@ -15,7 +15,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.outputStream
 
 /**
- * Note attachments under [root] (`%LOCALAPPDATA%\jobfinder\notes\`). An upload is stored as
+ * Note attachments under [root] (`%LOCALAPPDATA%\jobfinder-data\notes\`). An upload is stored as
  * `<noteId>/<safe file name>` and that relative path goes into the note's `files`. Notes imported
  * from the old app keep their absolute paths; those are opened on the desktop only and never
  * served.

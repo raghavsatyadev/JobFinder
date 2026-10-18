@@ -21,8 +21,8 @@ compileSdkMinor = "1"
 buildTools = "36.1.0"
 
 # App version
-versionCode = "34"
-versionName = "0.0.34"
+versionCode = "36"
+versionName = "0.0.36"
 
 # Plugin versions
 agp = "9.5.0-alpha09"

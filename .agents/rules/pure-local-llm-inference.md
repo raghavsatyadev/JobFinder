@@ -17,7 +17,7 @@ provider (OpenAI, Anthropic, Gemini, OpenRouter, any OpenAI-compatible server) w
 2. **Never `nimble`.** `nimble*` is the agent kit's decision model (`lm-ask`, `jgl`, hooks).
    `LlmConfig` and `SettingsEntity.withAi` reject any model name starting with `nimble`, for every
    provider. Never force-unload `nimble` from app code.
-3. **API keys.** Kept only in `SecretStore` (DPAPI files in `%LOCALAPPDATA%\jobfinder\secrets`,
+3. **API keys.** Kept only in `SecretStore` (DPAPI files in `%LOCALAPPDATA%\jobfinder-data\secrets`,
    one per provider). Never in SQLite, logs, error messages (`LlmClient` masks them), exports,
    backups or anything sent to the phone. The AI settings exist only on the desktop (`AiChoice`).
 4. **Model swaps.** Local models share one GPU, so Ollama may swap before answering: connect

@@ -81,6 +81,7 @@ import io.github.raghavsatyadev.jobfinder.ui.pairing.PairingApprovalDialog
 import io.github.raghavsatyadev.jobfinder.ui.pairing.RestoreApprovalDialog
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
+import io.github.raghavsatyadev.jobfinder.ui.theme.AppTheme
 import java.io.File
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
@@ -251,8 +252,11 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
             }
           }
           AppWindowFrame(APP_NAME, windowMotion) { App(navigation = windows.destinations) }
-          PairingApproval(pairing, windows, tray)
-          RestoreApproval(restores, windows, tray)
+          // Outside App(): give the approval dialogs the app's theme, dark included.
+          AppTheme {
+            PairingApproval(pairing, windows, tray)
+            RestoreApproval(restores, windows, tray)
+          }
         }
         val loginRequest by login.request.collectAsState()
         loginRequest?.let { LoginBrowserWindow(runtime, it, onDone = login::close) }

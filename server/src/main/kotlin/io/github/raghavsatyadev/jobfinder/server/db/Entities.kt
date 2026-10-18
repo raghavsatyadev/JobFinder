@@ -147,7 +147,7 @@ data class NoteEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   @ColumnInfo(name = "job_id") val jobId: Long,
   val text: String,
-  /** Attachment paths under `%LOCALAPPDATA%\jobfinder\notes\`. */
+  /** Attachment paths under `%LOCALAPPDATA%\jobfinder-data\notes\`. */
   val files: List<String> = emptyList(),
   @ColumnInfo(name = "created_at") val createdAt: Long,
 )

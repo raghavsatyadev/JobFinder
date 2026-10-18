@@ -72,4 +72,4 @@ adds a model from the Ollama library, Hugging Face (`hf.co/<repo>:<quant>`) or a
 registers it as `jobfinder-<name>` with `num_ctx 16384` (and `presence_penalty 1.5` for Qwen3
 hybrids), then runs `AccuracyCheck`: the AI filter on the 6 latest kept and 6 latest AI-excluded
 jobs, and the 2 latest ATS reviews, compared with the answers saved in the database. Results are
-kept in `%LOCALAPPDATA%\jobfinder\model-checks.json`.
+kept in `%LOCALAPPDATA%\jobfinder-data\model-checks.json`.

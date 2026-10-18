@@ -64,7 +64,7 @@ compose.desktop {
         menuGroup = libs.versions.releaseAppName.get()
         shortcut = true
         // Installs for the current user only, with no admin prompt; the data stays in
-        // %LOCALAPPDATA%\jobfinder. One fixed id so each new version upgrades the old one.
+        // %LOCALAPPDATA%\jobfinder-data. One fixed id so each new version upgrades the old one.
         perUserInstall = true
         dirChooser = false
         upgradeUuid = "07242878-9a13-4a90-b785-2138acca2b4e"
