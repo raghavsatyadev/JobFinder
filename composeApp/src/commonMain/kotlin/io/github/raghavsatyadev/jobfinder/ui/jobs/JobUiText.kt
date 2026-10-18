@@ -10,6 +10,7 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_label_ghosted
 import io.github.raghavsatyadev.jobfinder.resources.jobs_label_interviewing
 import io.github.raghavsatyadev.jobfinder.resources.jobs_label_offer
 import io.github.raghavsatyadev.jobfinder.resources.jobs_label_rejected
+import io.github.raghavsatyadev.jobfinder.resources.jobs_label_starred
 import io.github.raghavsatyadev.jobfinder.resources.jobs_label_submitted
 import io.github.raghavsatyadev.jobfinder.resources.jobs_time_days
 import io.github.raghavsatyadev.jobfinder.resources.jobs_time_hours
@@ -51,6 +52,7 @@ internal val JobLabel.label: StringResource
       JobLabel.OFFER -> Res.string.jobs_label_offer
       JobLabel.REJECTED -> Res.string.jobs_label_rejected
       JobLabel.GHOSTED -> Res.string.jobs_label_ghosted
+      JobLabel.STARRED -> Res.string.jobs_label_starred
     }
 
 /** Labels on the way to an offer are positive, a rejection or silence is negative. */
@@ -60,7 +62,8 @@ internal val JobLabel.tone: StatusTone
       JobLabel.CONSIDERING -> StatusTone.Muted
       JobLabel.SUBMITTED -> StatusTone.Active
       JobLabel.INTERVIEWING -> StatusTone.Neutral
-      JobLabel.OFFER -> StatusTone.Positive
+      JobLabel.OFFER,
+      JobLabel.STARRED -> StatusTone.Positive
       JobLabel.REJECTED,
       JobLabel.GHOSTED -> StatusTone.Negative
     }

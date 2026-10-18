@@ -122,7 +122,7 @@ internal fun JobFilterSheetBody(
     ) {
       SourceFilter(draft, sites, links) { draft = it }
       ChipGroup(stringResource(Res.string.jobs_filter_labels)) {
-        JobLabel.entries.forEach { label ->
+        JobLabel.CHOICES.forEach { label ->
           Chip(stringResource(label.label), label in draft.labels) {
             draft = draft.copy(labels = draft.labels.toggle(label))
           }

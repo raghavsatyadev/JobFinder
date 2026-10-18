@@ -144,6 +144,7 @@ class RemoteJobsRepository(private val api: RemoteApi) : JobsRepository {
       filter.workModes.forEach { parameter(JobQueryParams.WORK_MODE, it.wire) }
       filter.applyMethods.forEach { parameter(JobQueryParams.APPLY_METHOD, it.wire) }
       if (filter.sort != JobSort.LATEST) parameter(JobQueryParams.SORT, filter.sort.wire)
+      if (filter.starred) parameter(JobQueryParams.STARRED, true)
     }
   }
 }

@@ -269,9 +269,10 @@ class PhoneCache(
   ): JobPage {
     val cursor = after?.let(::parseCursor)
     val sort = filter.sort
+    val statuses = if (filter.starred) JobFilter.STARRED_STATUSES else listOf(status)
     val matching =
-      dao
-        .jobs(computer, status.wire)
+      statuses
+        .flatMap { dao.jobs(computer, it.wire) }
         .asSequence()
         // Lists carry no description, as from the computer.
         .map { it.toJob().copy(description = null) }
@@ -458,5 +459,6 @@ fun JobFilter.matches(job: Job): Boolean {
     matchesSource(job.siteId, job.linkId) &&
     (labels.isEmpty() || job.labels.any { it in labels }) &&
     (workModes.isEmpty() || job.workMode?.let { it in workModes } == true) &&
-    (applyMethods.isEmpty() || job.applyMethod in applyMethods)
+    (applyMethods.isEmpty() || job.applyMethod in applyMethods) &&
+    (!starred || job.starred)
 }

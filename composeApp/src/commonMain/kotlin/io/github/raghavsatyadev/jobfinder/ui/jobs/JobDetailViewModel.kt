@@ -78,6 +78,8 @@ sealed interface JobDetailEvent {
   /** The old app allows one label per job; `null` clears it. */
   data class SetLabel(val label: JobLabel?) : JobDetailEvent
 
+  data object ToggleStar : JobDetailEvent
+
   data object RefreshDescription : JobDetailEvent
 
   /** Ask for the ATS review again (after a failure). */
@@ -169,6 +171,8 @@ class JobDetailViewModel(
       JobDetailEvent.Retry -> load()
       is JobDetailEvent.ChangeStatus -> changeStatus(event.to)
       is JobDetailEvent.SetLabel -> setLabel(event.label)
+      JobDetailEvent.ToggleStar ->
+        _state.value.job?.let { saveLabels(it.labelsStarred(!it.starred)) }
       JobDetailEvent.RefreshDescription -> refreshDescription()
       JobDetailEvent.RetryAts -> viewModelScope.launch { loadAts() }
       JobDetailEvent.RetryInsights -> viewModelScope.launch { loadInsights(retry = true) }
@@ -357,9 +361,14 @@ class JobDetailViewModel(
     }
   }
 
+  /** One label besides the star, as in the old app. */
   private fun setLabel(label: JobLabel?) {
     val job = _state.value.job ?: return
-    val labels = listOfNotNull(label)
+    saveLabels(listOfNotNull(label) + job.labels.filter { it == JobLabel.STARRED })
+  }
+
+  private fun saveLabels(labels: List<JobLabel>) {
+    val job = _state.value.job ?: return
     if (job.labels == labels) return
     // Show the new label at once; put the old one back if saving fails.
     _state.update { it.copy(job = job.copy(labels = labels)) }

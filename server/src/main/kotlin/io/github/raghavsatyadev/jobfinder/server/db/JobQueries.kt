@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder.server.db
 import androidx.room3.RoomRawQuery
 import io.github.raghavsatyadev.jobfinder.shared.model.ApplyMethod
 import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
+import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.WorkMode
@@ -122,7 +123,14 @@ object JobQueries {
    */
   fun list(status: JobStatus, filter: JobFilter, limit: Int, after: PageToken?): RoomRawQuery {
     val where = Where()
-    where.add("j.status = ?", status.wire)
+    if (filter.starred) {
+      where.add(
+        "j.status IN (${JobFilter.STARRED_STATUSES.joinToString(", ") { "?" }})",
+        *JobFilter.STARRED_STATUSES.map { it.wire }.toTypedArray(),
+      )
+    } else {
+      where.add("j.status = ?", status.wire)
+    }
     val key = sortKey(filter.sort)
     if (after != null) {
       if (key == null) where.add("(j.updated_at, j.id) < (?, ?)", after.updatedAtMs, after.id)
@@ -181,6 +189,12 @@ object JobQueries {
         add(
           "EXISTS (SELECT 1 FROM json_each(j.labels) l WHERE l.value IN (${marks(filter.labels)}))",
           *filter.labels.map { it.wire }.toTypedArray(),
+        )
+      }
+      if (filter.starred) {
+        add(
+          "EXISTS (SELECT 1 FROM json_each(j.labels) l WHERE l.value = ?)",
+          JobLabel.STARRED.wire,
         )
       }
       if (filter.workModes.isNotEmpty()) {

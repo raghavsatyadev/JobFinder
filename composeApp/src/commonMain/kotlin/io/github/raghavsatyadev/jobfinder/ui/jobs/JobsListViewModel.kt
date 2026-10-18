@@ -33,11 +33,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** The job feed: one status tab, its jobs page by page, the filters and the tab counts. */
+/**
+ * The job feed: one status tab (or the Starred tab), its jobs page by page, the filters and the tab
+ * counts.
+ */
 @Immutable
 data class JobsListUiState(
   val status: JobStatus = JobStatus.NEW,
+  /** The Starred tab is open: starred jobs of every status; [status] is the tab to go back to. */
+  val starred: Boolean = false,
   val counts: ImmutableMap<JobStatus, Int> = persistentMapOf(),
+  val starredCount: Int = 0,
   /** `null` until the first page arrives, so the empty state never flashes. */
   val jobs: ImmutableList<Job>? = null,
   val loading: Boolean = true,
@@ -76,6 +82,11 @@ data class JobsListUiState(
 
 sealed interface JobsListEvent {
   data class SelectTab(val status: JobStatus) : JobsListEvent
+
+  data object SelectStarred : JobsListEvent
+
+  /** Stars the job, or takes its star away. */
+  data class ToggleStar(val jobId: Long) : JobsListEvent
 
   data class Search(val text: String) : JobsListEvent
 
@@ -175,12 +186,24 @@ class JobsListViewModel(
   fun onEvent(event: JobsListEvent) {
     when (event) {
       is JobsListEvent.SelectTab -> {
-        if (event.status == _state.value.status) return
+        if (event.status == _state.value.status && !_state.value.starred) return
         _state.update {
-          it.copy(status = event.status, jobs = null, nextPageToken = null, failed = false)
+          it.copy(
+            status = event.status,
+            starred = false,
+            jobs = null,
+            nextPageToken = null,
+            failed = false,
+          )
         }
         load()
       }
+      JobsListEvent.SelectStarred -> {
+        if (_state.value.starred) return
+        _state.update { it.copy(starred = true, jobs = null, nextPageToken = null, failed = false) }
+        load()
+      }
+      is JobsListEvent.ToggleStar -> toggleStar(event.jobId)
       is JobsListEvent.Search -> {
         _state.update { it.copy(searchText = event.text) }
         searchJob?.cancel()
@@ -225,6 +248,16 @@ class JobsListViewModel(
   private fun effectiveFilter(s: JobsListUiState): JobFilter =
     s.filter.copy(search = s.searchText.trim().ifBlank { null })
 
+  /** The filter of the open tab's list: the Starred tab lists only starred jobs. */
+  private fun listFilter(s: JobsListUiState): JobFilter =
+    effectiveFilter(s).copy(starred = s.starred)
+
+  /** Starred jobs for [filter], over the tabs they show from. */
+  private suspend fun starredCount(filter: JobFilter): Int {
+    val counts = jobs.countJobs(filter.copy(starred = true))
+    return JobFilter.STARRED_STATUSES.sumOf { counts[it] }
+  }
+
   /** Loads the first page of the current tab and every tab count. Old jobs stay until it ends. */
   private fun load() {
     loadJob?.cancel()
@@ -235,13 +268,15 @@ class JobsListViewModel(
       try {
         // One after the other: both are local or LAN calls, and a load that needs no wait then
         // ends in the frame that started it.
-        val result = jobs.listJobs(s.status, filter, pageSize)
+        val result = jobs.listJobs(s.status, listFilter(s), pageSize)
         val counts = jobs.countJobs(filter)
+        val starred = starredCount(filter)
         _state.update {
           it.copy(
             jobs = result.jobs.toImmutableList(),
             nextPageToken = result.nextPageToken,
             counts = counts.byStatus.toImmutableMap(),
+            starredCount = starred,
             loading = false,
             refreshing = false,
             failed = false,
@@ -258,8 +293,10 @@ class JobsListViewModel(
   private fun refreshCounts() {
     viewModelScope.launch {
       try {
-        val counts = jobs.countJobs(effectiveFilter(_state.value))
-        _state.update { it.copy(counts = counts.byStatus.toImmutableMap()) }
+        val filter = effectiveFilter(_state.value)
+        val counts = jobs.countJobs(filter)
+        val starred = starredCount(filter)
+        _state.update { it.copy(counts = counts.byStatus.toImmutableMap(), starredCount = starred) }
       } catch (e: CancellationException) {
         throw e
       } catch (_: Exception) {
@@ -275,7 +312,7 @@ class JobsListViewModel(
     _state.update { it.copy(loadingMore = true) }
     loadJob = viewModelScope.launch {
       try {
-        val result = jobs.listJobs(s.status, effectiveFilter(s), pageSize, after = token)
+        val result = jobs.listJobs(s.status, listFilter(s), pageSize, after = token)
         _state.update { current ->
           val known = current.jobs.orEmpty().map { it.id }.toSet()
           current.copy(
@@ -330,7 +367,7 @@ class JobsListViewModel(
   private fun changeStatus(jobId: Long, to: JobStatus) {
     val job = _state.value.jobs?.firstOrNull { it.id == jobId } ?: return
     if (job.status == to) return
-    removeFromList(jobId)
+    moveInList(jobId, to)
     viewModelScope.launch {
       try {
         jobs.updateStatus(jobId, to)
@@ -359,6 +396,61 @@ class JobsListViewModel(
     topUp()
   }
 
+  /**
+   * A job moved to [to]: it leaves its status tab. In the Starred tab it stays, with its new
+   * status, unless it was deleted.
+   */
+  private fun moveInList(jobId: Long, to: JobStatus) {
+    if (!_state.value.starred || to !in JobFilter.STARRED_STATUSES) {
+      removeFromList(jobId)
+      return
+    }
+    _state.update { s ->
+      val list = s.jobs ?: return@update s
+      val moved = list.firstOrNull { it.id == jobId } ?: return@update s
+      val counts = s.counts.toMutableMap()
+      counts[moved.status] = ((counts[moved.status] ?: 0) - 1).coerceAtLeast(0)
+      counts[to] = (counts[to] ?: 0) + 1
+      s.copy(
+        jobs = list.map { if (it.id == jobId) it.copy(status = to) else it }.toImmutableList(),
+        counts = counts.toImmutableMap(),
+      )
+    }
+  }
+
+  private fun toggleStar(jobId: Long) {
+    val job = _state.value.jobs?.firstOrNull { it.id == jobId } ?: return
+    val changed = job.copy(labels = job.labelsStarred(!job.starred))
+    showStar(changed)
+    viewModelScope.launch {
+      try {
+        val updated = jobs.updateLabels(jobId, changed.labels) ?: changed
+        changes.publish(JobChange.Updated(updated))
+      } catch (e: CancellationException) {
+        throw e
+      } catch (_: Exception) {
+        _messages.trySend(JobsMessage.Failed)
+        load()
+      }
+    }
+  }
+
+  /**
+   * Shows [job]'s star at once: on its card, in the Starred count, in or out of the Starred tab.
+   */
+  private fun showStar(job: Job) {
+    _state.update { s ->
+      val list = s.jobs ?: return@update s
+      val old = list.firstOrNull { it.id == job.id } ?: return@update s
+      if (old.starred == job.starred) return@update s
+      val count = (s.starredCount + if (job.starred) 1 else -1).coerceAtLeast(0)
+      val jobs =
+        if (s.starred && !job.starred) list.filterNot { it.id == job.id }
+        else list.map { if (it.id == job.id) job.copy(description = null) else it }
+      s.copy(jobs = jobs.toImmutableList(), starredCount = count)
+    }
+  }
+
   /** Like the old app: when moving jobs out leaves less than half a page, load the next one. */
   private fun topUp() {
     val s = _state.value
@@ -368,10 +460,18 @@ class JobsListViewModel(
   private fun onJobChange(change: JobChange) {
     when (change) {
       is JobChange.StatusChanged -> {
-        removeFromList(change.jobId)
-        if (change.to == _state.value.status) load() else refreshCounts()
+        val s = _state.value
+        moveInList(change.jobId, change.to)
+        if (change.to == s.status && !s.starred) load() else refreshCounts()
       }
-      is JobChange.Updated ->
+      is JobChange.Updated -> {
+        val s = _state.value
+        // Starred from the detail while the Starred tab is open: it joins the list.
+        if (s.starred && change.job.starred && s.jobs?.none { it.id == change.job.id } != false) {
+          load()
+          return
+        }
+        showStar(change.job)
         _state.update { s ->
           s.copy(
             jobs =
@@ -380,6 +480,7 @@ class JobsListViewModel(
                 ?.toImmutableList()
           )
         }
+      }
       is JobChange.BulkChanged -> load()
     }
   }
@@ -399,7 +500,7 @@ class JobsListViewModel(
 
   private fun changeAll(to: JobStatus) {
     val from = _state.value.status
-    if (from == to) return
+    if (from == to || _state.value.starred) return
     viewModelScope.launch {
       try {
         val count = jobs.changeAllStatuses(from, to)

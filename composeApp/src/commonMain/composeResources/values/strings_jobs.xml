@@ -71,6 +71,12 @@
     <string name="jobs_label_offer">Offer</string>
     <string name="jobs_label_rejected">Rejected</string>
     <string name="jobs_label_ghosted">Ghosted</string>
+    <string name="jobs_label_starred">Starred</string>
+    <string name="jobs_action_star">Star</string>
+    <string name="jobs_action_unstar">Remove the star</string>
+    <string name="jobs_tab_starred">Starred</string>
+    <string name="jobs_empty_starred_title">No starred jobs</string>
+    <string name="jobs_empty_starred_hint">Tap the star on a job to keep it here, whatever its tab.</string>
     <string name="jobs_label_none">None</string>
 
     <!-- Relative time -->

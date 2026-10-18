@@ -21,7 +21,23 @@ data class JobFilter(
   val applyMethods: List<ApplyMethod> = emptyList(),
   /** The list's order; counts ignore it. */
   val sort: JobSort = JobSort.LATEST,
+  /**
+   * Only starred jobs, of every status in [STARRED_STATUSES]: the Starred tab. A list ignores the
+   * status it is asked for.
+   */
+  val starred: Boolean = false,
 ) {
+  companion object {
+    /** The tabs a starred job shows from. */
+    val STARRED_STATUSES: List<JobStatus> =
+      listOf(
+        JobStatus.NEW,
+        JobStatus.APPLIED,
+        JobStatus.ARCHIVED,
+        JobStatus.EXCLUDED_BY_ADVANCED_MATCHING,
+      )
+  }
+
   /** The job's board or search is one of the chosen sources; `true` with none chosen. */
   fun matchesSource(siteId: Long, linkId: Long?): Boolean =
     (siteIds.isEmpty() && linkIds.isEmpty()) ||

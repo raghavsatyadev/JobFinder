@@ -33,4 +33,11 @@ data class Job(
 ) {
   val applyMethod: ApplyMethod
     get() = ApplyMethod.fromTags(tags)
+
+  val starred: Boolean
+    get() = JobLabel.STARRED in labels
+
+  /** [labels] with the star added or taken away. */
+  fun labelsStarred(star: Boolean): List<JobLabel> =
+    if (star) (labels - JobLabel.STARRED) + JobLabel.STARRED else labels - JobLabel.STARRED
 }

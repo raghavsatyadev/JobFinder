@@ -267,7 +267,9 @@ private fun MovableSection(
   when (section) {
     DetailSection.LABELS ->
       Section(stringResource(Res.string.jobs_detail_labels)) {
-        LabelPicker(job.labels.firstOrNull()) { onEvent(JobDetailEvent.SetLabel(it)) }
+        LabelPicker((job.labels - JobLabel.STARRED).firstOrNull()) {
+          onEvent(JobDetailEvent.SetLabel(it))
+        }
       }
     DetailSection.ATS ->
       Section(stringResource(Res.string.ats_section_title)) {
@@ -439,6 +441,7 @@ private fun Actions(
       Spacer(Modifier.size(ButtonDefaults.IconSpacing))
       Text(stringResource(Res.string.jobs_action_view))
     }
+    StarButton(job.starred, onClick = { onEvent(JobDetailEvent.ToggleStar) })
     if (job.status != JobStatus.APPLIED) {
       FilledTonalButton(
         onClick = { onEvent(JobDetailEvent.ChangeStatus(JobStatus.APPLIED)) },
@@ -509,7 +512,7 @@ private fun Section(
 private fun LabelPicker(current: JobLabel?, onPick: (JobLabel?) -> Unit) {
   FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
     LabelChip(stringResource(Res.string.jobs_label_none), current == null) { onPick(null) }
-    JobLabel.entries.forEach { label ->
+    JobLabel.CHOICES.forEach { label ->
       LabelChip(stringResource(label.label), current == label) { onPick(label) }
     }
   }

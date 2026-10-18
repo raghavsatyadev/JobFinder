@@ -11,6 +11,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,6 +41,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
@@ -56,10 +59,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -84,6 +92,7 @@ import io.github.raghavsatyadev.jobfinder.resources.filters_intro
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_counter
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_hint
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_label
+import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_row_hint
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_tips
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_title
 import io.github.raghavsatyadev.jobfinder.resources.filters_prompt_too_long
@@ -102,6 +111,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
+import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -209,7 +219,27 @@ private fun Form(
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
-      Section(stringResource(Res.string.filters_prompt_title)) { PromptField(state, onEvent) }
+      // What to filter out is one of the AI's instructions: it heads them, open.
+      // The instructions pad their own rows, so the card adds only the title's padding.
+      Card(
+        shape = MaterialTheme.shapes.large,
+        colors =
+          CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        modifier = Modifier.fillMaxWidth(),
+      ) {
+        Text(
+          stringResource(Res.string.settings_section_prompts),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.SemiBold,
+          modifier =
+            Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp).semantics { heading() },
+        )
+        FilterPromptItem(state, onEvent)
+        if (prompts != null) {
+          HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+          prompts()
+        }
+      }
       Section(stringResource(Res.string.filters_companies_title)) {
         Text(
           stringResource(Res.string.filters_companies_intro),
@@ -219,25 +249,50 @@ private fun Form(
         CompanyInput(state, onEvent)
         CompanyChips(state.companies, enabled = editable(state), onEvent = onEvent)
       }
-      if (prompts != null) {
-        // The instructions pad their own rows, so the card adds only the title's padding.
-        Card(
-          shape = MaterialTheme.shapes.large,
-          colors =
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-          modifier = Modifier.fillMaxWidth(),
-        ) {
-          Text(
-            stringResource(Res.string.settings_section_prompts),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier =
-              Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp).semantics {
-                heading()
-              },
-          )
-          prompts()
-        }
+    }
+  }
+}
+
+/** "What to filter out" as a row of the AI instructions, open at first. */
+@Composable
+private fun FilterPromptItem(state: AiFiltersUiState, onEvent: (AiFiltersEvent) -> Unit) {
+  var open by rememberSaveable { mutableStateOf(true) }
+  val motion = MaterialTheme.motionScheme
+  Column {
+    Row(
+      Modifier.fillMaxWidth()
+        .clickable(role = Role.Button) { open = !open }
+        .padding(horizontal = 16.dp, vertical = 12.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+      Column(Modifier.weight(1f)) {
+        Text(
+          stringResource(Res.string.filters_prompt_title),
+          style = MaterialTheme.typography.titleSmall,
+        )
+        Text(
+          stringResource(Res.string.filters_prompt_row_hint),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+      Icon(
+        Icons.Rounded.ExpandMore,
+        contentDescription = null,
+        modifier = Modifier.graphicsLayer { rotationZ = if (open) 180f else 0f },
+      )
+    }
+    AnimatedVisibility(
+      visible = open,
+      enter =
+        if (animationsEnabled())
+          expandVertically(motion.defaultSpatialSpec()) + fadeIn(motion.defaultEffectsSpec())
+        else fadeIn(motion.fastEffectsSpec()),
+      exit = fadeOut(motion.fastEffectsSpec()),
+    ) {
+      Box(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
+        PromptField(state, onEvent)
       }
     }
   }

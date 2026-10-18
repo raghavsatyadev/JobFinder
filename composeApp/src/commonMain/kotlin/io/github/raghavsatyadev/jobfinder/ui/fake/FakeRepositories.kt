@@ -158,7 +158,10 @@ private class FakeJobsRepository(private val b: FakeBackend) : JobsRepository {
     b.call()
     val all =
       b.jobs.value
-        .filter { it.status == status && filter.matches(it) }
+        .filter {
+          (if (filter.starred) it.status in JobFilter.STARRED_STATUSES else it.status == status) &&
+            filter.matches(it)
+        }
         .sortedWith(filter.sort.comparator)
     val start = after?.toIntOrNull() ?: 0
     val page = all.drop(start).take(limit).map { it.copy(description = null) }
@@ -208,7 +211,8 @@ private class FakeJobsRepository(private val b: FakeBackend) : JobsRepository {
       matchesSource(job.siteId, job.linkId) &&
       (labels.isEmpty() || job.labels.any { it in labels }) &&
       (workModes.isEmpty() || job.workMode in workModes) &&
-      (applyMethods.isEmpty() || job.applyMethod in applyMethods)
+      (applyMethods.isEmpty() || job.applyMethod in applyMethods) &&
+      (!starred || job.starred)
   }
 }
 

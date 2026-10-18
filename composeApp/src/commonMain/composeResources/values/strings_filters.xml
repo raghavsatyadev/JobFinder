@@ -2,6 +2,7 @@
     <string name="filters_title">AI filters</string>
     <string name="filters_intro">Tell the local AI which jobs to filter out. Each new job is checked against your prompt on this computer; nothing leaves it.</string>
     <string name="filters_prompt_title">What to filter out</string>
+    <string name="filters_prompt_row_hint">Your own wishes: which jobs the AI filters out for you.</string>
     <string name="filters_prompt_label">Job description prompt</string>
     <string name="filters_prompt_hint">For example: avoid Java or senior roles, remote only, at least $60K</string>
     <string name="filters_prompt_tips">Tip: name skills you do not want, salary expectations, experience levels, and work mode.</string>

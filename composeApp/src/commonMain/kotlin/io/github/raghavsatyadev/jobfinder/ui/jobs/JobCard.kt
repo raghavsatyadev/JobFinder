@@ -24,7 +24,9 @@ import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +56,10 @@ import coil3.compose.SubcomposeAsyncImage
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete
+import io.github.raghavsatyadev.jobfinder.resources.jobs_action_star
+import io.github.raghavsatyadev.jobfinder.resources.jobs_action_unstar
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
+import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.ui.ats.AtsPill
 import io.github.raghavsatyadev.jobfinder.ui.components.CardCorner
@@ -65,8 +70,10 @@ import io.github.raghavsatyadev.jobfinder.ui.components.jobContainerKey
 import io.github.raghavsatyadev.jobfinder.ui.components.jobLogoKey
 import io.github.raghavsatyadev.jobfinder.ui.components.jobMetaKey
 import io.github.raghavsatyadev.jobfinder.ui.components.jobTitleKey
+import io.github.raghavsatyadev.jobfinder.ui.components.label
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContent
+import io.github.raghavsatyadev.jobfinder.ui.components.tone
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -86,6 +93,9 @@ internal fun JobCard(
   onOpen: () -> Unit,
   onArchive: () -> Unit,
   onDelete: () -> Unit,
+  onStar: () -> Unit = {},
+  /** Shows the job's status, in the Starred tab where jobs of every status meet. */
+  showStatus: Boolean = false,
   modifier: Modifier = Modifier,
 ) {
   val colors = MaterialTheme.colorScheme
@@ -138,13 +148,15 @@ internal fun JobCard(
       Spacer(Modifier.size(8.dp))
       JobMeta(job, Modifier.padding(end = 8.dp).sharedContent(jobMetaKey(job.id)))
       val ats = job.ats
-      if (job.labels.isNotEmpty() || ats != null) {
+      val labels = job.labels - JobLabel.STARRED
+      if (labels.isNotEmpty() || ats != null || showStatus) {
         Spacer(Modifier.size(8.dp))
         FlowRow(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-          job.labels.forEach { StatusPill(stringResource(it.label), it.tone) }
+          if (showStatus) StatusPill(stringResource(job.status.label), job.status.tone)
+          labels.forEach { StatusPill(stringResource(it.label), it.tone) }
           if (ats != null) AtsPill(ats, Modifier.sharedContent(jobAtsKey(job.id)))
         }
       }
@@ -157,6 +169,7 @@ internal fun JobCard(
           overflow = TextOverflow.Ellipsis,
           modifier = Modifier.weight(1f),
         )
+        StarButton(job.starred, onStar)
         if (job.status != JobStatus.ARCHIVED) {
           IconButton(onClick = onArchive, shapes = IconButtonDefaults.shapes()) {
             Icon(Icons.Outlined.Archive, stringResource(Res.string.jobs_action_archive))
@@ -275,4 +288,20 @@ internal fun companyRatio(detail: Boolean): Float {
   val card = MaterialTheme.typography.bodyMedium.fontSize.value
   val big = MaterialTheme.typography.titleMedium.fontSize.value
   return if (detail) big / card else card / big
+}
+
+/** Stars a job (it then shows in the Starred tab) or takes the star away. */
+@Composable
+internal fun StarButton(starred: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+  IconButton(onClick = onClick, shapes = IconButtonDefaults.shapes(), modifier = modifier) {
+    if (starred) {
+      Icon(
+        Icons.Rounded.Star,
+        stringResource(Res.string.jobs_action_unstar),
+        tint = MaterialTheme.colorScheme.tertiary,
+      )
+    } else {
+      Icon(Icons.Outlined.StarOutline, stringResource(Res.string.jobs_action_star))
+    }
+  }
 }

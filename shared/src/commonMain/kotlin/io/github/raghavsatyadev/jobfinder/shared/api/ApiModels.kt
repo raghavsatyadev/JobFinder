@@ -254,6 +254,8 @@ object JobQueryParams {
   const val APPLY_METHOD = "applyMethod"
   /** `JobSort.wire`; latest first when absent. */
   const val SORT = "sort"
+  /** `true`: only starred jobs (`JobFilter.starred`). */
+  const val STARRED = "starred"
 
   /** Largest page a client may ask for. */
   const val MAX_LIMIT = 500

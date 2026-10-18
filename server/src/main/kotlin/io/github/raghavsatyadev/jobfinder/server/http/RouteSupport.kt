@@ -46,6 +46,7 @@ internal fun Parameters.jobFilter(): JobFilter =
       this[JobQueryParams.SORT]?.let {
         JobSort.fromWireOrNull(it) ?: badRequest("Unknown sort: $it")
       } ?: JobSort.LATEST,
+    starred = this[JobQueryParams.STARRED] == "true",
   )
 
 internal fun Parameters.limit(): Int {

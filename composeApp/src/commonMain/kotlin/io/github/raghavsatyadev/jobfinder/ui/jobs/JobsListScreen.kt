@@ -3,8 +3,10 @@
 package io.github.raghavsatyadev.jobfinder.ui.jobs
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
@@ -33,6 +36,8 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -83,6 +88,8 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -113,6 +120,8 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_filtered_hint
 import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_filtered_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_new_hint
 import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_new_title
+import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_starred_hint
+import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_starred_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_tab_hint
 import io.github.raghavsatyadev.jobfinder.resources.jobs_empty_tab_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_end_hint_new
@@ -134,6 +143,7 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_scanning
 import io.github.raghavsatyadev.jobfinder.resources.jobs_scanning_progress
 import io.github.raghavsatyadev.jobfinder.resources.jobs_search_clear
 import io.github.raghavsatyadev.jobfinder.resources.jobs_search_hint
+import io.github.raghavsatyadev.jobfinder.resources.jobs_tab_starred
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfettiBurst
@@ -156,6 +166,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
 import io.github.raghavsatyadev.jobfinder.ui.components.stale
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -257,9 +268,9 @@ fun JobsListContent(
         true
       }
       event.key == Key.DirectionLeft || event.key == Key.DirectionRight -> {
-        val tab = JobTabs.indexOf(state.status)
+        val tab = FeedTabs.indexOf(state.openTab)
         val step = if (event.key == Key.DirectionLeft) -1 else 1
-        onEvent(JobsListEvent.SelectTab(JobTabs[(tab + step + JobTabs.size) % JobTabs.size]))
+        onEvent(FeedTabs[(tab + step + FeedTabs.size) % FeedTabs.size].select())
         true
       }
       command && event.key == Key.A -> {
@@ -307,7 +318,7 @@ fun JobsListContent(
         onConfirmBulk = { confirmBulk = it },
         onSearchFocus = { searchFocused = it },
       )
-      StatusTabs(state, onSelect = { onEvent(JobsListEvent.SelectTab(it)) })
+      StatusTabs(state, onSelect = { onEvent(it.select()) })
       ScanProgress(state)
       val pull = rememberPullToRefreshState()
       // A mouse wheel past the top starts a pull it never lets go of: the computer has no pull to
@@ -368,6 +379,7 @@ fun JobsListContent(
               onOpen = ::open,
               onArchive = { onEvent(JobsListEvent.ChangeStatus(it.id, JobStatus.ARCHIVED)) },
               onDelete = { pendingDelete = it },
+              onStar = { onEvent(JobsListEvent.ToggleStar(it.id)) },
               onLoadMore = { onEvent(JobsListEvent.LoadMore) },
             )
         }
@@ -521,8 +533,9 @@ private fun OverflowMenu(
           onEvent(JobsListEvent.ScanAll)
         },
       )
-      HorizontalDivider()
-      if (state.status != JobStatus.ARCHIVED) {
+      // The Starred tab mixes every status: no bulk moves there.
+      if (!state.starred) HorizontalDivider()
+      if (state.status != JobStatus.ARCHIVED && !state.starred) {
         DropdownMenuItem(
           text = { Text(stringResource(Res.string.jobs_action_archive_all)) },
           leadingIcon = { Icon(Icons.Outlined.Archive, null) },
@@ -533,35 +546,49 @@ private fun OverflowMenu(
           },
         )
       }
-      DropdownMenuItem(
-        text = {
-          Text(
-            stringResource(Res.string.jobs_action_delete_all),
-            color = MaterialTheme.colorScheme.error,
-          )
-        },
-        leadingIcon = {
-          Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error)
-        },
-        enabled = online && (state.counts[state.status] ?: 0) > 0,
-        onClick = {
-          open = false
-          onConfirmBulk(JobStatus.DELETED)
-        },
-      )
+      if (!state.starred)
+        DropdownMenuItem(
+          text = {
+            Text(
+              stringResource(Res.string.jobs_action_delete_all),
+              color = MaterialTheme.colorScheme.error,
+            )
+          },
+          leadingIcon = {
+            Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error)
+          },
+          enabled = online && (state.counts[state.status] ?: 0) > 0,
+          onClick = {
+            open = false
+            onConfirmBulk(JobStatus.DELETED)
+          },
+        )
     }
   }
 }
 
+/** A tab of the feed: one status, or the Starred tab (`null`). */
+private val FeedTabs: List<JobStatus?> = listOf(JobTabs.first(), null) + JobTabs.drop(1)
+
+private val JobsListUiState.openTab: JobStatus?
+  get() = if (starred) null else status
+
+private fun JobStatus?.select(): JobsListEvent =
+  if (this == null) JobsListEvent.SelectStarred else JobsListEvent.SelectTab(this)
+
 /**
- * New, Applied, Archived and Filtered out as primary tabs, each with its count in a pill. Scrolls
- * sideways when the counts make them wider than the screen.
+ * New, Starred, Applied, Archived and Filtered out as primary tabs, each with its count in a pill.
+ * Scrolls sideways when the counts make them wider than the screen, by touch or by the mouse wheel
+ * over the tabs; a tab opens only when clicked.
  */
 @Composable
-private fun StatusTabs(state: JobsListUiState, onSelect: (JobStatus) -> Unit) {
-  val selected = JobTabs.indexOf(state.status).coerceAtLeast(0)
+private fun StatusTabs(state: JobsListUiState, onSelect: (JobStatus?) -> Unit) {
+  val selected = FeedTabs.indexOf(state.openTab).coerceAtLeast(0)
+  val scroll = rememberScrollState()
   PrimaryScrollableTabRow(
     selectedTabIndex = selected,
+    scrollState = scroll,
+    modifier = Modifier.wheelScrollsSideways(scroll),
     edgePadding = 16.dp,
     containerColor = Color.Transparent,
     indicator = {
@@ -571,7 +598,7 @@ private fun StatusTabs(state: JobsListUiState, onSelect: (JobStatus) -> Unit) {
       )
     },
   ) {
-    JobTabs.forEachIndexed { index, status ->
+    FeedTabs.forEachIndexed { index, status ->
       val checked = index == selected
       Tab(
         selected = checked,
@@ -583,15 +610,45 @@ private fun StatusTabs(state: JobsListUiState, onSelect: (JobStatus) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
           ) {
-            Icon(status.icon, contentDescription = null, Modifier.size(18.dp))
-            Text(stringResource(status.label), maxLines = 1)
-            CountPill(state.counts[status] ?: 0, checked)
+            Icon(
+              status?.icon ?: Icons.Rounded.Star,
+              contentDescription = null,
+              Modifier.size(18.dp),
+            )
+            Text(stringResource(status?.label ?: Res.string.jobs_tab_starred), maxLines = 1)
+            CountPill(status?.let { state.counts[it] ?: 0 } ?: state.starredCount, checked)
           }
         },
       )
     }
   }
 }
+
+/** One mouse wheel notch moves a sideways row this far. */
+private val WHEEL_STEP = 64.dp
+
+/**
+ * Turns the mouse wheel over a sideways row into sideways scrolling of [scroll]: on a computer the
+ * wheel only scrolls up and down. Touch and a touchpad's own sideways swipe are left as they are.
+ */
+private fun Modifier.wheelScrollsSideways(scroll: ScrollState): Modifier =
+  pointerInput(scroll) {
+    coroutineScope {
+      awaitPointerEventScope {
+        while (true) {
+          val event = awaitPointerEvent()
+          if (event.type != PointerEventType.Scroll) continue
+          val change = event.changes.firstOrNull() ?: continue
+          if (change.isConsumed) continue
+          val delta = change.scrollDelta
+          val by = (if (delta.x != 0f) delta.x else delta.y) * WHEEL_STEP.toPx()
+          if (by == 0f) continue
+          launch { scroll.scrollBy(by) }
+          event.changes.forEach { it.consume() }
+        }
+      }
+    }
+  }
 
 /** A tab's job count; primary on the selected tab. */
 @Composable
@@ -666,6 +723,12 @@ private fun EmptyJobs(
           }
         },
       )
+    state.starred ->
+      EmptyState(
+        icon = Icons.Rounded.StarOutline,
+        title = stringResource(Res.string.jobs_empty_starred_title),
+        hint = stringResource(Res.string.jobs_empty_starred_hint),
+      )
     state.status == JobStatus.NEW && caughtUp != null ->
       Box(Modifier.fillMaxSize()) {
         EmptyState(
@@ -700,6 +763,7 @@ private fun JobList(
   onOpen: (Job) -> Unit,
   onArchive: (Job) -> Unit,
   onDelete: (Job) -> Unit,
+  onStar: (Job) -> Unit,
   onLoadMore: () -> Unit,
 ) {
   val siteNames = remember(state.sites) { state.sites.associate { it.id to it.name } }
@@ -742,15 +806,21 @@ private fun JobList(
           onOpen = { onOpen(job) },
           onArchive = { onArchive(job) },
           onDelete = { onDelete(job) },
+          onStar = { onStar(job) },
+          showStatus = state.starred,
         )
       }
     }
     if (state.nextPageToken == null && !state.loadingMore && jobs.size >= END_MIN_JOBS) {
-      item(key = "list-end-${state.status.wire}", contentType = "end") {
+      item(
+        key = "list-end-${if (state.starred) "starred" else state.status.wire}",
+        contentType = "end",
+      ) {
         ListEndCelebration(
           title = stringResource(Res.string.jobs_end_title),
           hint =
-            if (state.status == JobStatus.NEW) stringResource(Res.string.jobs_end_hint_new)
+            if (state.status == JobStatus.NEW && !state.starred)
+              stringResource(Res.string.jobs_end_hint_new)
             else null,
         )
       }
