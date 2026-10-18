@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.room3.Room
 import io.github.raghavsatyadev.jobfinder.cache.ImportFiles
+import io.github.raghavsatyadev.jobfinder.cache.OfflineAiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineAtsRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineBackupRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineGhostRepository
@@ -185,6 +186,7 @@ fun remoteModule(): Module = module {
       settings = RemoteSettingsRepository(get()),
       matching = RemoteMatchingRepository(get()),
       ats = RemoteAtsRepository(get()),
+      prompts = RemoteAiPromptsRepository(get()),
     )
   }
   single<ImportFiles> { FileImportFiles(get<Context>().filesDir.resolve(IMPORTS_DIR)) }
@@ -205,7 +207,9 @@ fun remoteModule(): Module = module {
   single<NotesRepository> { OfflineNotesRepository(RemoteNotesRepository(get()), get()) }
   single<MatchingRepository> { OfflineMatchingRepository(RemoteMatchingRepository(get()), get()) }
   single<SettingsRepository> { OfflineSettingsRepository(RemoteSettingsRepository(get()), get()) }
-  single<AiPromptsRepository> { RemoteAiPromptsRepository(get()) }
+  single<AiPromptsRepository> {
+    OfflineAiPromptsRepository(RemoteAiPromptsRepository(get()), get())
+  }
   single<AtsRepository> { OfflineAtsRepository(RemoteAtsRepository(get()), get()) }
   single<TipsRepository> { OfflineTipsRepository(RemoteTipsRepository(get()), get()) }
   single<ResumeImproveRepository> { RemoteResumeImproveRepository(get()) }

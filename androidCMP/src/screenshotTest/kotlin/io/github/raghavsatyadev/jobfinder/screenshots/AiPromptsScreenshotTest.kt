@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.android.tools.screenshot.PreviewTest
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptWarning
+import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
 import io.github.raghavsatyadev.jobfinder.ui.filters.AiPromptsContent
 import io.github.raghavsatyadev.jobfinder.ui.filters.AiPromptsUiState
 import io.github.raghavsatyadev.jobfinder.ui.filters.PromptConfirm
@@ -45,12 +47,14 @@ fun AiPromptsStrongWarningScreenshot() {
   )
 }
 
-/** Phone: read-only, with the note to change them on the computer. */
+/** Phone offline: still editable, with the note that edits are sent later. */
 @PreviewTest
 @StatePreviews
 @Composable
 fun AiPromptsPhoneScreenshot() {
-  Prompts(AiPromptsUiState(prompts = PROMPTS, open = PromptId.ATS_REVIEW, editable = false))
+  CompositionLocalProvider(LocalComputerOffline provides true) {
+    Prompts(AiPromptsUiState(prompts = PROMPTS, open = PromptId.ATS_REVIEW))
+  }
 }
 
 @Composable

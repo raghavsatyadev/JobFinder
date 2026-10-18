@@ -1,7 +1,6 @@
 <resources>
     <string name="settings_section_prompts">AI instructions</string>
     <string name="prompts_intro">What the app tells the AI for each job it does. The job, page or resume and the answer’s format are added by the app and stay fixed.</string>
-    <string name="prompts_phone_note">Change these on your computer.</string>
     <string name="prompts_load_failed">The AI instructions could not be loaded.</string>
     <string name="prompt_matching_title">How the AI judges jobs</string>
     <string name="prompt_matching_hint">General rules for every check. Your own wishes go in What to filter out.</string>

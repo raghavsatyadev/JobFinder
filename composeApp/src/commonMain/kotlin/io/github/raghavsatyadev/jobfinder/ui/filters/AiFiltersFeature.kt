@@ -57,7 +57,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,6 +99,7 @@ import io.github.raghavsatyadev.jobfinder.resources.filters_save
 import io.github.raghavsatyadev.jobfinder.resources.filters_saved
 import io.github.raghavsatyadev.jobfinder.resources.filters_title
 import io.github.raghavsatyadev.jobfinder.resources.filters_unsaved
+import io.github.raghavsatyadev.jobfinder.resources.offline_saved_later
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_prompts
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
@@ -110,7 +110,6 @@ import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
-import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.getString
@@ -124,7 +123,7 @@ import org.koin.dsl.module
 /** Koin bindings of the AI filters feature. */
 val aiFiltersUiModule = module {
   viewModelOf(::AiFiltersViewModel)
-  viewModel { AiPromptsViewModel(get(), editable = getOrNull<DesktopFeatures>() != null) }
+  viewModelOf(::AiPromptsViewModel)
 }
 
 /** The advanced-matching prompt, the company blacklist and the AI instructions. */
@@ -166,10 +165,10 @@ fun AiFiltersContent(
     snackbarHost = { SnackbarHost(snackbarHostState) },
     contentWindowInsets = screenInsets(),
     bottomBar = {
-      // Only once there is something to save; offline the form is read-only.
+      // Only once there is something to save; offline the save waits on the phone.
       val motion = MaterialTheme.motionScheme
       AnimatedVisibility(
-        visible = state.dirty && !LocalComputerOffline.current,
+        visible = state.dirty,
         enter =
           expandVertically(motion.defaultSpatialSpec(), expandFrom = Alignment.Bottom) +
             fadeIn(motion.defaultEffectsSpec()),
@@ -213,7 +212,9 @@ private fun Form(
         .padding(bottom = if (state.dirty) SaveBarSpace else 0.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-      if (LocalComputerOffline.current) OfflineNote()
+      if (LocalComputerOffline.current) {
+        OfflineNote(text = stringResource(Res.string.offline_saved_later))
+      }
       Text(
         stringResource(Res.string.filters_intro),
         style = MaterialTheme.typography.bodyLarge,
@@ -431,11 +432,8 @@ private fun CompanyChips(
   }
 }
 
-/** The form takes changes: not while saving, nor while the computer is out of reach. */
-@Composable
-@ReadOnlyComposable
-private fun editable(state: AiFiltersUiState): Boolean =
-  !state.saving && !LocalComputerOffline.current
+/** The form takes changes but while saving; offline they are sent once the computer is back. */
+private fun editable(state: AiFiltersUiState): Boolean = !state.saving
 
 /** Pinned under the form while it has unsaved changes: the note, discard and save. */
 @Composable

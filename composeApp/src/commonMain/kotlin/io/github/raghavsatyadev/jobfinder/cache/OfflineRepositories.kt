@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder.cache
 import io.github.raghavsatyadev.jobfinder.shared.api.CreateLinkResponse
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
+import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsState
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.DetailLayout
@@ -17,6 +18,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptEdit
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.ServerSettings
@@ -24,6 +27,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsState
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsStatus
 import io.github.raghavsatyadev.jobfinder.shared.remote.DesktopUnreachableException
+import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
@@ -205,12 +209,83 @@ class OfflineMatchingRepository(
   private val cache: PhoneCache,
 ) : MatchingRepository {
   override suspend fun getConfig(): AdvancedMatchingConfig =
-    cache.answer(PhoneCache.MATCHING, AdvancedMatchingConfig.serializer()) { remote.getConfig() }
+    cache.queuedEdit(PhoneCache.MATCHING, CONFIG)
+      ?: cache.answer(PhoneCache.MATCHING, CONFIG) { remote.getConfig() }
 
-  override suspend fun updateConfig(config: AdvancedMatchingConfig): AdvancedMatchingConfig =
-    remote.updateConfig(config).also {
-      cache.keep(PhoneCache.MATCHING, AdvancedMatchingConfig.serializer(), it)
+  /** Offline the change is kept on the phone and sent once the computer is back. */
+  override suspend fun updateConfig(config: AdvancedMatchingConfig): AdvancedMatchingConfig {
+    if (cache.computer() == null) return remote.updateConfig(config)
+    if (cache.online()) {
+      try {
+        return remote.updateConfig(config).also {
+          cache.keep(PhoneCache.MATCHING, CONFIG, it)
+          cache.dropEdit(PhoneCache.MATCHING)
+        }
+      } catch (_: DesktopUnreachableException) {
+        // Kept for later below.
+      }
     }
+    cache.keep(PhoneCache.MATCHING, CONFIG, config)
+    cache.queueEdit(PhoneCache.MATCHING, CONFIG, config)
+    return config
+  }
+
+  private companion object {
+    val CONFIG = AdvancedMatchingConfig.serializer()
+  }
+}
+
+/**
+ * The AI instructions from the phone's copy, with the edits made offline on top; offline an edit is
+ * kept on the phone and sent once the computer is back.
+ */
+class OfflineAiPromptsRepository(
+  private val remote: AiPromptsRepository,
+  private val cache: PhoneCache,
+) : AiPromptsRepository {
+  override suspend fun listPrompts(): List<AiPrompt> =
+    cache.answer(PhoneCache.PROMPTS, PROMPTS) { remote.listPrompts() }.map { it.withQueuedEdit() }
+
+  override suspend fun savePrompt(id: PromptId, text: String): AiPrompt = write(id, text)
+
+  override suspend fun resetPrompt(id: PromptId): AiPrompt = write(id, null)
+
+  /** Saves [text], or resets with `null`. */
+  private suspend fun write(id: PromptId, text: String?): AiPrompt {
+    val send = suspend { if (text == null) remote.resetPrompt(id) else remote.savePrompt(id, text) }
+    if (cache.computer() == null) return send()
+    if (cache.online()) {
+      try {
+        return send().also {
+          keepPrompt(it)
+          cache.dropEdit(PhoneCache.promptEdit(id))
+        }
+      } catch (_: DesktopUnreachableException) {
+        // Kept for later below.
+      }
+    }
+    val kept =
+      cache.kept(PhoneCache.PROMPTS, PROMPTS)?.firstOrNull { it.id == id }
+        ?: throw DesktopUnreachableException(IllegalStateException("No AI instructions kept"))
+    val saved = kept.copy(text = text ?: kept.defaultText)
+    keepPrompt(saved)
+    cache.queueEdit(PhoneCache.promptEdit(id), PromptEdit.serializer(), PromptEdit(text))
+    return saved
+  }
+
+  private suspend fun keepPrompt(prompt: AiPrompt) {
+    val kept = cache.kept(PhoneCache.PROMPTS, PROMPTS) ?: return
+    cache.keep(PhoneCache.PROMPTS, PROMPTS, kept.map { if (it.id == prompt.id) prompt else it })
+  }
+
+  private suspend fun AiPrompt.withQueuedEdit(): AiPrompt =
+    cache.queuedEdit(PhoneCache.promptEdit(id), PromptEdit.serializer())?.let {
+      copy(text = it.text ?: defaultText)
+    } ?: this
+
+  private companion object {
+    val PROMPTS = ListSerializer(AiPrompt.serializer())
+  }
 }
 
 class OfflineSettingsRepository(

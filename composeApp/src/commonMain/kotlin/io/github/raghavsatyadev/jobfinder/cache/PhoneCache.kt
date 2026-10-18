@@ -11,6 +11,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.remote.DesktopUnreachableException
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhoneCopy
 import kotlin.concurrent.atomics.AtomicInt
@@ -353,6 +354,28 @@ class PhoneCache(
 
   suspend fun done(change: PendingChange) = dao.deletePending(change.id)
 
+  /**
+   * Keeps [value] as a change to send under [key] ([MATCHING], [promptEdit]), in place of an older
+   * one: only the last edit of a setting matters.
+   */
+  suspend fun <T> queueEdit(key: String, serializer: KSerializer<T>, value: T) =
+    keep(EDITS + key, serializer, value)
+
+  /** The change waiting under [key], or `null`. */
+  suspend fun <T> queuedEdit(key: String, serializer: KSerializer<T>): T? =
+    kept(EDITS + key, serializer)
+
+  /** A newer change reached the computer: the one waiting under [key] must not overwrite it. */
+  suspend fun dropEdit(key: String) = drop(EDITS + key)
+
+  /** The changes waiting for [computer], their keys without the prefix. */
+  suspend fun queuedEdits(computer: String): List<CachedAnswer> =
+    dao.answersStartingWith(computer, EDITS).map { it.copy(key = it.key.removePrefix(EDITS)) }
+
+  /** [edit] reached the computer; a newer edit made meanwhile stays to be sent. */
+  suspend fun editSent(edit: CachedAnswer) =
+    dao.deleteAnswerIf(edit.computer, EDITS + edit.key, edit.json)
+
   // Backups imported on the phone
 
   /**
@@ -415,6 +438,10 @@ class PhoneCache(
     const val SERVER = "server"
     const val MATCHING = "matching"
     const val DETAIL_LAYOUT = "detail_layout"
+    const val PROMPTS = "prompts"
+    /** Settings changed while the computer was out of reach, sent once it is back. */
+    private const val EDITS = "edit:"
+    const val PROMPT_EDIT = "prompt:"
     const val RESUME = "resume"
     const val REVIEWS = "ats:"
     const val INSIGHTS = "insights:"
@@ -422,6 +449,8 @@ class PhoneCache(
     const val TIPS = "tips:"
     const val NOTES = "notes:"
     private const val SYNCED = "synced"
+
+    fun promptEdit(id: PromptId) = PROMPT_EDIT + id.wire
 
     /** A screen read again within this time shows the copy without asking the computer. */
     const val REFRESH_GAP_MS = 30_000L

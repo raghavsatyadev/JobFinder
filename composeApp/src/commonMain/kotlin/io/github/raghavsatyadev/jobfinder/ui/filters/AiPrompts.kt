@@ -43,6 +43,7 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
+import io.github.raghavsatyadev.jobfinder.resources.offline_saved_later
 import io.github.raghavsatyadev.jobfinder.resources.prompt_ats_review_hint
 import io.github.raghavsatyadev.jobfinder.resources.prompt_ats_review_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_default_title
@@ -81,13 +82,13 @@ import io.github.raghavsatyadev.jobfinder.resources.prompt_warn_strong_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_warn_title
 import io.github.raghavsatyadev.jobfinder.resources.prompts_intro
 import io.github.raghavsatyadev.jobfinder.resources.prompts_load_failed
-import io.github.raghavsatyadev.jobfinder.resources.prompts_phone_note
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptChecks
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptWarning
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
+import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusPill
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusTone
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
@@ -125,8 +126,6 @@ data class AiPromptsUiState(
   val confirm: PromptConfirm? = null,
   /** The last save or reset, said under its prompt. */
   val message: Pair<PromptId, StringResource>? = null,
-  /** `false` on the phone: the instructions are read-only there. */
-  val editable: Boolean = true,
 ) {
   fun text(prompt: AiPrompt): String = drafts[prompt.id] ?: prompt.text
 
@@ -154,9 +153,8 @@ sealed interface AiPromptsEvent {
 }
 
 /** The AI instructions on the AI filters tab: edit, save with warnings, reset. */
-class AiPromptsViewModel(private val repository: AiPromptsRepository, editable: Boolean) :
-  ViewModel() {
-  private val _state = MutableStateFlow(AiPromptsUiState(editable = editable))
+class AiPromptsViewModel(private val repository: AiPromptsRepository) : ViewModel() {
+  private val _state = MutableStateFlow(AiPromptsUiState())
   val state: StateFlow<AiPromptsUiState> = _state.asStateFlow()
 
   init {
@@ -255,10 +253,9 @@ fun AiPromptsSection() {
 fun AiPromptsContent(state: AiPromptsUiState, onEvent: (AiPromptsEvent) -> Unit) {
   val offline = LocalComputerOffline.current
   Column(Modifier.padding(vertical = 8.dp)) {
+    if (offline) OfflineNote(text = stringResource(Res.string.offline_saved_later))
     Text(
-      stringResource(
-        if (state.editable) Res.string.prompts_intro else Res.string.prompts_phone_note
-      ),
+      stringResource(Res.string.prompts_intro),
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -291,7 +288,7 @@ fun AiPromptsContent(state: AiPromptsUiState, onEvent: (AiPromptsEvent) -> Unit)
       else ->
         prompts.forEachIndexed { index, prompt ->
           if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-          PromptItem(prompt, state, editable = state.editable && !offline, onEvent)
+          PromptItem(prompt, state, onEvent)
         }
     }
   }
@@ -302,7 +299,6 @@ fun AiPromptsContent(state: AiPromptsUiState, onEvent: (AiPromptsEvent) -> Unit)
 private fun PromptItem(
   prompt: AiPrompt,
   state: AiPromptsUiState,
-  editable: Boolean,
   onEvent: (AiPromptsEvent) -> Unit,
 ) {
   val open = state.open == prompt.id
@@ -338,7 +334,7 @@ private fun PromptItem(
         else fadeIn(motion.fastEffectsSpec()),
       exit = fadeOut(motion.fastEffectsSpec()),
     ) {
-      PromptEditor(prompt, state, editable, onEvent)
+      PromptEditor(prompt, state, onEvent)
     }
   }
 }
@@ -347,7 +343,6 @@ private fun PromptItem(
 private fun PromptEditor(
   prompt: AiPrompt,
   state: AiPromptsUiState,
-  editable: Boolean,
   onEvent: (AiPromptsEvent) -> Unit,
 ) {
   val saving = state.saving == prompt.id
@@ -359,55 +354,52 @@ private fun PromptEditor(
       value = state.text(prompt),
       onValueChange = { onEvent(AiPromptsEvent.Edit(prompt.id, it.take(AiPrompt.MAX_LENGTH))) },
       label = { Text(stringResource(Res.string.prompt_field)) },
-      readOnly = !editable,
       enabled = !saving,
       minLines = 6,
       maxLines = 16,
       textStyle = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.fillMaxWidth(),
     )
-    if (editable) {
-      FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-      ) {
-        if (state.changed(prompt)) {
-          FilledTonalButton(
-            onClick = { onEvent(AiPromptsEvent.Save(prompt.id)) },
-            enabled = !saving,
-            shapes = ButtonDefaults.shapes(),
-          ) {
-            Text(stringResource(Res.string.prompt_save))
-          }
-          TextButton(
-            onClick = { onEvent(AiPromptsEvent.Discard(prompt.id)) },
-            enabled = !saving,
-            shapes = ButtonDefaults.shapes(),
-          ) {
-            Text(stringResource(Res.string.prompt_discard))
-          }
+    FlowRow(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      if (state.changed(prompt)) {
+        FilledTonalButton(
+          onClick = { onEvent(AiPromptsEvent.Save(prompt.id)) },
+          enabled = !saving,
+          shapes = ButtonDefaults.shapes(),
+        ) {
+          Text(stringResource(Res.string.prompt_save))
         }
-        if (prompt.edited) {
-          TextButton(
-            onClick = { onEvent(AiPromptsEvent.Reset(prompt.id)) },
-            enabled = !saving,
-            shapes = ButtonDefaults.shapes(),
-          ) {
-            Text(stringResource(Res.string.prompt_reset))
-          }
+        TextButton(
+          onClick = { onEvent(AiPromptsEvent.Discard(prompt.id)) },
+          enabled = !saving,
+          shapes = ButtonDefaults.shapes(),
+        ) {
+          Text(stringResource(Res.string.prompt_discard))
         }
-        if (prompt.edited || state.changed(prompt)) {
-          TextButton(
-            onClick = { onEvent(AiPromptsEvent.ToggleDefault(prompt.id)) },
-            shapes = ButtonDefaults.shapes(),
-          ) {
-            Text(
-              stringResource(
-                if (prompt.id in state.showingDefault) Res.string.prompt_hide_default
-                else Res.string.prompt_show_default
-              )
+      }
+      if (prompt.edited) {
+        TextButton(
+          onClick = { onEvent(AiPromptsEvent.Reset(prompt.id)) },
+          enabled = !saving,
+          shapes = ButtonDefaults.shapes(),
+        ) {
+          Text(stringResource(Res.string.prompt_reset))
+        }
+      }
+      if (prompt.edited || state.changed(prompt)) {
+        TextButton(
+          onClick = { onEvent(AiPromptsEvent.ToggleDefault(prompt.id)) },
+          shapes = ButtonDefaults.shapes(),
+        ) {
+          Text(
+            stringResource(
+              if (prompt.id in state.showingDefault) Res.string.prompt_hide_default
+              else Res.string.prompt_show_default
             )
-          }
+          )
         }
       }
     }

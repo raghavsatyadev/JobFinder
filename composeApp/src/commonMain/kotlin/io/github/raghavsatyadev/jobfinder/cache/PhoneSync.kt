@@ -8,16 +8,20 @@ import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
 import io.github.raghavsatyadev.jobfinder.shared.api.JobQueryParams
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
+import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportMode
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptEdit
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import io.github.raghavsatyadev.jobfinder.shared.remote.DesktopUnreachableException
+import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
@@ -67,6 +71,7 @@ class PhoneSync(
   private val settings: SettingsRepository? = null,
   private val matching: MatchingRepository? = null,
   private val ats: AtsRepository? = null,
+  private val prompts: AiPromptsRepository? = null,
   private val clock: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) {
   /** When the last sync started, for [requestSync]. */
@@ -125,6 +130,7 @@ class PhoneSync(
 
   private suspend fun copy(computer: String) {
     sendPending(computer)
+    sendEdits(computer)
     sendImports(computer)
     cache.keep(PhoneCache.SITES, ListSerializer(Site.serializer()), sites.listSites())
     cache.keep(PhoneCache.LINKS, ListSerializer(Link.serializer()), links.listLinks())
@@ -135,6 +141,9 @@ class PhoneSync(
       cache.keep(PhoneCache.MATCHING, AdvancedMatchingConfig.serializer(), it.getConfig())
     }
     ats?.let { cache.keep(PhoneCache.RESUME, ResumeInfo.serializer().nullable, it.getResume()) }
+    prompts?.let {
+      cache.keep(PhoneCache.PROMPTS, ListSerializer(AiPrompt.serializer()), it.listPrompts())
+    }
     for (status in TABS) cache.replaceStatus(computer, status, all(status))
     cache.markSynced(computer)
     _synced.tryEmit(ServerEvent.NewJobs(emptyList()))
@@ -164,6 +173,32 @@ class PhoneSync(
       sent = true
     }
     return sent
+  }
+
+  /** Sends the settings changed offline: AI filters and AI instructions. */
+  private suspend fun sendEdits(computer: String) {
+    for (edit in cache.queuedEdits(computer)) {
+      try {
+        when {
+          edit.key == PhoneCache.MATCHING ->
+            matching?.updateConfig(
+              ApiJson.decodeFromString(AdvancedMatchingConfig.serializer(), edit.json)
+            )
+          edit.key.startsWith(PhoneCache.PROMPT_EDIT) -> {
+            val id = PromptId.fromWire(edit.key.removePrefix(PhoneCache.PROMPT_EDIT))
+            val text = ApiJson.decodeFromString(PromptEdit.serializer(), edit.json).text
+            if (id != null) {
+              prompts?.let { if (text == null) it.resetPrompt(id) else it.savePrompt(id, text) }
+            }
+          }
+        }
+      } catch (e: ApiFailure) {
+        // A change the computer refuses would be refused again: dropped, the rest goes on.
+        if (e is DesktopUnreachableException) throw e
+        log("A change made offline was refused by the computer", e)
+      }
+      cache.editSent(edit)
+    }
   }
 
   /** Merges each backup imported on the phone into the computer, oldest first. */

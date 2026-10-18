@@ -138,6 +138,15 @@ interface PhoneCacheDao {
 
   @Upsert suspend fun upsertAnswer(answer: CachedAnswer)
 
+  @Query(
+    "SELECT * FROM answers WHERE computer = :computer AND `key` LIKE :prefix || '%' ORDER BY `key`"
+  )
+  suspend fun answersStartingWith(computer: String, prefix: String): List<CachedAnswer>
+
+  /** Drops the answer under [key] only while it still holds [json]. */
+  @Query("DELETE FROM answers WHERE computer = :computer AND `key` = :key AND json = :json")
+  suspend fun deleteAnswerIf(computer: String, key: String, json: String)
+
   @Query("DELETE FROM answers WHERE computer = :computer AND `key` = :key")
   suspend fun deleteAnswer(computer: String, key: String)
 

@@ -47,6 +47,7 @@
     <string name="connection_banner_title">%1$s is offline · showing this phone’s copy</string>
     <string name="connection_banner_fix">Fix it</string>
     <string name="offline_later">This shows when your computer is back.</string>
+    <string name="offline_saved_later">Your computer is offline. Changes are kept on this phone and sent when it is back.</string>
     <string name="offline_read_only">Your computer is offline. You can change this when it is back.</string>
     <string name="doctor_title">Connection check</string>
     <string name="doctor_close">Close</string>

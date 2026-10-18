@@ -20,14 +20,18 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * `true` on a paired phone while the computer is out of reach. Changes only the computer can make
- * (settings, searches, AI filters, resume, notes, scans) then show read-only with [OfflineNote];
- * job status and label changes are kept and sent later. Always `false` on the desktop.
+ * (settings, searches, resume, notes, scans) then show read-only with [OfflineNote]; job status and
+ * label changes, AI filters and AI instructions are kept and sent later. Always `false` on the
+ * desktop.
  */
 @Suppress("CompositionLocalAllowlist") val LocalComputerOffline = compositionLocalOf { false }
 
 /** One line under a read-only part: changes wait for the computer. */
 @Composable
-fun OfflineNote(modifier: Modifier = Modifier) {
+fun OfflineNote(
+  modifier: Modifier = Modifier,
+  text: String = stringResource(Res.string.offline_read_only),
+) {
   Row(
     modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -40,7 +44,7 @@ fun OfflineNote(modifier: Modifier = Modifier) {
       tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Text(
-      stringResource(Res.string.offline_read_only),
+      text,
       style = MaterialTheme.typography.bodySmall,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
