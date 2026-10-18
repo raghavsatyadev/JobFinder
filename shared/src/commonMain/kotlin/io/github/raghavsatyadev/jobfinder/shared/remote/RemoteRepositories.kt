@@ -16,11 +16,14 @@ import io.github.raghavsatyadev.jobfinder.shared.api.UpdateLinkRequest
 import io.github.raghavsatyadev.jobfinder.shared.api.UpdateNoteRequest
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
+import io.github.raghavsatyadev.jobfinder.shared.model.ApplyEdits
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.DetailLayout
 import io.github.raghavsatyadev.jobfinder.shared.model.GhostStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportMode
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportSummary
+import io.github.raghavsatyadev.jobfinder.shared.model.ImprovedResume
+import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.InsightsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobCounts
@@ -49,6 +52,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.NotesRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
@@ -344,6 +348,24 @@ class RemoteInsightsRepository(private val api: RemoteApi) : InsightsRepository 
 class RemoteTipsRepository(private val api: RemoteApi) : TipsRepository {
   override suspend fun requestTips(jobId: Long, write: Boolean): TipsStatus =
     api.post("/jobs/$jobId/tips" + if (write) "?write=true" else "", TipsStatus.serializer())
+}
+
+/** Resume fix plans over `/v1/jobs/{id}/improve`. */
+class RemoteResumeImproveRepository(private val api: RemoteApi) : ResumeImproveRepository {
+  override suspend fun requestImprovement(jobId: Long, write: Boolean): ImprovementStatus =
+    api.post(
+      "/jobs/$jobId/improve" + if (write) "?write=true" else "",
+      ImprovementStatus.serializer(),
+    )
+
+  override suspend fun improvedResume(jobId: Long, edits: List<Int>): ImprovedResume =
+    api.send(
+      HttpMethod.Post,
+      "/jobs/$jobId/improve/text",
+      ApplyEdits(edits),
+      ApplyEdits.serializer(),
+      ImprovedResume.serializer(),
+    )
 }
 
 /** The ghost-job check over `/v1/jobs/{id}/ghost`. */

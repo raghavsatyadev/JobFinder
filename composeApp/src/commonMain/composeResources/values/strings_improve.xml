@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Job detail: resume fix plan for one job -->
+    <string name="improve_open">Improve my resume for this job</string>
+    <string name="improve_title">Improve the resume for this job</string>
+    <string name="improve_queued">Writing the changes. With the AI on this computer this takes a minute or two.</string>
+    <string name="improve_no_review">The ATS review comes first. Wait for it to finish, then try again.</string>
+    <string name="improve_failed">The AI gave no usable changes. Try again.</string>
+    <string name="improve_load_failed">Could not reach the computer. Try again.</string>
+    <string name="improve_none">No change keeps your resume true and fits this job better. The job asks for things your resume does not show; the review’s missing keywords list them.</string>
+    <string name="improve_match">ATS match %1$d% → %2$d% with the ticked changes</string>
+    <string name="improve_hint">Your resume file is not changed. Copy or save the new text, put it in your resume, then upload it again in Settings to score jobs against it. Read each change and tick only what is true. Changes with red notes start unticked.</string>
+    <string name="improve_now">Now: %1$s</string>
+    <string name="improve_new">New: %1$s</string>
+    <string name="improve_gains">Adds the job’s words: %1$s</string>
+    <string name="improve_new_skills">Only if true: your resume does not mention %1$s yet.</string>
+    <string name="improve_new_numbers">Check these numbers are real: %1$s</string>
+    <string name="improve_blanks">Fill in %1$s with the real figure.</string>
+    <string name="improve_section_summary">Summary</string>
+    <string name="improve_section_experience">Experience</string>
+    <string name="improve_section_skills">Skills</string>
+    <string name="improve_section_projects">Projects</string>
+    <string name="improve_section_other">Other</string>
+    <string name="improve_copy">Copy resume</string>
+    <string name="improve_save">Save as text file</string>
+    <string name="improve_write_again">Write again</string>
+    <string name="improve_copied">The resume with the ticked changes is copied.</string>
+    <string name="improve_saved">The resume with the ticked changes is saved.</string>
+</resources>

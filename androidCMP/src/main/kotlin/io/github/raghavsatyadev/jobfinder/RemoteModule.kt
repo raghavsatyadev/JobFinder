@@ -49,6 +49,7 @@ import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteJobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteLinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteMatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteNotesRepository
+import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteResumeImproveRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteSettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteSitesRepository
@@ -62,6 +63,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.NotesRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
@@ -206,6 +208,7 @@ fun remoteModule(): Module = module {
   single<AiPromptsRepository> { RemoteAiPromptsRepository(get()) }
   single<AtsRepository> { OfflineAtsRepository(RemoteAtsRepository(get()), get()) }
   single<TipsRepository> { OfflineTipsRepository(RemoteTipsRepository(get()), get()) }
+  single<ResumeImproveRepository> { RemoteResumeImproveRepository(get()) }
   single<GhostRepository> { OfflineGhostRepository(RemoteGhostRepository(get()), get()) }
   single<InsightsRepository> {
     OfflineInsightsRepository(RemoteInsightsRepository(get()), get())

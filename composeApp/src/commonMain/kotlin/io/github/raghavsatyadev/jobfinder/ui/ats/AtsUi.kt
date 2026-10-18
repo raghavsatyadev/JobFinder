@@ -67,6 +67,7 @@ import io.github.raghavsatyadev.jobfinder.resources.ats_score_trajectory
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_value
 import io.github.raghavsatyadev.jobfinder.resources.ats_scores_title
 import io.github.raghavsatyadev.jobfinder.resources.ats_shortlisted
+import io.github.raghavsatyadev.jobfinder.resources.improve_open
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
 import io.github.raghavsatyadev.jobfinder.resources.resume_flag_images
 import io.github.raghavsatyadev.jobfinder.resources.resume_flag_multi_column
@@ -128,9 +129,17 @@ fun AtsPill(summary: AtsSummary, modifier: Modifier = Modifier) {
   )
 }
 
-/** The job detail's ATS review, or why there is none yet. */
+/**
+ * The job detail's ATS review, or why there is none yet. [onImprove] opens the resume fix plan;
+ * `null` where no computer writes one.
+ */
 @Composable
-fun AtsSection(status: AtsStatus?, loadFailed: Boolean, onRetry: () -> Unit) {
+fun AtsSection(
+  status: AtsStatus?,
+  loadFailed: Boolean,
+  onRetry: () -> Unit,
+  onImprove: (() -> Unit)? = null,
+) {
   when {
     loadFailed && LocalComputerOffline.current -> Notice(stringResource(Res.string.offline_later))
     loadFailed -> Notice(stringResource(Res.string.ats_load_failed), onRetry)
@@ -146,7 +155,17 @@ fun AtsSection(status: AtsStatus?, loadFailed: Boolean, onRetry: () -> Unit) {
           }
         }
         AtsState.FAILED -> Notice(stringResource(Res.string.ats_failed), onRetry)
-        AtsState.READY -> status.review?.let { Review(it) } ?: Progress()
+        AtsState.READY ->
+          status.review?.let {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+              Review(it)
+              if (onImprove != null) {
+                FilledTonalButton(onClick = onImprove, shapes = ButtonDefaults.shapes()) {
+                  Text(stringResource(Res.string.improve_open))
+                }
+              }
+            }
+          } ?: Progress()
       }
   }
 }

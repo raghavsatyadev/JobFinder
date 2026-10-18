@@ -14,6 +14,8 @@
     <string name="prompt_ghost_match_title">Ghost-job check</string>
     <string name="prompt_ghost_match_hint">Decides whether a job on the company’s own careers site is the board’s job when the titles differ.</string>
     <string name="prompt_tips_title">Negotiation tips</string>
+    <string name="prompt_improve_title">Resume fixes for a job</string>
+    <string name="prompt_improve_hint">Writes exact before and after changes that fit your resume to one job, from its ATS review. Used when you choose Improve my resume for this job.</string>
     <string name="prompt_tips_hint">Writes tips for negotiating a job’s offer from its pay data, reviews, age and ATS match.</string>
     <string name="prompt_edited">Changed</string>
     <string name="prompt_field">Instructions</string>

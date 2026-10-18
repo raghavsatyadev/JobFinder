@@ -2,6 +2,7 @@ package io.github.raghavsatyadev.jobfinder.ui.jobs
 
 import androidx.compose.runtime.Composable
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
+import io.github.raghavsatyadev.jobfinder.ui.ats.ResumeImproveViewModel
 import io.github.raghavsatyadev.jobfinder.ui.navigation.JobDetailRoute
 import kotlin.time.Clock
 import org.koin.core.module.dsl.viewModel
@@ -13,6 +14,7 @@ val jobsUiModule = module {
   single<JobsClock> { JobsClock { Clock.System.now().toEpochMilliseconds() } }
   single<JobFilterStore> { SettingsJobFilterStore() }
   viewModel { JobsListViewModel(get(), get(), get(), get(), get(), get()) }
+  viewModel { params -> ResumeImproveViewModel(params.get(), get(), get()) }
   viewModel { params ->
     val args = params.get<JobDetailArgs>()
     JobDetailViewModel(

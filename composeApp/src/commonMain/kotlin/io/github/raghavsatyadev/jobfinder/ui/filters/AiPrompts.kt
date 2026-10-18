@@ -52,6 +52,8 @@ import io.github.raghavsatyadev.jobfinder.resources.prompt_field
 import io.github.raghavsatyadev.jobfinder.resources.prompt_ghost_match_hint
 import io.github.raghavsatyadev.jobfinder.resources.prompt_ghost_match_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_hide_default
+import io.github.raghavsatyadev.jobfinder.resources.prompt_improve_hint
+import io.github.raghavsatyadev.jobfinder.resources.prompt_improve_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_matching_hint
 import io.github.raghavsatyadev.jobfinder.resources.prompt_matching_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_parse_description_hint
@@ -514,6 +516,7 @@ private val PromptId.title: StringResource
       PromptId.ATS_REVIEW -> Res.string.prompt_ats_review_title
       PromptId.GHOST_MATCH -> Res.string.prompt_ghost_match_title
       PromptId.NEGOTIATION_TIPS -> Res.string.prompt_tips_title
+      PromptId.RESUME_IMPROVE -> Res.string.prompt_improve_title
     }
 
 private val PromptId.hint: StringResource
@@ -525,4 +528,5 @@ private val PromptId.hint: StringResource
       PromptId.ATS_REVIEW -> Res.string.prompt_ats_review_hint
       PromptId.GHOST_MATCH -> Res.string.prompt_ghost_match_hint
       PromptId.NEGOTIATION_TIPS -> Res.string.prompt_tips_hint
+      PromptId.RESUME_IMPROVE -> Res.string.prompt_improve_hint
     }

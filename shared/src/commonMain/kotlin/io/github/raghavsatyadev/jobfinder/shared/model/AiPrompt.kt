@@ -48,7 +48,10 @@ enum class PromptId(
     "negotiation_tips",
     listOf("leverage", "summary", "tips"),
     drivesParsing = false,
-  );
+  ),
+  /** Writes exact before and after edits that fit the resume to one job. */
+  @SerialName("resume_improve")
+  RESUME_IMPROVE("resume_improve", listOf("before", "after"), drivesParsing = false);
 
   companion object {
     fun fromWire(wire: String): PromptId? = entries.firstOrNull { it.wire == wire }

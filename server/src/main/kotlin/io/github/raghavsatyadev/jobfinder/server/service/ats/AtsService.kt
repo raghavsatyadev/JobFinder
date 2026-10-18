@@ -150,6 +150,13 @@ class AtsService(
     return AtsStatus(AtsState.QUEUED)
   }
 
+  /** The job's review against the current resume, without queueing one; `null` when none. */
+  suspend fun storedReview(jobId: Long): AtsReview? {
+    val hash = resumes.get()?.hash ?: return null
+    val stored = reviews.get(jobId, hash)?.takeIf { !it.failed } ?: return null
+    return stored.review?.let { ApiJson.decodeFromString(AtsReview.serializer(), it) }
+  }
+
   /** The summary the job detail shows, or `null` when not scored against the current resume. */
   suspend fun summary(jobId: Long): AtsSummary? {
     val hash = resumes.get()?.hash ?: return null

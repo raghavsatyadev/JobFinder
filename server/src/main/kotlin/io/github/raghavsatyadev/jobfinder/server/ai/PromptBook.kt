@@ -5,6 +5,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.AiPromptsDao
 import io.github.raghavsatyadev.jobfinder.server.parsing.custom.CustomPrompts
 import io.github.raghavsatyadev.jobfinder.server.service.OllamaJobCheck
 import io.github.raghavsatyadev.jobfinder.server.service.ats.OllamaAtsModel
+import io.github.raghavsatyadev.jobfinder.server.service.ats.ResumeImproveService
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.CareersMatcher
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsService
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
@@ -60,6 +61,7 @@ class PromptBook(
         PromptId.ATS_REVIEW -> OllamaAtsModel.INSTRUCTIONS
         PromptId.GHOST_MATCH -> CareersMatcher.INSTRUCTIONS
         PromptId.NEGOTIATION_TIPS -> TipsService.INSTRUCTIONS
+        PromptId.RESUME_IMPROVE -> ResumeImproveService.INSTRUCTIONS
       }
   }
 }

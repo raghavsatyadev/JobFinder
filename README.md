@@ -29,6 +29,9 @@ There is no account and no server. Your searches, jobs, resume and notes stay on
   Filtered out and says why.
 - **Scores your resume against each job.** An ATS review gives a match score, the keywords you
   have and miss, what would get you screened out, and the top fixes.
+- **Improves your resume for a job.** "Improve my resume for this job" writes exact before and
+  after changes that bring in the job's words without inventing skills or numbers. Tick the ones
+  that are true, see the new match, then copy or save the new text.
 - **Tells you more about a job.** Company ratings and pay, a ghost-job check (how long the job has
   been up and other warning signs) and negotiation tips.
 - **Helps you fill in applications.** With the browser extension, JobFinder keeps what you type in

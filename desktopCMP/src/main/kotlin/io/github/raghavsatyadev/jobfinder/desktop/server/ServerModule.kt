@@ -58,6 +58,7 @@ import io.github.raghavsatyadev.jobfinder.server.service.NoteFiles
 import io.github.raghavsatyadev.jobfinder.server.service.OllamaJobCheck
 import io.github.raghavsatyadev.jobfinder.server.service.ats.AtsService
 import io.github.raghavsatyadev.jobfinder.server.service.ats.OllamaAtsModel
+import io.github.raghavsatyadev.jobfinder.server.service.ats.ResumeImproveService
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.CareersMatcher
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.CareersReader
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.GhostService
@@ -78,6 +79,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.NotesRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
@@ -279,6 +281,20 @@ fun serverModule(dataDir: File) = module {
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind TipsRepository::class
+  // Resume fix plans for one job, written by the AI when the user asks; the resume goes where
+  // ATS work is routed.
+  single {
+    ResumeImproveService(
+        get<ServerDatabase>().resumeDao(),
+        get<ServerDatabase>().jobsDao(),
+        get(),
+        review = { get<AtsService>().storedReview(it) },
+        events = get(),
+        usage = get(),
+        instructions = { get<PromptBook>().instructions(PromptId.RESUME_IMPROVE) },
+      )
+      .also { it.start(get(ATS_SCOPE)) }
+  } bind ResumeImproveRepository::class
   single { JobsCsvExporter(get(), get()) }
   single { NoteFiles(dataDir.resolve(NOTES_DIR).toPath()) }
   single {
@@ -321,6 +337,7 @@ fun serverModule(dataDir: File) = module {
       prompts = get(),
       ghost = get(),
       tips = get(),
+      improve = get(),
       backup = get(),
       restoreRequests = get(),
     )

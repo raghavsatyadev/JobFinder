@@ -9,6 +9,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.DetailLayout
 import io.github.raghavsatyadev.jobfinder.shared.model.GhostStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportMode
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportSummary
+import io.github.raghavsatyadev.jobfinder.shared.model.ImprovedResume
+import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.InsightsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobCounts
@@ -128,6 +130,15 @@ interface InsightsRepository {
 interface TipsRepository {
   /** [jobId]'s negotiation tips; [write] asks the AI for new ones (first time or again). */
   suspend fun requestTips(jobId: Long, write: Boolean = false): TipsStatus
+}
+
+/** A fix plan for the resume against one job's ATS review, written on the computer when asked. */
+interface ResumeImproveRepository {
+  /** [jobId]'s plan; [write] asks the AI for a new one (first time or again). */
+  suspend fun requestImprovement(jobId: Long, write: Boolean = false): ImprovementStatus
+
+  /** The resume's text with [edits] (ids from the plan) applied. */
+  suspend fun improvedResume(jobId: Long, edits: List<Int>): ImprovedResume
 }
 
 interface GhostRepository {

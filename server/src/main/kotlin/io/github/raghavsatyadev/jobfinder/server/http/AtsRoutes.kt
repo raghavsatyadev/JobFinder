@@ -3,9 +3,11 @@ package io.github.raghavsatyadev.jobfinder.server.http
 import io.github.raghavsatyadev.jobfinder.server.service.ApiException
 import io.github.raghavsatyadev.jobfinder.server.service.notFound
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
+import io.github.raghavsatyadev.jobfinder.shared.model.ApplyEdits
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
+import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
@@ -61,6 +63,22 @@ fun Route.tipsRoutes(deps: ApiDependencies) {
     val tips = deps.tips ?: throw ApiException(ApiErrorCode.UNAVAILABLE)
     val write = call.request.queryParameters["write"] == "true"
     call.respondOk(tips.requestTips(call.idParam(), write))
+  }
+}
+
+/**
+ * `POST /jobs/{id}/improve[?write=true]`: the resume fix plan, or a new one queued; `POST
+ * /jobs/{id}/improve/text` with [ApplyEdits]: the resume's text with those edits applied.
+ */
+fun Route.improveRoutes(deps: ApiDependencies) {
+  fun improve() = deps.improve ?: throw ApiException(ApiErrorCode.UNAVAILABLE)
+  post("/jobs/{id}/improve") {
+    val write = call.request.queryParameters["write"] == "true"
+    call.respondOk(improve().requestImprovement(call.idParam(), write))
+  }
+  post("/jobs/{id}/improve/text") {
+    val body = call.receive<ApplyEdits>()
+    call.respondOk(improve().improvedResume(call.idParam(), body.edits))
   }
 }
 

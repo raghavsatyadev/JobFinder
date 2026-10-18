@@ -51,6 +51,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,6 +96,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.ui.ats.AtsPill
 import io.github.raghavsatyadev.jobfinder.ui.ats.AtsSection
+import io.github.raghavsatyadev.jobfinder.ui.ats.ResumeImproveDialog
+import io.github.raghavsatyadev.jobfinder.ui.ats.resumeImproveAvailable
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
 import io.github.raghavsatyadev.jobfinder.ui.components.EmptyState
 import io.github.raghavsatyadev.jobfinder.ui.components.ErrorState
@@ -268,7 +271,14 @@ private fun MovableSection(
       }
     DetailSection.ATS ->
       Section(stringResource(Res.string.ats_section_title)) {
-        AtsSection(state.ats, state.atsFailed, onRetry = { onEvent(JobDetailEvent.RetryAts) })
+        var improving by rememberSaveable { mutableStateOf(false) }
+        AtsSection(
+          state.ats,
+          state.atsFailed,
+          onRetry = { onEvent(JobDetailEvent.RetryAts) },
+          onImprove = if (resumeImproveAvailable()) ({ improving = true }) else null,
+        )
+        if (improving) ResumeImproveDialog(job.id) { improving = false }
       }
     DetailSection.COMPANY ->
       if (state.insights != null || state.insightsFailed) {
