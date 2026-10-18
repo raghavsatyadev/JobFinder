@@ -1,10 +1,12 @@
 # Known Flows (per app)
 
-Fill this in for your app. Keep each flow proven: an ARTEMIS prompt that worked, plus an ADB
-fallback. Helper script: `D=.agents/skills/android-device-test/scripts/dev.sh`
+Fill this in for your app. Keep each flow proven. A flow with fixed steps runs as a Maestro flow
+(or a Mobly test); keep an ARTEMIS prompt only for flows that are really dynamic, and turn an
+ARTEMIS run that found a fixed path into a Maestro flow. Helper script:
+`D=.agents/skills/android-device-test/scripts/dev.sh`
 
-Write prompts as explicit steps: name the screen the app is on, name each element to tap, and end
-with what to report.
+Write ARTEMIS prompts as explicit steps: name the screen the app is on, name each element to tap,
+and end with what to report.
 
 Launch an app with `am start`, not `monkey` (monkey switches auto-rotate on, SKILL.md gotcha 9):
 
@@ -15,14 +17,14 @@ adb shell am start -n "$(adb shell cmd package resolve-activity --brief -c andro
 
 ## 1. Visit every tab (debug build, fake backend)
 
-* **Primary (ARTEMIS):**
+* **Primary (Maestro):**
+  ```bash
+  ~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows/tabs.yaml
+  ```
+* **ARTEMIS (only if the flow file is out of date):**
   ```text
   "In JobFinder, on the Jobs tab, tap each bottom tab in turn: Searches, AI filters, Settings,
   Help, then Jobs. Report the heading shown on each."
-  ```
-* **Replay (Maestro):**
-  ```bash
-  ~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows/tabs.yaml
   ```
 * **ADB fallback:**
   ```bash

@@ -30,7 +30,7 @@ base branch `master`. Values also live in `agent-kit.env`.
 | [no-unit-tests.md](.agents/rules/no-unit-tests.md) | *always* — no unit tests in any module; verify on device, desktop and screenshots |
 | [android-build.md](.agents/rules/android-build.md) | before calling any task done — the code must compile |
 | [format.md](.agents/rules/format.md) | touching any Kotlin — ktfmt Google style is mandatory |
-| [artemis-mobile-testing.md](.agents/rules/artemis-mobile-testing.md) | *on demand* — using ARTEMIS MCP tools |
+| [artemis-mobile-testing.md](.agents/rules/artemis-mobile-testing.md) | *on demand* — using ARTEMIS MCP tools; only for really dynamic flows, Maestro or Mobly for known steps |
 | [branch-pr-policy.md](.agents/rules/branch-pr-policy.md) | *always* — see the summary below |
 | [parallel-agents.md](.agents/rules/parallel-agents.md) | the user asks for agents in parallel worktrees — pin the base commit, cap Gradle memory, clean up after |
 | [pure-local-llm-inference.md](.agents/rules/pure-local-llm-inference.md) | touching any AI/LLM code — local Ollama `jobfinder-qwen` by default, online only with the user's DPAPI-kept key, never `nimble`, fail open |

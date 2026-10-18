@@ -15,6 +15,11 @@ into this repo — they change upstream and a second copy wastes context.
 
 Project essentials, in case the rules are not loaded:
 
+- **ARTEMIS only for really dynamic flows.** Known, fixed steps (system file picker and
+  permission dialogs included) run as Maestro or Mobly flows — see
+  [android-device-test](../skills/android-device-test/SKILL.md). When an ARTEMIS run finds a path
+  that will stay the same, save it as a Maestro flow (or Mobly test) and replay that next time.
+
 - Call `mobile_diagnose` first whenever an ARTEMIS tool errors or no device is found;
   `attempt_fix=true` before any manual ADB fix. Follow its `next_steps` in order.
 - More than one device attached → ask the user which serial to use, then pass `device_serial`.

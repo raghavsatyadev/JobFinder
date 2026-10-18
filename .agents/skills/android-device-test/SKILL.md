@@ -1,15 +1,48 @@
 ---
 name: android-device-test
-description: On-device testing and bug reproduction for an Android app. ARTEMIS MCP tools are the primary driver; ADB and dev.sh cover install, permissions, logcat and file access. Use when a change needs checking on a phone or a bug needs reproducing.
-version: 3.0.0
+description: On-device testing and bug reproduction for an Android app. Known, fixed steps run as Maestro or Mobly flows; ARTEMIS MCP tools only for really dynamic flows; ADB and dev.sh cover install, permissions, logcat and file access. Use when a change needs checking on a phone or a bug needs reproducing.
+version: 4.0.0
 ---
 
 # android-device-test
 
-ARTEMIS drives the UI; ADB handles everything below the UI. Proven prompts and commands for the
-app's core flows are in [flows.md](flows.md) — start there.
+Pick the driver by how fixed the steps are:
 
-## ARTEMIS (primary)
+- **Known steps** (you can write every tap down, including system screens such as the file
+  picker or a permission dialog): a **Maestro** flow, or a **Mobly** test when the check needs
+  Python logic, several devices or Mobly snippets. Replays are fast and use no model calls.
+- **Really dynamic flows** (the screen or the path changes run to run, exploration, bug hunts
+  with no known path, accessibility overlays): **ARTEMIS**.
+- **After an ARTEMIS run that worked**, if the path it found is static, write it down as a Maestro
+  flow in [flows/](flows/) (or a Mobly test) and replay that from then on, instead of asking
+  ARTEMIS again.
+
+ADB handles everything below the UI. Proven prompts and commands for the app's core flows are in
+[flows.md](flows.md).
+
+## Maestro and Mobly (known steps)
+
+Keep flows in [flows/](flows/) (start from [flows/tabs.yaml](flows/tabs.yaml)). A replay takes
+about a minute, so run them before and after a change:
+
+```bash
+~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows
+```
+
+| Flow | Checks |
+| --- | --- |
+| `tabs.yaml` | every tab opens and shows its landmark |
+
+Maestro can tap other apps' screens (the system file picker, permission dialogs), so a flow can
+leave the app and come back. Mobly (`pip install mobly`, not installed yet) suits checks written in
+Python, such as pulling a saved file with adb and reading its bytes, or two devices together.
+
+**Maestro cannot test accessibility overlays.** While a Maestro run is active, Android unbinds the
+app's accessibility service (it reconnects when Maestro exits), so overlay and other-app flows stay
+on ARTEMIS. If the app has such a service, keep `launchApp: {stopApp: false}` in every flow: a
+force-stop removes the service from the enabled list. Set `MAESTRO_CLI_NO_ANALYTICS=1`.
+
+## ARTEMIS (dynamic flows only)
 
 Tool basics (`mobile_diagnose` first, Flash vs Pro, device serials) are in
 [artemis-mobile-testing](../../rules/artemis-mobile-testing.md). Use `mobile_get_device_state` for
@@ -21,24 +54,9 @@ tap (`'Text Input Field'`), and end with what to report. This is required when A
 local Ollama model (it loops on vague "find the X tab" goals) and makes Gemini runs faster too.
 Check which model a run used in its `stdout.log` (`ollama/…` vs `gemini-…`).
 
-## Maestro replays (in-app flows)
-
-Record proven in-app flows as Maestro YAML in [flows/](flows/) (start from
-[flows/tabs.yaml](flows/tabs.yaml)). Replays need no model calls from ARTEMIS and take about a
-minute, so run them before and after a change:
-
-```bash
-~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows
-```
-
-| Flow | Checks |
-| --- | --- |
-| `tabs.yaml` | every tab opens and shows its landmark |
-
-**Maestro cannot test accessibility overlays.** While a Maestro run is active, Android unbinds the
-app's accessibility service (it reconnects when Maestro exits), so overlay and other-app flows stay
-on ARTEMIS. If the app has such a service, keep `launchApp: {stopApp: false}` in every flow: a
-force-stop removes the service from the enabled list. Set `MAESTRO_CLI_NO_ANALYTICS=1`.
+Do not pass `locked_app_package` when the flow leaves the app (file picker, system settings): the
+run loops on the system screen. Check the run at one minute and stop it if it has not moved on;
+finish a known remaining step with Maestro or adb instead.
 
 ## ADB & dev.sh (supplementary)
 
