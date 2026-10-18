@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# Claude Code Stop hook: no "done" without evidence of a passing check.
+#
+# Wired in .claude/settings.json (hooks.Stop). Reads the hook JSON on stdin. Only looks at the kit
+# root (the Gradle project dir, which may be a git subfolder such as CMP/); anything outside it is ignored.
+#
+#   1. Kotlin/Gradle files (*.kt, *.kts, gradle/libs.versions.toml) differ from the
+#      origin/$BASE_BRANCH merge-base, and tmp/.ci-ok is missing or does not match the current
+#      evidence hash (scripts/evidence-hash.sh)  ->  exit 2, reason on stderr. Claude Code
+#      feeds that back to the agent, which must run scripts/ci-local.sh before stopping.
+#   2. On fix/* branches only: reminds (never blocks) when nothing in tmp/ is newer than the
+#      newest debug APK (plus an optional local-model check: "fix is done" with no device re-run in the
+#      transcript). ARTEMIS keeps its traces in its own clone, so tmp/ has no artifact
+#      that reliably proves a device run; this is a nudge, not a gate.
+#
+# stop_hook_active=true (the agent is already continuing because of this hook) -> exit 0,
+# so the hook can never loop. Any unexpected state (no git, no scripts) also exits 0.
+# No jq: the JSON is matched with grep/sed. Works in Git Bash, macOS and Linux.
+
+input=""
+[ -t 0 ] || input=$(cat)
+# One line, no CRs, so the patterns below see the whole object.
+flat=$(printf '%s' "$input" | tr -d '\r' | tr '\n' ' ')
+
+if printf '%s' "$flat" | grep -Eq '"stop_hook_active"[[:space:]]*:[[:space:]]*true'; then
+  exit 0
+fi
+
+# Work in the repo the session is in (hook JSON "cwd"), which may be a worktree rather than
+# $CLAUDE_PROJECT_DIR.
+cwd=$(printf '%s' "$flat" \
+  | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\1/p' \
+  | sed 's/\\\\/\\/g; s/\\/\//g')
+# The kit (the Gradle project dir) may be a subfolder of the git repo, e.g. CMP/. Find the repo the
+# session is in, then the kit at the same relative path as this script's own kit, so a worktree
+# resolves to its own copy. Everything below is scoped to KIT_ROOT.
+SELF_KIT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+KIT_PREFIX=$(git -C "$SELF_KIT" rev-parse --show-prefix 2>/dev/null)
+for d in "$cwd" "$PWD" "${CLAUDE_PROJECT_DIR:-}" "$SELF_KIT"; do
+  [ -n "$d" ] || continue
+  REPO=$(git -C "$d" rev-parse --show-toplevel 2>/dev/null) && break
+done
+[ -n "${REPO:-}" ] || exit 0
+KIT_ROOT="$REPO/${KIT_PREFIX%/}"
+[ -d "$KIT_ROOT" ] || exit 0
+
+HASHER="$KIT_ROOT/scripts/evidence-hash.sh"
+[ -f "$HASHER" ] || HASHER="$SELF_KIT/scripts/evidence-hash.sh"
+[ -f "$HASHER" ] || exit 0
+# shellcheck source=evidence-hash.sh
+. "$HASHER"
+
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/kit-env.sh"
+
+# ------------------------------------------------ any Kotlin/Gradle change at all?
+
+base=$(git -C "$KIT_ROOT" merge-base HEAD "origin/$BASE_BRANCH" 2>/dev/null) || base=HEAD
+changed=0
+git -C "$KIT_ROOT" diff --quiet "$base" -- "${EVIDENCE_PATHSPEC[@]}" 2>/dev/null || changed=1
+if [ "$changed" = 0 ] && [ -n "$(git -C "$KIT_ROOT" ls-files --others --exclude-standard -- \
+     "${EVIDENCE_PATHSPEC[@]}" 2>/dev/null | head -1)" ]; then
+  changed=1
+fi
+[ "$changed" = 1 ] || exit 0
+
+# ------------------------------------------------ rule 1: passing-check evidence
+
+marker="$KIT_ROOT/tmp/.ci-ok"
+want=$(evidence_hash "$KIT_ROOT")
+have=""
+[ -f "$marker" ] && have=$(tr -d '\r\n[:space:]' < "$marker")
+if [ -z "$have" ] || [ "$have" != "$want" ]; then
+  echo "Kotlin changed since the last passing check. Run scripts/ci-local.sh before finishing." >&2
+  exit 2
+fi
+
+# ------------------------------------------------ rule 2: fix/* device reminder (soft)
+
+branch=$(git -C "$KIT_ROOT" symbolic-ref --short -q HEAD 2>/dev/null)
+case "$branch" in
+  fix/*) ;;
+  *) exit 0 ;;
+esac
+
+apk_dir="$KIT_ROOT/${APP_DIR}/build/outputs/apk"
+newest_apk=""
+if [ -d "$apk_dir" ]; then
+  # ls -t sorts newest first on GNU and BSD alike.
+  newest_apk=$(find "$apk_dir" -type f -name '*.apk' -exec ls -t {} + 2>/dev/null | head -1)
+fi
+
+evidence=""
+if [ -n "$newest_apk" ] && [ -d "$KIT_ROOT/tmp" ]; then
+  # dev.sh screenshots/recordings/logcat (tmp/artifacts/), issue notes and other run logs.
+  evidence=$(find "$KIT_ROOT/tmp" -type f -newer "$newest_apk" \
+    ! -name '.ci-ok' ! -name 'pr*body*' 2>/dev/null | head -1)
+fi
+
+msg=""
+if [ -z "$evidence" ]; then
+  msg="fix/* branch: no device evidence in tmp/ newer than the latest APK. Reinstall and re-run the ARTEMIS reproduction (save notes/screens to tmp/) before calling the fix verified."
+fi
+
+# Fuzzy check (optional, local model): the last assistant text claims the fix is done, but the
+# transcript shows no device re-run. Reminder only; silent when the local model is off, slow or unsure.
+if [ -z "$msg" ] && [ -f "$KIT_ROOT/scripts/local-model.sh" ]; then
+  tpath=$(printf '%s' "$flat" \
+    | sed -n 's/.*"transcript_path"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\1/p' \
+    | sed 's/\\\\/\\/g; s/\\/\//g')
+  if [ -n "$tpath" ] && [ -f "$tpath" ]; then
+    last=$(grep '"type":"assistant"' "$tpath" | grep '"type":"text"' | tail -n 1 \
+      | sed -n 's/.*"type":"text","text":"\(\([^"\\]\|\\.\)*\)".*/\1/p')
+    if printf '%s' "$last" | grep -Eiq '(fixed|done|resolved|works now|complete)'; then
+      # shellcheck source=local-model.sh
+      . "$KIT_ROOT/scripts/local-model.sh"
+      LOCAL_MODEL_ALLOW_JEV=0   # hooks stay local and free
+      q='{"rerun":{"type":"noul","instructions":"Is there a device re-run in the text?"}}'
+      if resp=$(tail -c 60000 "$tpath" | lm_ask 2 "$q") \
+         && n=$(lm_get "$resp" rerun noul) && ! lm_ge "$n" 0.3; then
+        msg="fix/* branch: the last message says the fix is done, but the transcript shows no device re-run (local model, re-run score $n). Re-run the reproduction on the device before calling it verified."
+      fi
+    fi
+  fi
+fi
+
+if [ -n "$msg" ]; then
+  echo "$msg" >&2
+  printf '{"systemMessage": "%s"}\n' "$msg"
+fi
+exit 0

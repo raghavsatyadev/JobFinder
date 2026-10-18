@@ -1,0 +1,88 @@
+<resources>
+    <!-- Pairing (Android) -->
+    <string name="pairing_title">Pair with your computer</string>
+    <string name="pairing_intro">JobFinder runs on your computer. Keep it open there, with your phone on the same Wi-Fi, and pick your computer below.</string>
+    <string name="pairing_close">Back</string>
+    <string name="pairing_found_title">Computers on this Wi-Fi</string>
+    <string name="pairing_found_searching">Looking for computers running JobFinder</string>
+    <string name="pairing_found_hint">Not listed? Type its address below, or scan the code in the desktop app’s Settings.</string>
+    <string name="pairing_found_saved">Paired · tap to use</string>
+    <string name="pairing_found_new">Tap to pair</string>
+    <string name="pairing_saved_title">Your other computers</string>
+    <string name="pairing_saved_switch">Tap to switch to it</string>
+    <string name="pairing_scan">Scan the pairing code</string>
+    <string name="pairing_manual_title">Or type its address</string>
+    <string name="pairing_manual_label">Address or pairing code</string>
+    <string name="pairing_manual_hint">For example 192.168.1.20:47821. The desktop app shows it in Settings → Phone pairing.</string>
+    <string name="pairing_manual_submit">Connect</string>
+    <string name="pairing_in_progress">Checking with your computer</string>
+    <string name="pairing_approval_title">Allow this phone on %1$s</string>
+    <string name="pairing_approval_sending">Asking your computer</string>
+    <string name="pairing_approval_text">Your computer now shows a request. Click Allow there if it shows this code:</string>
+    <string name="pairing_approval_code_description">Code %1$s</string>
+    <string name="pairing_approval_cancel">Cancel</string>
+    <string name="pairing_error_code">That is neither a computer address nor a JobFinder pairing code.</string>
+    <string name="pairing_error_address">That address is outside your home or office network. Only computers on your local Wi-Fi can be paired.</string>
+    <string name="pairing_contacting">Contacting %1$s…</string>
+    <string name="pairing_error_silent">%1$s is on this Wi-Fi but did not answer. On the computer, quit and restart JobFinder; if that doesn’t help, open Help there, then Open the setup, and fix the firewall step.</string>
+    <string name="pairing_error_unreachable">Your computer did not answer. Check that JobFinder is running on it and that both are on the same Wi-Fi.</string>
+    <string name="pairing_error_denied">The request was denied on the computer.</string>
+    <string name="pairing_error_expired">Nobody answered on the computer in time. Try again and click Allow there.</string>
+    <string name="pairing_error_busy">The computer is answering another phone. Try again in a moment.</string>
+    <string name="pairing_scan_failed">The scanner could not start. Type the address instead.</string>
+
+    <!-- Settings on Android -->
+    <string name="settings_section_desktop">Your computers</string>
+    <string name="settings_desktop_connected">Connected</string>
+    <string name="settings_desktop_offline">Can’t reach it</string>
+    <string name="settings_desktop_other">Tap to use this computer</string>
+    <string name="settings_desktop_add">Add a computer</string>
+    <string name="settings_desktop_check">Check the connection</string>
+    <string name="settings_unpair_button">Forget</string>
+    <string name="settings_unpair_description">Forget %1$s</string>
+    <string name="settings_unpair_title">Forget %1$s?</string>
+    <string name="settings_unpair_text">The phone stops showing jobs from this computer until you pair it again.</string>
+
+    <!-- Connection banner and doctor -->
+    <string name="connection_banner_title">%1$s is offline · showing this phone’s copy</string>
+    <string name="connection_banner_fix">Fix it</string>
+    <string name="offline_later">This shows when your computer is back.</string>
+    <string name="offline_read_only">Your computer is offline. You can change this when it is back.</string>
+    <string name="doctor_title">Connection check</string>
+    <string name="doctor_close">Close</string>
+    <string name="doctor_intro">Checks each step between this phone and %1$s.</string>
+    <string name="doctor_again">Check again</string>
+    <string name="doctor_all_good">Everything works. If jobs still don’t load, pull down to refresh.</string>
+    <string name="doctor_check_wifi">Phone on Wi-Fi</string>
+    <string name="doctor_check_same_network">Same network as the computer</string>
+    <string name="doctor_check_found">Computer seen on the network</string>
+    <string name="doctor_check_port">Computer accepts connections</string>
+    <string name="doctor_check_app">JobFinder answers</string>
+    <string name="doctor_check_token">Computer still trusts this phone</string>
+    <string name="doctor_state_waiting">Waiting</string>
+    <string name="doctor_state_running">Checking</string>
+    <string name="doctor_state_passed">OK</string>
+    <string name="doctor_state_warning">Warning</string>
+    <string name="doctor_state_failed">Problem</string>
+    <string name="doctor_state_skipped">Skipped</string>
+    <string name="doctor_problem_wifi_off">The phone is not on Wi-Fi. Turn on Wi-Fi and join the same network as your computer.</string>
+    <string name="doctor_problem_other_network">The phone and the computer are on different networks (another Wi-Fi, mobile data or a VPN). Join the computer’s Wi-Fi and turn off any VPN.</string>
+    <string name="doctor_problem_not_announced">The computer is not announcing itself. That is fine when the next checks pass; otherwise it may be off, or the Wi-Fi keeps devices apart (guest networks do).</string>
+    <string name="doctor_problem_address_updated">The computer moved to a new address. The phone now uses it.</string>
+    <string name="doctor_problem_port_timeout">No answer. The computer may be asleep, or Windows Firewall is blocking JobFinder. On the computer, set this Wi-Fi to Private and allow JobFinder through the firewall (the desktop app’s setup guide does both).</string>
+    <string name="doctor_problem_port_refused">The computer is on, but JobFinder is not running on it. Open JobFinder on the computer.</string>
+    <string name="doctor_problem_not_jobfinder">Something other than JobFinder answers at this address. Pair again to find your computer.</string>
+    <string name="doctor_problem_other_computer">A different JobFinder computer answers at this address. Pair again to find yours.</string>
+    <string name="doctor_problem_app_error">JobFinder answered with an error. Restart it on the computer, then check again.</string>
+    <string name="doctor_problem_token_rejected">The computer no longer trusts this phone (its pairing code was renewed). Pair again.</string>
+    <string name="doctor_fix_wifi">Open Wi-Fi settings</string>
+    <string name="doctor_fix_pair">Pair again</string>
+
+    <!-- New jobs notification -->
+    <string name="notification_new_jobs_channel">New jobs</string>
+    <plurals name="notification_new_jobs_title">
+        <item quantity="one">%1$d new job</item>
+        <item quantity="other">%1$d new jobs</item>
+    </plurals>
+    <string name="notification_new_jobs_text">Your saved searches found new jobs.</string>
+</resources>

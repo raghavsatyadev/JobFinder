@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Apply: Senior Android Engineer</title>
+  </head>
+  <body>
+    <h1>Apply for Senior Android Engineer</h1>
+    <form id="apply">
+      <label for="first">First name *</label>
+      <input id="first" name="job_application[first_name]" type="text" />
+
+      <label>Last name <input id="last" name="last_name" type="text" /></label>
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" />
+
+      <div class="application-label">Phone</div>
+      <div><input id="phone" name="phone" type="tel" /></div>
+
+      <!-- A React-style controlled input: the instance setter is replaced, and an input event that
+           does not change the tracked value is ignored, as React does. -->
+      <label for="years">Years of experience</label>
+      <input id="years" name="years" type="text" />
+      <output id="years-state"></output>
+
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="">Select…</option>
+        <option value="us">United States</option>
+        <option value="in">India</option>
+      </select>
+
+      <fieldset>
+        <legend>Are you authorized to work in this country?</legend>
+        <label><input type="radio" name="auth" value="1" /> Yes</label>
+        <label><input type="radio" name="auth" value="0" /> No</label>
+      </fieldset>
+
+      <label><input id="relocate" type="checkbox" name="relocate" /> Willing to relocate</label>
+
+      <label for="cover">Why do you want to work here?</label>
+      <textarea id="cover" name="cover"></textarea>
+
+      <label for="resume">Resume/CV</label>
+      <input id="resume" name="resume" type="file" />
+
+      <label for="pw">Create a password</label>
+      <input id="pw" name="password" type="password" />
+
+      <label for="card">Card number</label>
+      <input id="card" name="card" type="text" autocomplete="cc-number" />
+
+      <iframe id="ats" title="Location" srcdoc="<label for='city'>City</label><input id='city' name='city' type='text'>"></iframe>
+
+      <button type="submit">Submit application</button>
+    </form>
+    <script>
+      window.submitted = 0;
+      document.getElementById('apply').addEventListener('submit', (e) => {
+        e.preventDefault();
+        window.submitted++;
+      });
+      const years = document.getElementById('years');
+      const native = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      let tracked = '';
+      Object.defineProperty(years, 'value', {
+        configurable: true,
+        get() {
+          return native.get.call(this);
+        },
+        set(v) {
+          tracked = v;
+          native.set.call(this, v);
+        },
+      });
+      years.addEventListener('input', () => {
+        const now = native.get.call(years);
+        if (now === tracked) return;
+        tracked = now;
+        document.getElementById('years-state').textContent = now;
+      });
+    </script>
+  </body>
+</html>

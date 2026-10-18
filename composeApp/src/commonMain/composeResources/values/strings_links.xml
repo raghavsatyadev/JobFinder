@@ -1,0 +1,89 @@
+<resources>
+    <!-- Searches list -->
+    <string name="links_title">Job searches</string>
+    <string name="links_add">Add search</string>
+    <string name="links_view_search">Search your searches</string>
+    <string name="links_view_search_clear">Clear the search text</string>
+    <string name="links_view_group">Group by board</string>
+    <string name="links_view_broken">Not working</string>
+    <string name="links_view_none">No searches match.</string>
+    <string name="links_view_clear">Show all</string>
+    <string name="links_view_sort_newest">Newest first</string>
+    <string name="links_view_sort_oldest">Oldest first</string>
+    <string name="links_view_sort_name">By name</string>
+    <string name="links_view_sort_last_checked">Checked most recently</string>
+    <string name="links_view_sort_failing">Failing first</string>
+    <string name="links_view_count">(%1$d)</string>
+    <string name="links_empty_title">No searches yet</string>
+    <string name="links_empty_hint">JobFinder visits your saved job searches on a schedule and tells you when new jobs appear. Add the search page of a job board to start.</string>
+    <string name="links_supported_sites">Supported job boards</string>
+    <string name="links_last_checked">Last checked %1$s</string>
+    <string name="links_added">Added %1$s</string>
+    <string name="links_time_just_now">just now</string>
+    <plurals name="links_time_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="links_time_hours_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="links_time_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="links_unknown_site">Job board</string>
+    <string name="links_scanning_all">Scanning for new jobs</string>
+    <string name="links_scanning_progress">%1$d of %2$d searches checked</string>
+    <string name="links_scanning_link">Scanning this search</string>
+    <string name="links_broken">Not working</string>
+    <string name="links_broken_summary">The last %1$d scans of this search failed.</string>
+    <string name="links_broken_explain_title">This search is not working</string>
+    <string name="links_broken_explain">The last %1$d scans of this search found no jobs. The job board may have signed you out, shown a captcha, or changed its page layout. Open the page to sign in or solve the captcha, then scan it again. If it still fails, edit the search or add it again.</string>
+    <string name="links_open_in_browser">Open page</string>
+    <string name="links_scan_now">Scan again</string>
+    <string name="links_why">Why?</string>
+    <string name="links_edit">Edit search</string>
+    <string name="links_delete">Delete search</string>
+    <string name="links_actions">More actions for %1$s</string>
+    <string name="links_delete_title">Delete this search?</string>
+    <string name="links_delete_text">JobFinder stops checking “%1$s”. Jobs it already found stay.</string>
+    <string name="links_deleted">Search “%1$s” deleted</string>
+    <string name="links_updated">Search “%1$s” updated</string>
+    <string name="links_scan_started">Scanning “%1$s”. New jobs show in the Jobs tab.</string>
+    <string name="links_scan_done">Scan of “%1$s” finished: %2$d new jobs</string>
+
+    <!-- Edit dialog -->
+    <string name="links_edit_title">Edit search</string>
+    <string name="links_edit_text">The search stays on the same job board. To search another board, add a new search.</string>
+    <string name="links_field_title">Title</string>
+    <string name="links_field_site_name">Job board name</string>
+    <string name="links_field_site_name_hint">JobFinder has no reader for this board, so its AI reads it. The name shows in job filters; leave it empty to call it %1$s.</string>
+    <string name="links_field_title_hint">For example: senior Kotlin, remote</string>
+    <string name="links_field_url">Search page URL</string>
+    <string name="links_field_url_hint">https://www.linkedin.com/jobs/search/?keywords=…</string>
+    <string name="links_error_title_required">Give the search a title.</string>
+    <string name="links_error_url_invalid">Enter a full web address that starts with https://</string>
+    <string name="links_error_url_other_host">The URL must stay on %1$s.</string>
+
+    <!-- Add search -->
+    <string name="links_add_title">Add a job search</string>
+    <string name="links_add_intro">Search for a role on a supported job board, set the filters you want, then copy the address of the results page here. The more specific the filters, the better the alerts.</string>
+    <string name="links_add_browse_intro">Open a job board, search for a role with the filters you want, then confirm the results page.</string>
+    <string name="links_add_browse">Browse to a search</string>
+    <string name="links_add_browse_again">Pick another page</string>
+    <string name="links_add_save">Save search</string>
+    <string name="links_add_save_anyway">Save anyway</string>
+    <string name="links_add_saving">Checking the page…</string>
+    <string name="links_add_conflict_title">No jobs found on this page</string>
+    <string name="links_add_conflict_hint">Make sure it is a list of jobs, not a single job. If it is a list, you can save it anyway.</string>
+    <string name="links_add_done_title">Search saved</string>
+    <plurals name="links_add_done_jobs">
+        <item quantity="one">%1$d new job found on the page.</item>
+        <item quantity="other">%1$d new jobs found on the page.</item>
+    </plurals>
+    <string name="links_add_done_no_jobs">No new jobs on the page yet. JobFinder keeps checking it.</string>
+    <string name="links_add_done_parse_failed">Saved without jobs: no job list was recognised on the page.</string>
+    <string name="links_add_done">Done</string>
+    <string name="links_add_another">Add another</string>
+</resources>

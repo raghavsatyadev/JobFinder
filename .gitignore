@@ -1,0 +1,46 @@
+# Gradle / IDE
+.gradle/
+.kotlin/
+.idea/
+*.iml
+build/
+bin/
+out/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+gradle-daemon-jvm.properties
+
+# Secrets and signing (never commit)
+*.jks
+*.keystore
+secret.properties
+keystore.properties
+*service-account*.json
+google-services.json
+.env
+.env.*
+!.env.example
+
+# Build outputs
+*.apk
+*.aab
+*.msi
+
+# Agent kit
+tmp/
+memory/
+.cache/
+# setup-env links each .agents/skills/<name> here; links, not files to commit
+.claude/skills/
+# Personal Claude Code overrides
+.claude/settings.local.json
+
+# plan-keeper state
+.claude/.last-ask
+.claude/.turn
+.claude/.turn-start
+.claude/.last-prompt
+.claude/.plan-*
+.claude/.PLAN.md.bak

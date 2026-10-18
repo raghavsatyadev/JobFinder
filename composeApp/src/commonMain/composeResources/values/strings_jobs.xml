@@ -1,0 +1,133 @@
+<resources>
+    <!-- List -->
+    <string name="jobs_title">Jobs</string>
+    <string name="jobs_search_hint">Search jobs</string>
+    <string name="jobs_search_clear">Clear search</string>
+    <string name="jobs_sort">Sort jobs</string>
+    <string name="jobs_sort_latest">Latest first</string>
+    <string name="jobs_sort_ats">Highest ATS score</string>
+    <string name="jobs_sort_ats_latest_hint">Grouped by ATS score in steps of 10%, latest first in each.</string>
+    <string name="jobs_sort_remote">Remote first</string>
+    <string name="jobs_sort_onsite">Onsite first</string>
+    <string name="jobs_filters">Filters</string>
+    <string name="jobs_filters_active">Filters, %1$d active</string>
+    <string name="jobs_more_actions">More actions</string>
+    <string name="jobs_tab_count">%1$s, %2$d jobs</string>
+    <string name="jobs_selected">Selected</string>
+    <string name="jobs_loading_more">Loading more jobs</string>
+    <string name="jobs_scanning">Scanning your searches</string>
+    <string name="jobs_scanning_progress">Scanning: %1$d of %2$d searches</string>
+
+    <!-- Overflow -->
+    <string name="jobs_action_refresh">Refresh</string>
+    <string name="jobs_action_scan">Scan now</string>
+    <string name="jobs_action_archive_all">Archive all</string>
+    <string name="jobs_action_delete_all">Delete all</string>
+    <string name="jobs_archive_all_title">Archive all %1$s jobs?</string>
+    <string name="jobs_archive_all_text">Every job in this tab moves to Archived. You can restore them one by one later.</string>
+    <string name="jobs_delete_all_title">Delete all %1$s jobs?</string>
+    <string name="jobs_delete_all_text">Every job in this tab is deleted. A later scan will not add them again. This cannot be undone.</string>
+
+    <!-- Empty -->
+    <string name="jobs_empty_new_title">No new jobs yet</string>
+    <string name="jobs_caught_up_title">All caught up!</string>
+    <string name="jobs_caught_up_hint">Every new job is applied to, opened or moved. New ones show up here after the next scan.</string>
+    <string name="jobs_end_title">That is every job here</string>
+    <string name="jobs_end_hint_new">You went through all of them. New ones show up after the next scan.</string>
+    <string name="jobs_empty_new_hint">We keep scanning your searches and add new jobs here as soon as we find them.</string>
+    <string name="jobs_empty_tab_title">Nothing here</string>
+    <string name="jobs_empty_tab_hint">Jobs you move to this tab show up here.</string>
+    <string name="jobs_empty_filtered_title">No matching jobs</string>
+    <string name="jobs_empty_filtered_hint">Try a different search or clear some filters.</string>
+    <string name="jobs_clear_filters">Clear filters</string>
+
+    <!-- Filter sheet -->
+    <string name="jobs_filter_title">Filter jobs</string>
+    <string name="jobs_filter_sites">Job boards</string>
+    <string name="jobs_filter_links">Searches</string>
+    <string name="jobs_filter_sources">Sources</string>
+    <string name="jobs_filter_sources_hint">Pick whole job boards or single searches.</string>
+    <plurals name="jobs_filter_source_searches">
+        <item quantity="one">%1$d search</item>
+        <item quantity="other">%1$d searches</item>
+    </plurals>
+    <string name="jobs_filter_source_open">Show the searches on %1$s</string>
+    <string name="jobs_filter_source_close">Hide the searches on %1$s</string>
+    <string name="jobs_filter_labels">Labels</string>
+    <string name="jobs_filter_work_mode">Work mode</string>
+    <string name="jobs_filter_apply_method">Apply method</string>
+    <string name="jobs_filter_clear">Clear all</string>
+    <string name="jobs_filter_apply">Show jobs</string>
+
+    <!-- Enums -->
+    <string name="jobs_work_mode_remote">Remote</string>
+    <string name="jobs_work_mode_hybrid">Hybrid</string>
+    <string name="jobs_work_mode_onsite">On-site</string>
+    <string name="jobs_apply_easy">Easy Apply</string>
+    <string name="jobs_apply_external">External</string>
+    <string name="jobs_label_considering">Considering</string>
+    <string name="jobs_label_submitted">Submitted</string>
+    <string name="jobs_label_interviewing">Interviewing</string>
+    <string name="jobs_label_offer">Offer</string>
+    <string name="jobs_label_rejected">Rejected</string>
+    <string name="jobs_label_ghosted">Ghosted</string>
+    <string name="jobs_label_none">None</string>
+
+    <!-- Relative time -->
+    <string name="jobs_time_now">Just now</string>
+    <plurals name="jobs_time_minutes">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="jobs_time_hours">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="jobs_time_days">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+
+    <!-- Detail -->
+    <string name="jobs_detail_placeholder_title">Pick a job</string>
+    <string name="jobs_detail_placeholder_hint">Select a job on the left to read its description, add notes and labels.</string>
+    <string name="jobs_detail_close">Close job</string>
+    <string name="jobs_action_view">View job</string>
+    <string name="jobs_action_applied">Mark applied</string>
+    <string name="jobs_action_archive">Archive</string>
+    <string name="jobs_action_delete">Delete</string>
+    <string name="jobs_action_restore">Restore</string>
+    <string name="jobs_delete_title">Delete this job?</string>
+    <string name="jobs_delete_text">The job is removed from every tab, and a later scan will not add it again.</string>
+    <string name="jobs_detail_labels">Label</string>
+    <string name="jobs_detail_description">Description</string>
+    <string name="jobs_detail_refresh_description">Reload description</string>
+    <string name="jobs_detail_description_loading">Loading the job description</string>
+    <string name="jobs_detail_description_empty">No description yet. Reload it from the job board.</string>
+    <string name="jobs_detail_description_failed">Could not load the description.</string>
+    <string name="jobs_detail_excluded_reason">Why the AI filter skipped it</string>
+    <string name="jobs_detail_found_via">Found via %1$s</string>
+    <string name="jobs_detail_not_found">This job no longer exists.</string>
+
+    <!-- Notes -->
+    <string name="jobs_notes">Notes</string>
+    <string name="jobs_notes_empty">No notes yet.</string>
+    <string name="jobs_note_add">Add note</string>
+    <string name="jobs_note_hint">Write a note</string>
+    <string name="jobs_note_edit">Edit note</string>
+    <string name="jobs_note_delete">Delete note</string>
+    <string name="jobs_note_delete_title">Delete this note?</string>
+    <string name="jobs_note_delete_text">The note and its attachment names are removed.</string>
+    <string name="jobs_note_files">Attachments</string>
+
+    <!-- Messages -->
+    <string name="jobs_msg_archived">Job archived</string>
+    <string name="jobs_msg_applied">Moved to Applied</string>
+    <string name="jobs_msg_deleted">Job deleted</string>
+    <string name="jobs_msg_restored">Moved back to New</string>
+    <string name="jobs_msg_archived_all">%1$d jobs archived</string>
+    <string name="jobs_msg_deleted_all">%1$d jobs deleted</string>
+    <string name="jobs_msg_scan_started">Scan started</string>
+    <string name="jobs_msg_scan_running">A scan is already running</string>
+    <string name="jobs_msg_failed">That did not work. Try again.</string>
+</resources>

@@ -1,0 +1,65 @@
+<resources>
+    <!-- ATS score on job cards and in the job detail -->
+    <string name="ats_pill">ATS %1$d% · %2$s/10</string>
+    <string name="ats_pill_description">ATS keyword match %1$d percent, score %2$s out of 10, %3$s</string>
+    <string name="ats_section_title">ATS review</string>
+    <string name="ats_shortlisted">Likely shortlisted</string>
+    <string name="ats_not_shortlisted">Not shortlisted</string>
+    <string name="ats_overall">%1$s/10 overall</string>
+    <string name="ats_match">%1$d% keyword match</string>
+    <string name="ats_no_resume">Add your resume in Settings to see how it scores for this job.</string>
+    <string name="ats_no_description">This job has no description to compare your resume with.</string>
+    <string name="ats_queued">Scoring your resume against this job. The AI model on your computer takes a minute or two.</string>
+    <string name="ats_failed">The AI model gave no usable answer for this job.</string>
+    <string name="ats_load_failed">The ATS review could not be loaded.</string>
+    <string name="ats_retry">Try again</string>
+    <string name="ats_scores_title">Score breakdown</string>
+    <string name="ats_score_keywords">Keywords (30%)</string>
+    <string name="ats_score_experience">Experience (30%)</string>
+    <string name="ats_score_achievements">Achievements (25%)</string>
+    <string name="ats_score_formatting">Formatting (5%)</string>
+    <string name="ats_score_education">Education (5%)</string>
+    <string name="ats_score_trajectory">Career path (5%)</string>
+    <string name="ats_score_value">%1$s/10</string>
+    <string name="ats_keywords_title">Keywords from the job (%1$d of %2$d found)</string>
+    <string name="ats_category_hard_skill">Hard skills</string>
+    <string name="ats_category_soft_skill">Soft skills</string>
+    <string name="ats_category_experience">Experience</string>
+    <string name="ats_category_role">Role</string>
+    <string name="ats_keyword_exact">%1$s, found %2$d times</string>
+    <string name="ats_keyword_partial">%1$s, partly: your resume says %2$s</string>
+    <string name="ats_keyword_missing">%1$s, missing</string>
+    <string name="ats_keyword_partial_label">%1$s (as %2$s)</string>
+    <string name="ats_disqualifiers_title">Why it would be screened out</string>
+    <string name="ats_formatting_title">Formatting</string>
+    <string name="ats_fixes_title">Top fixes</string>
+
+    <string name="resume_flag_too_short">Under 200 words: too thin for most roles.</string>
+    <string name="resume_flag_too_long">Over 2 pages or 1,200 words.</string>
+    <string name="resume_flag_no_email">No email address found.</string>
+    <string name="resume_flag_no_phone">No phone number found.</string>
+    <string name="resume_flag_no_experience_section">No section titled Experience.</string>
+    <string name="resume_flag_no_education_section">No section titled Education.</string>
+    <string name="resume_flag_no_skills_section">No section titled Skills.</string>
+    <string name="resume_flag_no_dates">No dates found for the roles.</string>
+    <string name="resume_flag_odd_characters">Icons or symbols that come out as junk text.</string>
+    <string name="resume_flag_tables">Uses tables, which many ATS read out of order.</string>
+    <string name="resume_flag_images">Has images, which ATS ignore.</string>
+    <string name="resume_flag_multi_column">Uses columns, which many ATS read out of order.</string>
+
+    <!-- Resume in Settings -->
+    <string name="settings_section_resume">Resume</string>
+    <string name="settings_resume_hint">Each job gets an ATS score against your resume. Only its text is kept, on your computer.</string>
+    <string name="settings_resume_none">No resume yet.</string>
+    <string name="settings_resume_info">%1$s · %2$d words · added %3$s</string>
+    <string name="settings_resume_info_pages">%1$s · %2$d pages · %3$d words · added %4$s</string>
+    <string name="settings_resume_upload">Add resume</string>
+    <string name="settings_resume_replace">Replace</string>
+    <string name="settings_resume_remove">Remove</string>
+    <string name="settings_resume_uploading">Reading the resume</string>
+    <string name="settings_resume_dialog_title">Choose your resume</string>
+    <string name="settings_resume_formats">PDF, DOCX or text, up to 5 MB.</string>
+    <string name="settings_resume_flags_none">No formatting problems found.</string>
+    <string name="settings_resume_remove_title">Remove the resume?</string>
+    <string name="settings_resume_remove_text">Every job’s ATS score is removed with it.</string>
+</resources>

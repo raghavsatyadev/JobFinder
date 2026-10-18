@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# pre-commit dispatcher.
+#   staged files under CMP/       -> kit-pre-commit (ktfmt on staged Kotlin)
+# Bypass (use sparingly): git commit --no-verify
+set -u
+# shellcheck source=common.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
+
+staged="$(git -c core.quotepath=off diff --cached --name-only)"
+rc=0
+
+if touches "$KIT_PREFIX" "$staged"; then
+  hook_log "pre-commit: ${KIT_PREFIX} staged -> ktfmt check"
+  bash "$HOOKS_DIR/kit-pre-commit" || rc=1
+fi
+
+exit "$rc"

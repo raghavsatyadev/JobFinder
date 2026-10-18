@@ -1,0 +1,48 @@
+<resources>
+    <!-- Settings: free online AI keys -->
+    <string name="settings_section_keys">Free online AI</string>
+    <string name="keys_hint">Free keys from these sites take AI work off this computer. When a key runs out for the day, the next one takes over, and this computer comes last.</string>
+    <string name="keys_guide_title">Where to get a free key, most free use first</string>
+    <string name="keys_per_minute">%1$d a minute</string>
+    <string name="keys_per_day">%1$d a day</string>
+    <string name="keys_tokens_per_day">%1$s words a day</string>
+    <string name="keys_no_limit">no daily limit</string>
+    <string name="keys_keeps_prompts">The free plan may keep what you send to train its models.</string>
+    <string name="keys_get">Get a key</string>
+    <string name="keys_field">Paste a key</string>
+    <string name="keys_detected">Looks like a %1$s key.</string>
+    <string name="keys_add">Add</string>
+    <string name="keys_adding">Checking the key with the site…</string>
+    <string name="keys_added">%1$s key added. Best for: %2$s.</string>
+    <string name="keys_unknown">That key doesn’t say which site it’s from. Check you copied all of it.</string>
+    <string name="keys_refused">The site refused that key.</string>
+    <string name="keys_failed">That didn’t work: %1$s</string>
+    <string name="keys_yours">Your keys</string>
+    <string name="keys_used_requests">Today: %1$d of %2$d requests</string>
+    <string name="keys_used_requests_open">Today: %1$d requests</string>
+    <string name="keys_used_tokens">%1$s of %2$s words</string>
+    <string name="keys_remove">Remove %1$s</string>
+    <string name="keys_routing_title">Which model does which work</string>
+    <string name="keys_routing_hint">Tried left to right. A model out of quota hands the work to the next.</string>
+    <string name="keys_local">This computer</string>
+    <string name="keys_resume_warning">This sends your resume to the online site.</string>
+    <string name="keys_expiry_tip">When you make a key on the site, set it to expire in %1$d days. If it ever leaks, it stops working by itself.</string>
+    <string name="keys_expiry_days">Expires in (days)</string>
+    <string name="keys_expiry_days_hint">The same as you chose on the site. Leave empty if it never expires.</string>
+    <string name="keys_expiry_set">Expiry</string>
+    <string name="keys_expiry_save">Save</string>
+    <string name="keys_expiry_none">No expiry set</string>
+    <string name="keys_expired">Expired. Make a new key and remove this one.</string>
+    <plurals name="keys_expires_in">
+        <item quantity="one">Expires in %1$d day</item>
+        <item quantity="other">Expires in %1$d days</item>
+    </plurals>
+    <string name="keys_reset">Use the suggested setup</string>
+    <string name="task_matching">AI filter</string>
+    <string name="task_parsing">Reading job pages</string>
+    <string name="task_insights">Company insights</string>
+    <string name="task_ghost">Ghost job check</string>
+    <string name="task_ats">ATS score</string>
+    <string name="task_tips">Resume tips</string>
+    <string name="task_answers">Form answers</string>
+</resources>

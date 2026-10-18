@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HTTPS everywhere, except plain HTTP to the paired computer on the local network. The client
+     resolves f2a-pc.lan to the paired private address only (PairedHostDns). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">f2a-pc.lan</domain>
+    </domain-config>
+</network-security-config>

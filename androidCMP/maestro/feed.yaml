@@ -1,0 +1,20 @@
+# Open the job feed and the first job, then come back. Needs a paired app (pair.yaml) and at least
+# one job in the New tab.
+appId: io.github.raghavsatyadev.jobfinder
+name: Feed
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "job_card"
+    timeout: 20000
+- tapOn:
+    id: "job_card"
+    index: 0
+- extendedWaitUntil:
+    visible: "Description"
+    timeout: 20000
+- assertVisible: "Archive"
+- back
+- assertVisible: "Search jobs"

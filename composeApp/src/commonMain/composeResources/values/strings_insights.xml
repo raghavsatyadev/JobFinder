@@ -1,0 +1,27 @@
+<resources>
+    <!-- Company ratings and salary in the job detail -->
+    <string name="insights_section_title">Company</string>
+    <string name="insights_queued">Reading the company\’s ratings and salaries from AmbitionBox and Glassdoor. This can take a minute.</string>
+    <string name="insights_failed">The rating sites could not be read just now. They may be blocking the computer for a while.</string>
+    <string name="insights_load_failed">Could not get the company details.</string>
+    <string name="insights_unavailable">Company ratings are read by the computer. Connect to it to see them.</string>
+    <string name="insights_retry">Try again</string>
+    <string name="insights_none">No ratings or salaries found for %1$s.</string>
+    <string name="insights_rating">%1$s/5</string>
+    <string name="insights_reviews">%1$s reviews</string>
+    <string name="insights_recommend">%1$d% would recommend</string>
+    <string name="insights_rating_description">%1$s rating %2$s out of 5</string>
+    <string name="insights_likes">Liked</string>
+    <string name="insights_dislikes">Disliked</string>
+    <string name="insights_open_source">Open %1$s</string>
+    <string name="insights_salary_title">Salary</string>
+    <string name="insights_salary_range">%1$s – %2$s a year</string>
+    <string name="insights_salary_median">Median %1$s</string>
+    <string name="insights_salary_role">For %1$s</string>
+    <string name="insights_salary_nearest">Nearest role on %1$s: no salaries listed for this job\’s exact title.</string>
+    <string name="insights_salary_experience">%1$d–%2$d years of experience</string>
+    <string name="insights_salary_samples">Based on %1$d salaries</string>
+    <string name="insights_no_salary">No salary listed for this role or a near one.</string>
+    <string name="insights_source_ambitionbox">AmbitionBox</string>
+    <string name="insights_source_glassdoor">Glassdoor</string>
+</resources>

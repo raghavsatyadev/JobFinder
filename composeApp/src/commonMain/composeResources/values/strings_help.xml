@@ -1,0 +1,87 @@
+<resources>
+    <string name="help_title">Help</string>
+    <string name="help_search">Search help</string>
+    <string name="help_search_clear">Clear the search</string>
+    <string name="help_no_results">Nothing in Help matches “%1$s”.</string>
+    <string name="help_faq_title">Questions and answers</string>
+    <string name="help_expand">Show the answer</string>
+    <string name="help_collapse">Hide the answer</string>
+
+    <string name="help_q_desktop">Why is this a desktop app and not a website?</string>
+    <string name="help_a_desktop">Your saved searches are checked on your own computer, in a browser that uses your job site sign-ins. Nothing runs on a server, and your data stays on this computer. Your phone connects to it over your home Wi-Fi.</string>
+
+    <string name="help_q_apply">Does the app apply to jobs for me?</string>
+    <string name="help_a_apply">No. The app finds new jobs quickly so you can be one of the first to apply. You apply yourself.</string>
+
+    <string name="help_q_filter">Can it filter out jobs that I am not interested in?</string>
+    <string name="help_a_filter">Yes. Job sites sometimes show jobs that do not match your search. In AI filters, describe the jobs you do not want and list companies to skip. A local AI model on this computer reads each new job and moves the ones that do not match to Filtered out.</string>
+
+    <string name="help_q_sleep">What happens if I close my computer?</string>
+    <string name="help_a_sleep">The search pauses while the computer sleeps and continues when it wakes. To keep it running, turn on Keep the computer awake in Settings.</string>
+
+    <string name="help_q_away">How do I see new jobs when I am away from my computer?</string>
+    <string name="help_a_away">Pair the JobFinder Android app in Settings. The phone shows your jobs while it is on the same Wi-Fi as this computer.</string>
+
+    <string name="help_q_keyboard">Can I use the app with the keyboard?</string>
+    <string name="help_a_keyboard">Yes. In the jobs list you can use these shortcuts:</string>
+
+    <string name="help_q_free_ai">Can free online AI do the work instead of my computer?</string>
+    <string name="help_a_free_ai">Yes. Add free keys in Settings → Free online AI. Job pages go to the online keys first, most free use first, and this computer takes over when they run out for the day. Work that reads your resume (ATS scores, tips, form answers) stays on this computer unless you choose otherwise. The setup shows which way suits this computer.</string>
+
+    <string name="help_q_key_nvidia">How do I get a free NVIDIA key?</string>
+    <string name="help_a_key_nvidia">Open build.nvidia.com and sign in or make a free NVIDIA account. Open Settings → API Keys and choose Generate API Key. The key starts with nvapi-. About 40 requests a minute, with no daily limit; meant for trying models out. Copy the key and paste it in Settings → Free online AI.</string>
+
+
+    <string name="help_q_key_groq">How do I get a free Groq key?</string>
+    <string name="help_a_key_groq">Open console.groq.com and sign in. Choose API Keys, then Create API Key. The key starts with gsk_. 30 requests a minute and 1,000 a day. Copy the key and paste it in Settings → Free online AI.</string>
+
+    <string name="help_q_key_openrouter">How do I get a free OpenRouter key?</string>
+    <string name="help_a_key_openrouter">Open openrouter.ai and sign in. Choose Keys, then Create Key. The key starts with sk-or-. Free models allow 50 requests a day, or 1,000 after a one-time $10 credit. Some free models keep what you send. Copy the key and paste it in Settings → Free online AI.</string>
+
+    <string name="help_q_key_gemini">How do I get a free Google Gemini key?</string>
+    <string name="help_a_key_gemini">Open aistudio.google.com and sign in with a Google account. Choose Get API key, then Create API key. The key starts with AIza. On the free plan Google may use what you send to improve its models. Copy the key and paste it in Settings → Free online AI.</string>
+
+
+    <string name="help_shortcuts_title">Keyboard shortcuts</string>
+    <string name="help_shortcut_select_keys">Up / Down arrow</string>
+    <string name="help_shortcut_select">Select the previous or next job</string>
+    <string name="help_shortcut_archive_keys">Ctrl+A (Cmd+A on macOS)</string>
+    <string name="help_shortcut_archive">Archive the selected job</string>
+    <string name="help_shortcut_delete_keys">Ctrl+D (Cmd+D on macOS)</string>
+    <string name="help_shortcut_delete">Delete the selected job</string>
+    <!-- Visual guides -->
+    <string name="help_guides_title">Step by step</string>
+    <string name="help_guide_computer_title">Set up your computer</string>
+    <string name="help_guide_computer_install_title">Open JobFinder on your computer</string>
+    <string name="help_guide_computer_install">JobFinder runs on your Windows computer and checks your searches there. Keep it open while you search.</string>
+    <string name="help_guide_computer_network_title">Let your phone in</string>
+    <string name="help_guide_computer_network">The setup sets your Wi-Fi to Private and opens the firewall to devices on your network only. Windows asks once; choose Yes.</string>
+    <string name="help_guide_computer_ai_title">Get the AI model</string>
+    <string name="help_guide_computer_ai">The setup installs Ollama and downloads the AI model in the background. The model is large, so this takes a while; you can keep using the app.</string>
+    <string name="help_guide_computer_sign_in_title">Sign in to the job sites</string>
+    <string name="help_guide_computer_sign_in">In the setup, Open sign-in opens the sites your searches use, one tab each. Sign in on every tab, then close the browser, so your searches see every job.</string>
+    <string name="help_guide_computer_search_title">Add a search</string>
+    <string name="help_guide_computer_search">Search on a job site, copy the link of the results page and add it in Searches. JobFinder checks it for new jobs.</string>
+    <string name="help_guide_phone_title">Connect your phone</string>
+    <string name="help_guide_phone_wifi_title">Join the same Wi-Fi</string>
+    <string name="help_guide_phone_wifi">Put the phone on the same Wi-Fi as the computer, and turn off any VPN. Guest networks keep devices apart.</string>
+    <string name="help_guide_phone_pick_title">Pick your computer</string>
+    <string name="help_guide_phone_pick">Open JobFinder on the phone. Your computer shows up in the list; tap it. Not listed? Scan the code in the desktop app’s Settings.</string>
+    <string name="help_guide_phone_allow_title">Allow the phone on the computer</string>
+    <string name="help_guide_phone_allow">The computer asks whether to allow the phone. Click Allow when both show the same code.</string>
+    <string name="help_guide_phone_jobs_title">See new jobs on the phone</string>
+    <string name="help_guide_phone_jobs">The phone shows your jobs and tells you when new ones arrive, while it is on the computer’s Wi-Fi.</string>
+    <string name="help_guide_backup_title">Back up and move to a new computer</string>
+    <string name="help_guide_backup_export_title">Export everything</string>
+    <string name="help_guide_backup_export">In Settings, under Backup and move, Export everything saves one file with your searches, jobs, notes, ATS reviews and settings, locked with a password you choose. On the computer it holds your online API keys too. The computer also saves one each day, without a password or API keys, and keeps the last 7.</string>
+    <string name="help_guide_backup_keep_title">Keep the file safe</string>
+    <string name="help_guide_backup_keep">Copy it to a USB drive or a cloud folder, and keep the password somewhere safe: without it the file can’t be opened. Pairing codes and site sign-ins are never in it, so you sign in to the job sites again after a move.</string>
+    <string name="help_guide_backup_restore_title">Restore it on the new computer</string>
+    <string name="help_guide_backup_restore">Install JobFinder and finish the setup. Then in Settings, Import a backup, pick the file, type its password and choose Replace everything. Your online API keys come back too. On a computer you already use, choose Add what’s missing instead.</string>
+    <string name="help_guide_backup_pair_title">Connect your phone again</string>
+    <string name="help_guide_backup_pair">A new computer has a new pairing code. On the phone, add the new computer and allow it there.</string>
+    <string name="help_guide_backup_phone_title">Restore from the phone</string>
+    <string name="help_guide_backup_phone">The phone can open a backup too. Its jobs show on the phone at once and reach the computer when it’s in reach. Replacing everything from the phone needs your yes on the computer.</string>
+    <string name="help_guide_add_computer">Add a computer</string>
+    <string name="help_guide_check_connection">Check the connection</string>
+</resources>

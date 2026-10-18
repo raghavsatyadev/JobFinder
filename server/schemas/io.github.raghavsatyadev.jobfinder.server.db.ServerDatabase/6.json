@@ -1,0 +1,977 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "a39cd0885797f753a6941498d0d2d420",
+    "entities": [
+      {
+        "tableName": "sites",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `provider` TEXT NOT NULL, `urls` TEXT NOT NULL, `query_params_to_remove` TEXT NOT NULL, `blacklisted_paths` TEXT NOT NULL, `logo_key` TEXT NOT NULL, `deprecated` INTEGER NOT NULL, `incognito_support` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provider",
+            "columnName": "provider",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "urls",
+            "columnName": "urls",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "queryParamsToRemove",
+            "columnName": "query_params_to_remove",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blacklistedPaths",
+            "columnName": "blacklisted_paths",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "logoKey",
+            "columnName": "logo_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deprecated",
+            "columnName": "deprecated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incognitoSupport",
+            "columnName": "incognito_support",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "links",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `title` TEXT NOT NULL, `site_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `scrape_failure_count` INTEGER NOT NULL, `last_scraped_at` INTEGER NOT NULL, FOREIGN KEY(`site_id`) REFERENCES `sites`(`id`) ON UPDATE RESTRICT ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "siteId",
+            "columnName": "site_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scrapeFailureCount",
+            "columnName": "scrape_failure_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastScrapedAt",
+            "columnName": "last_scraped_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_links_site_id",
+            "unique": false,
+            "columnNames": [
+              "site_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_links_site_id` ON `${TABLE_NAME}` (`site_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sites",
+            "onDelete": "RESTRICT",
+            "onUpdate": "RESTRICT",
+            "columns": [
+              "site_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "jobs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `external_id` TEXT NOT NULL, `external_url` TEXT NOT NULL, `site_id` INTEGER NOT NULL, `link_id` INTEGER, `title` TEXT NOT NULL, `company_name` TEXT NOT NULL, `company_logo` TEXT, `location` TEXT, `salary` TEXT, `job_type` TEXT, `tags` TEXT NOT NULL, `description` TEXT, `status` TEXT NOT NULL, `labels` TEXT NOT NULL, `exclude_reason` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, FOREIGN KEY(`site_id`) REFERENCES `sites`(`id`) ON UPDATE RESTRICT ON DELETE RESTRICT , FOREIGN KEY(`link_id`) REFERENCES `links`(`id`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalId",
+            "columnName": "external_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalUrl",
+            "columnName": "external_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "siteId",
+            "columnName": "site_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "linkId",
+            "columnName": "link_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyName",
+            "columnName": "company_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyLogo",
+            "columnName": "company_logo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "salary",
+            "columnName": "salary",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "jobType",
+            "columnName": "job_type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labels",
+            "columnName": "labels",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "excludeReason",
+            "columnName": "exclude_reason",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_jobs_external_id",
+            "unique": true,
+            "columnNames": [
+              "external_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_jobs_external_id` ON `${TABLE_NAME}` (`external_id`)"
+          },
+          {
+            "name": "index_jobs_status_updated_at_id",
+            "unique": false,
+            "columnNames": [
+              "status",
+              "updated_at",
+              "id"
+            ],
+            "orders": [
+              "ASC",
+              "DESC",
+              "DESC"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_jobs_status_updated_at_id` ON `${TABLE_NAME}` (`status` ASC, `updated_at` DESC, `id` DESC)"
+          },
+          {
+            "name": "index_jobs_site_id",
+            "unique": false,
+            "columnNames": [
+              "site_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_jobs_site_id` ON `${TABLE_NAME}` (`site_id`)"
+          },
+          {
+            "name": "index_jobs_link_id",
+            "unique": false,
+            "columnNames": [
+              "link_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_jobs_link_id` ON `${TABLE_NAME}` (`link_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sites",
+            "onDelete": "RESTRICT",
+            "onUpdate": "RESTRICT",
+            "columns": [
+              "site_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "links",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "link_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "jobs_fts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS5(`title`, `company_name`, tokenize=`porter unicode61`, content=`jobs`)",
+        "fields": [
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyName",
+            "columnName": "company_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "rowid"
+          ]
+        },
+        "ftsVersion": "FTS5",
+        "ftsOptions": {
+          "tokenizer": "porter",
+          "tokenizerArgs": [
+            "unicode61"
+          ],
+          "contentTable": "jobs",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC",
+          "contentRowId": "",
+          "columnSize": true,
+          "detail": "FULL"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_jobs_fts_BEFORE_UPDATE BEFORE UPDATE ON `jobs` BEGIN DELETE FROM `jobs_fts` WHERE `rowid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_jobs_fts_BEFORE_DELETE BEFORE DELETE ON `jobs` BEGIN DELETE FROM `jobs_fts` WHERE `rowid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_jobs_fts_AFTER_UPDATE AFTER UPDATE ON `jobs` BEGIN INSERT INTO `jobs_fts`(`rowid`, `title`, `company_name`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`company_name`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_jobs_fts_AFTER_INSERT AFTER INSERT ON `jobs` BEGIN INSERT INTO `jobs_fts`(`rowid`, `title`, `company_name`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`company_name`); END"
+        ]
+      },
+      {
+        "tableName": "notes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `job_id` INTEGER NOT NULL, `text` TEXT NOT NULL, `files` TEXT NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`job_id`) REFERENCES `jobs`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "files",
+            "columnName": "files",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_notes_job_id",
+            "unique": false,
+            "columnNames": [
+              "job_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_notes_job_id` ON `${TABLE_NAME}` (`job_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "jobs",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "job_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "advanced_matching",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `prompt` TEXT NOT NULL, `blacklisted_companies` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prompt",
+            "columnName": "prompt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blacklistedCompanies",
+            "columnName": "blacklisted_companies",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `cron_rule` TEXT, `prevent_sleep` INTEGER NOT NULL, `use_sound` INTEGER NOT NULL, `in_app_browser_enabled` INTEGER NOT NULL, `server_port` INTEGER NOT NULL, `network_interface` TEXT, `pairing_token` TEXT NOT NULL, `scraper_concurrency` INTEGER NOT NULL, `ai_provider` TEXT NOT NULL DEFAULT 'ollama', `ai_model` TEXT NOT NULL DEFAULT 'first2apply-qwen:latest', `ai_base_url` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cronRule",
+            "columnName": "cron_rule",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "preventSleep",
+            "columnName": "prevent_sleep",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useSound",
+            "columnName": "use_sound",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inAppBrowserEnabled",
+            "columnName": "in_app_browser_enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverPort",
+            "columnName": "server_port",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "networkInterface",
+            "columnName": "network_interface",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pairingToken",
+            "columnName": "pairing_token",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scraperConcurrency",
+            "columnName": "scraper_concurrency",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "aiProvider",
+            "columnName": "ai_provider",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'ollama'"
+          },
+          {
+            "fieldPath": "aiModel",
+            "columnName": "ai_model",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'first2apply-qwen:latest'"
+          },
+          {
+            "fieldPath": "aiBaseUrl",
+            "columnName": "ai_base_url",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "html_dumps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `html` TEXT NOT NULL, `webpage_runtime_data` TEXT, `created_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "html",
+            "columnName": "html",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "webpageRuntimeData",
+            "columnName": "webpage_runtime_data",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ai_usage_daily",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usage_date` TEXT NOT NULL, `input_tokens` INTEGER NOT NULL, `output_tokens` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`usage_date`))",
+        "fields": [
+          {
+            "fieldPath": "usageDate",
+            "columnName": "usage_date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputTokens",
+            "columnName": "input_tokens",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outputTokens",
+            "columnName": "output_tokens",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usage_date"
+          ]
+        }
+      },
+      {
+        "tableName": "resume",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `file_name` TEXT NOT NULL, `text` TEXT NOT NULL, `pages` INTEGER, `words` INTEGER NOT NULL, `flags` TEXT NOT NULL, `hash` TEXT NOT NULL, `uploaded_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "file_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pages",
+            "columnName": "pages",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "words",
+            "columnName": "words",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flags",
+            "columnName": "flags",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uploadedAt",
+            "columnName": "uploaded_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ats_reviews",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`job_id` INTEGER NOT NULL, `resume_hash` TEXT NOT NULL, `overall` REAL NOT NULL, `ats_match` INTEGER NOT NULL, `shortlisted` INTEGER NOT NULL, `failed` INTEGER NOT NULL, `review` TEXT, `created_at` INTEGER NOT NULL, PRIMARY KEY(`job_id`), FOREIGN KEY(`job_id`) REFERENCES `jobs`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resumeHash",
+            "columnName": "resume_hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "overall",
+            "columnName": "overall",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "atsMatch",
+            "columnName": "ats_match",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shortlisted",
+            "columnName": "shortlisted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failed",
+            "columnName": "failed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "review",
+            "columnName": "review",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "job_id"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "jobs",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "job_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "company_ratings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`company_key` TEXT NOT NULL, `ratings` TEXT NOT NULL, `ambitionbox_slug` TEXT, `failed` INTEGER NOT NULL, `fetched_at` INTEGER NOT NULL, PRIMARY KEY(`company_key`))",
+        "fields": [
+          {
+            "fieldPath": "companyKey",
+            "columnName": "company_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratings",
+            "columnName": "ratings",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ambitionBoxSlug",
+            "columnName": "ambitionbox_slug",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failed",
+            "columnName": "failed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetched_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "company_key"
+          ]
+        }
+      },
+      {
+        "tableName": "company_salaries",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`company_key` TEXT NOT NULL, `title_key` TEXT NOT NULL, `salary` TEXT, `fetched_at` INTEGER NOT NULL, PRIMARY KEY(`company_key`, `title_key`))",
+        "fields": [
+          {
+            "fieldPath": "companyKey",
+            "columnName": "company_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleKey",
+            "columnName": "title_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salary",
+            "columnName": "salary",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetched_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "company_key",
+            "title_key"
+          ]
+        }
+      },
+      {
+        "tableName": "ai_prompts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `text` TEXT NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ghost_checks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`job_id` INTEGER NOT NULL, `company_key` TEXT NOT NULL, `result` TEXT NOT NULL, `careers` TEXT NOT NULL, `checked_at` INTEGER NOT NULL, PRIMARY KEY(`job_id`))",
+        "fields": [
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyKey",
+            "columnName": "company_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "result",
+            "columnName": "result",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "careers",
+            "columnName": "careers",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkedAt",
+            "columnName": "checked_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "job_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ghost_checks_company_key",
+            "unique": false,
+            "columnNames": [
+              "company_key"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ghost_checks_company_key` ON `${TABLE_NAME}` (`company_key`)"
+          }
+        ]
+      },
+      {
+        "tableName": "careers_boards",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`company_key` TEXT NOT NULL, `host` TEXT, `slug` TEXT, `jobs` TEXT NOT NULL, `fetched_at` INTEGER NOT NULL, PRIMARY KEY(`company_key`))",
+        "fields": [
+          {
+            "fieldPath": "companyKey",
+            "columnName": "company_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "host",
+            "columnName": "host",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "slug",
+            "columnName": "slug",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "jobs",
+            "columnName": "jobs",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetched_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "company_key"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a39cd0885797f753a6941498d0d2d420')"
+    ]
+  }
+}

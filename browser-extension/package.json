@@ -1,0 +1,21 @@
+{
+  "name": "jobfinder-browser-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JobFinder helper extension for Chrome and Edge (native messaging bridge to the desktop app).",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "node build.mjs --e2e && playwright test",
+    "dev-key": "node scripts/dev-key.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/chrome": "^0.3.5",
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

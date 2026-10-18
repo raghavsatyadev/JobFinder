@@ -1,0 +1,115 @@
+<resources>
+    <!-- Settings: scanning -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_scanning">Scanning</string>
+    <string name="settings_search">Search settings</string>
+    <string name="settings_search_clear">Clear the search</string>
+    <string name="settings_search_none">No settings match “%1$s”.</string>
+    <string name="settings_section_open">Open</string>
+    <string name="settings_section_close">Close</string>
+    <!-- Words each section is found by in the settings search, besides its title. Comma separated. -->
+    <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days</string>
+    <string name="settings_keywords_layout">job details, order, sections, hide, show, description, notes, labels, insights, ghost, ATS, tips, layout</string>
+    <string name="settings_keywords_ai">AI model, Ollama, local model, provider, key, address, OpenAI, Anthropic, Gemini, Groq, download, Hugging Face, test, memory, graphics card</string>
+    <string name="settings_keywords_keys">free, online, API key, NVIDIA, Groq, OpenRouter, Gemini, quota, expiry, limit, routing, which model</string>
+    <string name="settings_keywords_resume">resume, CV, upload, PDF, Word, replace, remove</string>
+    <string name="settings_keywords_backup">backup, export, import, restore, move, file, merge, replace, csv, spreadsheet, excel</string>
+    <string name="settings_keywords_computers">computer, PC, desktop, connection, pair, forget, add</string>
+    <string name="settings_keywords_pairing">phone, pair, QR code, port, address, Wi-Fi, reset, network</string>
+    <string name="settings_keywords_login">sign in, log in, login, LinkedIn, Google, job sites, browser, account, Chrome, Edge, extension, copy, cookies</string>
+    <string name="settings_frequency_title">Search frequency</string>
+    <string name="settings_frequency_hint">How often your saved searches are checked for new jobs.</string>
+    <string name="settings_frequency_never">Never</string>
+    <string name="settings_frequency_2_hours">Every 2 hours</string>
+    <string name="settings_frequency_4_hours">Every 4 hours</string>
+    <string name="settings_frequency_8_hours">Every 8 hours</string>
+    <string name="settings_frequency_12_hours">Every 12 hours (recommended)</string>
+    <string name="settings_frequency_1_day">Every day</string>
+    <string name="settings_frequency_3_days">Every 3 days</string>
+    <string name="settings_frequency_1_week">Every week</string>
+    <string name="settings_frequency_risky">May get your address blocked</string>
+    <string name="settings_frequency_risky_hint">Searching more often than every 12 hours may get your internet address blocked by job sites. You may then see captchas or no jobs at all for days.</string>
+    <string name="settings_frequency_risk_title">Search more often than every 12 hours?</string>
+    <string name="settings_frequency_risk_text">Searching for jobs this often (%1$s) may get your internet address blocked by job sites. You may then see captchas or no jobs at all for days. Every 12 hours is the shortest we advise.</string>
+    <string name="settings_frequency_risk_confirm">Search more often</string>
+    <string name="settings_frequency_custom">Custom (%1$s)</string>
+    <string name="settings_prevent_sleep_title">Keep the computer awake</string>
+    <string name="settings_prevent_sleep_hint">The app must run in the background to find new jobs.</string>
+    <string name="settings_sound_title">Notification sound</string>
+    <string name="settings_sound_hint">Play a sound when new jobs are found.</string>
+    <string name="settings_excluded_cleanup_title">Delete filtered-out jobs</string>
+    <string name="settings_excluded_cleanup_hint">Jobs the AI filtered out are deleted after the days below. Turn off to keep them forever.</string>
+    <string name="settings_excluded_keep_days">After %1$d days</string>
+    <string name="settings_excluded_keep_fewer">Fewer days</string>
+    <string name="settings_excluded_keep_more">More days</string>
+    <string name="settings_in_app_browser_title">In-app browser</string>
+    <string name="settings_in_app_browser_hint">Open job pages in the app instead of your web browser.</string>
+
+    <!-- Settings: phone pairing (desktop only) -->
+    <string name="settings_section_pairing">Phone pairing</string>
+    <string name="settings_pairing_hint">Scan this code with the JobFinder Android app. The phone must be on the same Wi-Fi as this computer.</string>
+    <string name="settings_pairing_qr_description">Pairing QR code for %1$s</string>
+    <string name="settings_pairing_address">Address</string>
+    <string name="settings_pairing_off">The phone server is off. Connect this computer to a network, or pick a free port.</string>
+    <string name="settings_port_label">Port</string>
+    <string name="settings_port_error">Use a number from %1$d to %2$d.</string>
+    <string name="settings_port_save">Save port</string>
+    <string name="settings_port_saved">Port saved. The phone server restarts on the new port.</string>
+    <string name="settings_rotate_button">Reset pairing code</string>
+    <string name="settings_rotate_title">Reset the pairing code?</string>
+    <string name="settings_rotate_text">Every paired phone disconnects and must scan the new code.</string>
+    <string name="settings_rotate_confirm">Reset</string>
+    <string name="settings_rotated">Pairing code reset. Pair your phones again.</string>
+    <string name="settings_rotate_failed">Could not reset the pairing code. Try again.</string>
+
+    <!-- Settings: sign-in browser (desktop only) -->
+    <string name="settings_section_login">Job site sign-in</string>
+    <string name="settings_login_hint">Sign in to LinkedIn and other job sites in the scanner’s browser, so scans see the same results as you.</string>
+    <string name="settings_login_button">Open sign-in browser</string>
+    <string name="settings_login_copy_hint">Already signed in to these sites in Chrome or Edge? With the JobFinder Helper extension, copy those sign-ins instead. Google sign-in works this way too.</string>
+    <string name="settings_login_copy">Copy sign-ins from my browser</string>
+    <string name="settings_login_copying">Copying sign-ins…</string>
+    <string name="settings_login_copied">Copied %1$d sign-in cookies from your browser.</string>
+    <string name="settings_login_copied_missing">Copied %1$d sign-in cookies. The extension may not read %2$s: turn those sites on in its options.</string>
+    <string name="settings_login_no_extension">JobFinder Helper is not connected. Install it from the setup, then try again.</string>
+    <string name="settings_login_sharing_off">In JobFinder Helper’s options, turn on “Share my job board sign-ins with JobFinder”, then try again.</string>
+    <string name="settings_login_copy_failed">The sign-ins could not be copied: %1$s</string>
+
+    <!-- Settings: errors -->
+    <string name="settings_load_failed">The scanning settings come from the computer, and it can’t be reached right now.</string>
+    <string name="settings_save_failed">Could not save the setting. Try again.</string>
+
+    <!-- Add-search browser (desktop) -->
+    <string name="settings_browser_address">Page address</string>
+    <string name="settings_browser_go">Go</string>
+    <string name="settings_browser_use_page">Use this page</string>
+    <string name="settings_browser_hint">Open a job search results page, then select Use this page.</string>
+    <string name="settings_browser_reading">Reading the page…</string>
+    <string name="settings_browser_read_failed">The page did not answer in time. Wait for it to finish loading and try again.</string>
+    <string name="browser_back">Back</string>
+    <string name="browser_forward">Forward</string>
+    <string name="browser_reload">Reload</string>
+
+    <!-- Sign-in browser window (desktop) -->
+    <string name="login_window_title">Sign in to job sites</string>
+    <string name="login_window_hint">Sign in, then select Done. Scans use these sign-ins.</string>
+    <string name="login_window_done">Done</string>
+
+    <!-- Notification-area icon (desktop) -->
+    <string name="tray_quit">Quit</string>
+
+    <!-- Title bar buttons (desktop) -->
+    <string name="window_minimize">Minimize</string>
+    <string name="window_maximize">Maximize</string>
+    <string name="window_restore">Restore</string>
+    <string name="window_close">Close</string>
+    <string name="tray_hidden_title">Still running</string>
+    <string name="tray_hidden_text">Scans continue in the background. Select the icon to open the app, or right-click it to quit.</string>
+    <string name="pairing_request_title">Allow this phone?</string>
+    <string name="pairing_request_text">%1$s wants to connect to this computer. Allow it only if the phone in your hand shows the same code.</string>
+    <string name="pairing_request_code_label">Code on the phone</string>
+    <string name="pairing_request_allow">Allow</string>
+    <string name="pairing_request_deny">Deny</string>
+    <string name="pairing_request_notify_title">A phone wants to connect</string>
+    <string name="pairing_request_notify_text">%1$s is asking to connect. Open JobFinder to allow or deny it.</string>
+</resources>

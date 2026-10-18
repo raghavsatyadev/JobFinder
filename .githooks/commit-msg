@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# commit-msg: no message rule for CMP/ (the old electron/ commitlint rule went with electron/).
+exit 0

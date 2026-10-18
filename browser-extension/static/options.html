@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <title>JobFinder Helper settings</title>
+    <link rel="stylesheet" href="ui.css" />
+  </head>
+  <body class="options">
+    <main>
+      <h1>JobFinder Helper settings</h1>
+
+      <section aria-labelledby="connection-heading">
+        <h2 id="connection-heading">Connection</h2>
+        <p class="hint">
+          The extension talks only to the JobFinder app on this PC, through the browser's native messaging. It opens
+          no network ports and sends page data nowhere else.
+        </p>
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <p data-part="label">Connecting…</p>
+          <p data-part="hint" class="hint" hidden></p>
+        </div>
+        <label class="toggle">
+          <input id="bridge-toggle" type="checkbox" role="switch" />
+          <span>Connect to the JobFinder app</span>
+        </label>
+        <button id="test" type="button">Test connection</button>
+        <p id="test-result" class="hint" aria-live="polite"></p>
+      </section>
+
+      <section aria-labelledby="sites-heading">
+        <h2 id="sites-heading">Sites</h2>
+        <p class="hint">
+          On sites you turn on, the extension checks whether the page you open is a job saved in JobFinder and shows it
+          on the toolbar icon. The browser asks for permission once per site. Other sites can be turned on from the
+          toolbar popup.
+        </p>
+        <ul id="site-list" class="site-list"></ul>
+      </section>
+
+      <section aria-labelledby="signins-heading">
+        <h2 id="signins-heading">Sign-ins</h2>
+        <p class="hint">
+          Already signed in to LinkedIn and other job boards in this browser? Share those sign-ins, and JobFinder can copy
+          them to its own browser when you choose "Copy sign-ins from my browser" in the app, so you do not sign in twice.
+          Only the sign-in cookies of job boards go to the JobFinder app on this PC; never cookies of other sites.
+        </p>
+        <label class="toggle">
+          <input id="signins-toggle" type="checkbox" role="switch" />
+          <span>Share my job board sign-ins with JobFinder</span>
+        </label>
+      </section>
+
+      <section aria-labelledby="forms-heading">
+        <h2 id="forms-heading">Application forms</h2>
+        <p class="hint">
+          On sites you turn on, the extension saves what you type into a job application form when you send it, and
+          Autofill offers those answers on the next form. Answers go only to the JobFinder app on this PC, where you can
+          view, edit and delete them in Settings. Passwords, card and bank details and ID numbers are never saved or
+          filled. Autofill and AI help run only when you press them, and never send a form.
+        </p>
+        <label class="toggle">
+          <input id="record-toggle" type="checkbox" role="switch" />
+          <span>Save my answers when I send a form</span>
+        </label>
+        <label class="toggle">
+          <input id="buttons-toggle" type="checkbox" role="switch" />
+          <span>Show Autofill and AI help buttons under form fields</span>
+        </label>
+      </section>
+
+      <section aria-labelledby="reader-heading">
+        <h2 id="reader-heading">Fallback reader</h2>
+        <p class="hint">
+          Some job sites block the JobFinder app. With the fallback reader on, the app can ask this browser to open such
+          a page in a background tab, read its text, and close it again. Pages open with your normal browser session.
+          This needs permission to read all websites, because the app decides which page to read. The page content goes
+          only to the JobFinder app on this PC.
+        </p>
+        <label class="toggle">
+          <input id="reader-toggle" type="checkbox" role="switch" />
+          <span>Let JobFinder read pages through this browser</span>
+        </label>
+      </section>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

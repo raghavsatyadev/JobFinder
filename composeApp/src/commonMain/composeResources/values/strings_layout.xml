@@ -1,0 +1,13 @@
+<resources>
+    <string name="settings_section_layout">Job details</string>
+    <string name="layout_intro">Drag the sections into the order you want them in a job’s details. Hide the ones you don’t use.</string>
+    <string name="layout_drag">Drag to move %1$s</string>
+    <string name="layout_move_up">Move up</string>
+    <string name="layout_move_down">Move down</string>
+    <string name="layout_hide">Hide %1$s</string>
+    <string name="layout_show">Show %1$s</string>
+    <string name="layout_hidden">Hidden</string>
+    <string name="layout_reset">Reset order</string>
+    <string name="layout_load_failed">The layout could not be loaded.</string>
+    <string name="layout_save_failed">The layout could not be saved.</string>
+</resources>

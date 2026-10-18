@@ -1,0 +1,20 @@
+# Visit every tab and check one landmark on each. Needs a paired app (androidCMP/maestro/pair.yaml);
+# run every flow with androidCMP/maestro/run.sh.
+appId: io.github.raghavsatyadev.jobfinder
+name: Tabs
+---
+- launchApp:
+    stopApp: false
+- assertVisible: "Search jobs"
+- tapOn: "Applied.*"
+- tapOn: "New.*"
+- tapOn: "Searches"
+- assertVisible: "Job searches"
+- tapOn: "AI filters"
+- assertVisible: "What to filter out"
+- tapOn: "Settings"
+- assertVisible: "Search frequency"
+- tapOn: "Help"
+- assertVisible: "Questions and answers"
+- tapOn: "Jobs"
+- assertVisible: "Search jobs"

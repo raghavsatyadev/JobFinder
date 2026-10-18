@@ -1,0 +1,21 @@
+# Pull the job feed down to reload it from the desktop. Needs a paired app (pair.yaml) and at least
+# one job in the New tab.
+appId: io.github.raghavsatyadev.jobfinder
+name: Pull to refresh
+---
+- launchApp:
+    stopApp: false
+- tapOn: "New.*"
+- extendedWaitUntil:
+    visible:
+      id: "job_card"
+    timeout: 20000
+- swipe:
+    start: 50%, 35%
+    end: 50%, 85%
+    duration: 600
+- extendedWaitUntil:
+    visible:
+      id: "job_card"
+    timeout: 20000
+- assertVisible: "Search jobs"

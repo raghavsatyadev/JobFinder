@@ -1,0 +1,13 @@
+<resources>
+    <string name="tips_section_title">Negotiation tips</string>
+    <string name="tips_intro">The AI writes tips from the posted salary, the company’s pay and ratings, how long the job has been advertised and your ATS match.</string>
+    <string name="tips_write">Write tips</string>
+    <string name="tips_write_again">Write again</string>
+    <string name="tips_queued">Writing tips. This can take a minute.</string>
+    <string name="tips_failed">The AI gave no usable tips. Try again.</string>
+    <string name="tips_load_failed">The tips could not be loaded.</string>
+    <string name="tips_unavailable">Only the computer can write tips.</string>
+    <string name="tips_leverage_low">Little room to negotiate</string>
+    <string name="tips_leverage_medium">Some room to negotiate</string>
+    <string name="tips_leverage_high">Good room to negotiate</string>
+</resources>

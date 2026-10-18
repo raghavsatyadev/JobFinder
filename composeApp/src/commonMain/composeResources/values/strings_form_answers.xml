@@ -1,0 +1,20 @@
+<resources>
+    <!-- Settings → Form answers: what the browser extension saved from application forms -->
+    <string name="settings_section_form_answers">Form answers</string>
+    <string name="settings_keywords_form_answers">autofill, application, forms, answers, questions, browser, extension</string>
+    <string name="form_answers_intro">What you typed into job application forms in your browser. The JobFinder extension saves it when you send a form on a site you turned on, and Autofill offers it on the next form. It stays on this computer. Passwords, card and bank details and ID numbers are never saved.</string>
+    <string name="form_answers_empty">No answers saved yet. Turn a site on in the browser extension, then send an application form there.</string>
+    <string name="form_answers_search">Search answers</string>
+    <string name="form_answers_none_found">No answer matches “%1$s”.</string>
+    <string name="form_answers_load_failed">The saved answers could not load.</string>
+    <string name="form_answers_change_failed">The change was not saved. Try again.</string>
+    <string name="form_answers_count">Saved answers: %1$d</string>
+    <string name="form_answers_edit">Edit answer</string>
+    <string name="form_answers_delete">Delete answer</string>
+    <string name="form_answers_delete_title">Delete this answer?</string>
+    <string name="form_answers_delete_text">Autofill will no longer offer “%1$s” for “%2$s”.</string>
+    <string name="form_answers_answer">Answer</string>
+    <string name="form_answers_job">%1$s at %2$s</string>
+    <string name="form_answers_more">Show %1$d more</string>
+    <string name="form_answers_refresh">Reload answers</string>
+</resources>

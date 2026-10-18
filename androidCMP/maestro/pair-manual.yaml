@@ -1,0 +1,19 @@
+# Pair with the desktop app by pasting the code, as a user without a camera would. Works on release
+# builds. PAIR_CODE is the JSON pairing code; pass it with -e (run.sh --release does), never store it.
+appId: io.github.raghavsatyadev.jobfinder
+name: Pair by pasting the code
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- assertVisible: "Pair with your computer"
+- tapOn: "Pairing code"
+- inputText: ${PAIR_CODE}
+- hideKeyboard
+- tapOn:
+    text: "Pair"
+    index: 0
+- extendedWaitUntil:
+    visible: "Search jobs"
+    timeout: 30000

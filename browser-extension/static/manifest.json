@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "JobFinder Helper",
+  "description": "Connects the JobFinder app on your PC to this browser: shows saved jobs and reads pages the app cannot open itself.",
+  "version": "0.0.0",
+  "minimum_chrome_version": "116",
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": { "default_popup": "popup.html", "default_title": "JobFinder", "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" } },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "permissions": ["nativeMessaging", "storage", "scripting", "alarms", "activeTab"],
+  "optional_permissions": ["cookies"],
+  "optional_host_permissions": ["<all_urls>"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxOIgoSgpaOnb+Jo4NujfCCTBqO9CjwKLLbssnTBmUzPf/D5VzHDLMkld+0d8002KqhdmcN/pYc/++ITFhtNeoLJBRtnojGzvgpPgh8ut/YX00L8/u15R1gpYW/3olBACpKABlC6xS6wxxUNuDA0IZA6d1Z2s8vTTAfme0uAIoNqH85EA+YhzkVuDlSrwL8/bOslSegWRzTLLI4N30hPM2/ITHlDHmNqtWoEVmgpZSXum39FXf0mS5pZQgSSIVpCu4hzv3eDymcY5HoqjQuvtK0lyOawgnoRC1JTBH6YegGStZP1g/d8NY0BnEGCLG+pcHIhFQY+KhiFTWPg1ewcP8QIDAQAB"
+}

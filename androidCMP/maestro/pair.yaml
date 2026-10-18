@@ -1,0 +1,15 @@
+# Pair with the desktop app through the debug-only deep link, starting from a clean install state.
+# PAIR_LINK is f2a-debug://pair?code=<URL-encoded pairing code>. Pass it with -e; never store it.
+# Run all flows with androidCMP/maestro/run.sh, which builds the link from the desktop database.
+appId: io.github.raghavsatyadev.jobfinder
+name: Pair
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- assertVisible: "Pair with your computer"
+- openLink: ${PAIR_LINK}
+- extendedWaitUntil:
+    visible: "Search jobs"
+    timeout: 30000

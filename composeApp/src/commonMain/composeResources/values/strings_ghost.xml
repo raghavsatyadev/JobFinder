@@ -1,0 +1,24 @@
+<resources>
+    <string name="ghost_section_title">Ghost-job check</string>
+    <string name="ghost_possible">Possible ghost job</string>
+    <string name="ghost_looks_real">Looks real</string>
+    <string name="ghost_some_signs">Some warning signs</string>
+    <string name="ghost_none">No warning signs so far.</string>
+    <string name="ghost_queued">Checking the company’s own careers site. This can take a few minutes.</string>
+    <string name="ghost_failed">The careers site could not be read just now.</string>
+    <string name="ghost_load_failed">The ghost-job check could not be loaded.</string>
+    <string name="ghost_unavailable">Only the computer can read careers sites.</string>
+    <string name="ghost_retry">Try again</string>
+    <string name="ghost_reposted">Posted %1$d times over %2$d days</string>
+    <string name="ghost_old">Advertised for %1$d days</string>
+    <string name="ghost_no_salary">No salary given</string>
+    <string name="ghost_vague">Short or vague description</string>
+    <string name="ghost_not_on_site">Not on the company’s own careers site</string>
+    <string name="ghost_company_never">None of the company’s last %1$d checked jobs is on its own careers site: it may not be hiring</string>
+    <string name="ghost_careers_found">Listed on the company’s careers site (%1$s)</string>
+    <string name="ghost_careers_found_as">Listed there as “%1$s”</string>
+    <string name="ghost_careers_not_found">Not among the %1$d open jobs on the company’s careers site (%2$s)</string>
+    <string name="ghost_careers_unknown">No careers site the app can read was found for this company.</string>
+    <string name="ghost_open_job">Open the job on the careers site</string>
+    <string name="ghost_open_board">Open the careers site</string>
+</resources>

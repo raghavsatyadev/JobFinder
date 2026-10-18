@@ -1,0 +1,14 @@
+<resources>
+    <!-- Settings → Free online AI: the OpenCode CLI on this computer -->
+    <string name="opencode_title">OpenCode (this computer’s CLI)</string>
+    <string name="opencode_hint">Free models through the OpenCode app on this computer. No key needed. Only public job text goes to them unless you turn them on for your resume below.</string>
+    <string name="opencode_found">Installed: %1$s</string>
+    <string name="opencode_found_plain">Installed</string>
+    <string name="opencode_missing">Not installed. Install it with the command below (needs Node.js), then open this page again.</string>
+    <string name="opencode_install_command">npm install -g @opencode/cli</string>
+    <string name="opencode_install">How to install</string>
+    <string name="opencode_sign_in">To sign in, run “opencode auth login” once in a terminal. The free models also work without it.</string>
+    <string name="opencode_model">Model to try first; the others take over when it runs out</string>
+    <string name="opencode_keeps_prompts">Beam keeps what you send for 30 days. DeepSeek and GLM keep nothing.</string>
+    <string name="opencode_chip">OpenCode</string>
+</resources>

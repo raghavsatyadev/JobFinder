@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!-- Debug only: f2a-debug://pair?code=... pairs without the camera, for Maestro. -->
+        <activity
+            android:name=".MainActivity"
+            tools:node="merge">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="pair"
+                    android:scheme="f2a-debug" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

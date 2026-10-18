@@ -1,0 +1,7 @@
+*.sh text eol=lf
+.githooks/* text eol=lf
+global_skills/** text eol=lf
+# Parser fixtures and goldens: keep the captured bytes (no CRLF conversion), so the Kotlin tests
+# and tools/parser-goldens read exactly the same input.
+server/src/test/resources/fixtures/** -text
+server/src/test/resources/goldens/** -text

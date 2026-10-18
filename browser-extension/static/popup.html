@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <title>JobFinder</title>
+    <link rel="stylesheet" href="ui.css" />
+  </head>
+  <body class="popup">
+    <main>
+      <h1>JobFinder</h1>
+
+      <section aria-label="Connection">
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <p data-part="label">Connecting…</p>
+          <p data-part="hint" class="hint" hidden></p>
+        </div>
+        <button id="retry" type="button">Try again</button>
+      </section>
+
+      <section id="job-section" aria-labelledby="job-heading" hidden>
+        <h2 id="job-heading">This page</h2>
+        <p id="job-empty" class="hint">This page is not in JobFinder.</p>
+        <dl id="job-details" hidden>
+          <dt>Job</dt>
+          <dd id="job-title"></dd>
+          <dt>Company</dt>
+          <dd id="job-company"></dd>
+          <dt>ATS score</dt>
+          <dd id="job-score"></dd>
+        </dl>
+      </section>
+
+      <section id="form-section" aria-labelledby="form-heading" hidden>
+        <h2 id="form-heading">Application form</h2>
+        <p class="hint">Fills empty fields with answers you gave on earlier forms. It never sends the form.</p>
+        <button id="autofill" type="button">Autofill</button>
+        <p id="autofill-result" role="status" aria-live="polite"></p>
+      </section>
+
+      <section id="site-section" aria-label="This site" hidden>
+        <label class="toggle">
+          <input id="site-toggle" type="checkbox" role="switch" />
+          <span>Show JobFinder jobs on <strong id="site-name"></strong></span>
+        </label>
+      </section>
+
+      <footer>
+        <button id="open-options" type="button" class="link">Settings</button>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

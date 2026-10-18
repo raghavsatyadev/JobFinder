@@ -1,0 +1,49 @@
+# Change a job's status and undo it: archive the first new job, then restore it from Archived.
+# Needs a paired app (pair.yaml) and at least one job in the New tab. Leaves the data as it was,
+# except the job's update time.
+appId: io.github.raghavsatyadev.jobfinder
+name: Status change
+---
+- launchApp:
+    stopApp: false
+- tapOn: "New.*"
+- extendedWaitUntil:
+    visible:
+      id: "job_card"
+    timeout: 20000
+- tapOn:
+    id: "job_card"
+    index: 0
+- extendedWaitUntil:
+    visible: "Description"
+    timeout: 20000
+- tapOn: "Archive"
+- extendedWaitUntil:
+    visible: "Job archived"
+    timeout: 15000
+- runFlow:
+    when:
+      notVisible: "Search jobs"
+    commands:
+      - back
+- tapOn: "Archived.*"
+- extendedWaitUntil:
+    visible:
+      id: "job_card"
+    timeout: 20000
+- tapOn:
+    id: "job_card"
+    index: 0
+- extendedWaitUntil:
+    visible: "Restore"
+    timeout: 20000
+- tapOn: "Restore"
+- extendedWaitUntil:
+    visible: "Moved back to New"
+    timeout: 15000
+- runFlow:
+    when:
+      notVisible: "Search jobs"
+    commands:
+      - back
+- tapOn: "New.*"

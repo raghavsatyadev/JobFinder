@@ -1,0 +1,32 @@
+<resources>
+    <!-- Settings: AI model -->
+    <string name="settings_section_ai">AI model</string>
+    <string name="ai_hint">The AI filter, pages read with AI and ATS scores all use this model.</string>
+    <string name="ai_provider_ollama">On this computer (Ollama)</string>
+    <string name="ai_provider_ollama_hint">Free and private: nothing leaves this computer. Needs a strong computer.</string>
+    <string name="ai_provider_openai">OpenAI</string>
+    <string name="ai_provider_anthropic">Anthropic Claude</string>
+    <string name="ai_provider_gemini">Google Gemini</string>
+    <string name="ai_provider_openrouter">OpenRouter</string>
+    <string name="ai_provider_nvidia">NVIDIA build</string>
+    <string name="ai_provider_groq">Groq</string>
+    <string name="ai_provider_custom">Another OpenAI-compatible server</string>
+    <string name="ai_online_warning">Job descriptions and your resume are sent to this service, and it bills your API key for every job it reads.</string>
+    <string name="ai_keys_unavailable">Online models need a safe place for the API key, which this computer doesn’t have yet.</string>
+    <string name="ai_model">Model</string>
+    <string name="ai_model_blank">Type the model’s name.</string>
+    <string name="ai_address">Server address</string>
+    <string name="ai_address_hint">For example http://localhost:1234/v1</string>
+    <string name="ai_key">API key</string>
+    <string name="ai_key_optional">API key (if the server asks for one)</string>
+    <string name="ai_key_saved">A key is saved, protected by Windows. Type a new one to replace it.</string>
+    <string name="ai_key_missing">Add your API key first.</string>
+    <string name="ai_key_remove">Remove the key</string>
+    <string name="ai_test">Test</string>
+    <string name="ai_testing">Asking the model a test question…</string>
+    <string name="ai_test_ok">The model answered.</string>
+    <string name="ai_failed">The model didn’t answer: %1$s</string>
+    <string name="ai_save">Save</string>
+    <string name="ai_saved">Saved. New AI work uses %1$s.</string>
+    <string name="ai_save_failed">That didn’t save. Try again.</string>
+</resources>

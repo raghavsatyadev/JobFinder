@@ -1,0 +1,15 @@
+<resources>
+    <!-- Settings → Free online AI: the Antigravity CLI (agy) on this computer -->
+    <string name="agy_title">Antigravity (this computer’s CLI)</string>
+    <string name="agy_hint">Gemini Flash through the Antigravity CLI on this computer, on your Google sign-in. No key needed. Only public job text goes to it unless you turn it on for your resume below. Each answer takes about 15 seconds.</string>
+    <string name="agy_found">Installed: agy %1$s</string>
+    <string name="agy_found_plain">Installed</string>
+    <string name="agy_missing">Not installed. Install the Antigravity CLI, then open this page again.</string>
+    <string name="agy_install">How to install</string>
+    <string name="agy_sign_in">To sign in, run “agy” once in a terminal and sign in with your Google account.</string>
+    <string name="agy_model">Thinking level: higher is slower but more careful</string>
+    <string name="agy_level_low">Low</string>
+    <string name="agy_level_medium">Medium</string>
+    <string name="agy_level_high">High</string>
+    <string name="agy_chip">Antigravity</string>
+</resources>

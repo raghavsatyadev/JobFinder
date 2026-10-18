@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# pre-push dispatcher.
+#   pushed commits touch CMP/       -> kit-pre-push (scripts/ci-local.sh --committed-only)
+# git feeds the pushed refs on stdin; it is read once and replayed to the check.
+#
+# Skip once:  git push --no-verify
+# Skip the Kotlin check always: SKIP_CI_LOCAL=1 git push
+set -u
+# shellcheck source=common.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
+
+refs="$(mktemp "${TMPDIR:-/tmp}/prepush.XXXXXX")"
+trap 'rm -f "$refs"' EXIT
+cat > "$refs"
+
+# Deleting a remote branch pushes no commits: nothing to check.
+deletes_only=1
+while read -r _ local_sha _ _; do
+  [ "$local_sha" = "$ZERO_SHA" ] || deletes_only=0
+done < "$refs"
+[ "$deletes_only" = 1 ] && exit 0
+
+pushed="$(pushed_files "${1:-origin}" < "$refs")"
+rc=0
+
+if touches "$KIT_PREFIX" "$pushed"; then
+  hook_log "pre-push: ${KIT_PREFIX} in pushed commits -> ci-local"
+  bash "$HOOKS_DIR/kit-pre-push" "$@" < "$refs" || rc=1
+fi
+
+exit "$rc"
