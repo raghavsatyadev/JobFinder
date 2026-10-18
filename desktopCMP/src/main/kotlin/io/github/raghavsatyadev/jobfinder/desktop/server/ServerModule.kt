@@ -6,6 +6,7 @@ import io.github.raghavsatyadev.jobfinder.desktop.models.HttpOllamaModels
 import io.github.raghavsatyadev.jobfinder.desktop.models.HuggingFace
 import io.github.raghavsatyadev.jobfinder.desktop.models.ModelCheckStore
 import io.github.raghavsatyadev.jobfinder.desktop.models.PcProfiler
+import io.github.raghavsatyadev.jobfinder.desktop.secrets.DesktopDeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DpapiSecretStore
 import io.github.raghavsatyadev.jobfinder.desktop.setup.PowerShell
 import io.github.raghavsatyadev.jobfinder.server.ai.AccuracyCheck
@@ -65,6 +66,7 @@ import io.github.raghavsatyadev.jobfinder.server.service.insights.ScraperInsight
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsFacts
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsService
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
+import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
@@ -127,6 +129,13 @@ fun serverModule(dataDir: File) = module {
   single<Scanner> { getOrNull<JobScanner>() ?: UnavailableScanner() }
   // API keys sit in DPAPI files next to the database, never in it.
   single<SecretStore> { DpapiSecretStore.forThisComputer(dataDir.resolve(SECRETS_DIR).toPath()) }
+  // Locks the backups saved without a password; kept like the API keys.
+  single<DeviceBackupKeys> {
+    DesktopDeviceBackupKeys(
+      get(),
+      dataDir.resolve(SECRETS_DIR).resolve(DesktopDeviceBackupKeys.NAME).toPath(),
+    )
+  }
   single { AiService(get(), get()) }
   single<LocalModels> {
     val http = LlmClient.defaultHttpClient()
@@ -284,6 +293,7 @@ fun serverModule(dataDir: File) = module {
       appVersion = System.getProperty(APP_VERSION_PROPERTY).orEmpty(),
       restoreResume = { get<AtsService>().restoreResume(it) },
       jobsCsv = { get<JobsCsvExporter>().export() },
+      deviceKeys = get(),
     )
   } bind BackupRepository::class
   single { ServerIdentity.load(dataDir.resolve(SERVER_ID_FILE).toPath()) }

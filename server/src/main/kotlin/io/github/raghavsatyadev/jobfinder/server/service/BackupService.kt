@@ -18,8 +18,10 @@ import io.github.raghavsatyadev.jobfinder.server.db.withAi
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
+import io.github.raghavsatyadev.jobfinder.shared.backup.BackupCrypto
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFiles
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFormatException
+import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.backup.FullBackup
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupAiUsage
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupAtsReview
@@ -60,7 +62,8 @@ import org.slf4j.LoggerFactory
  * Settings and full backups of the desktop database (see [BackupFiles]). Never exports the pairing
  * token, site sign-ins or debug page dumps. A merge adds what is missing (searches by URL, jobs by
  * their id on the job board, with their notes and reviews); a replace first saves the current data
- * to [backupDir]. Every import tells open lists to reload with an empty [ServerEvent.NewJobs].
+ * to [backupDir]. Every import tells open lists to reload with an empty [ServerEvent.NewJobs]. The
+ * files saved to [backupDir] are locked with this computer's own key ([BackupCrypto]).
  */
 class BackupService(
   private val db: ServerDatabase,
@@ -75,6 +78,8 @@ class BackupService(
   private val restoreResume: (suspend (ResumeEntity) -> Unit)? = null,
   /** The jobs as CSV ([JobsCsvExporter]); `null` exports only the header. */
   private val jobsCsv: (suspend () -> String)? = null,
+  /** This computer's backup key; `null` (or no key) saves plain zips. */
+  private val deviceKeys: DeviceBackupKeys? = null,
   private val clock: () -> Long = System::currentTimeMillis,
 ) : BackupRepository {
   /** One import or export at a time. */
@@ -144,9 +149,11 @@ class BackupService(
   fun automaticBackups(): List<Path> =
     if (!java.nio.file.Files.isDirectory(backupDir)) emptyList()
     else
-      backupDir.listDirectoryEntries("{$AUTO_PREFIX,$OLD_AUTO_PREFIX}*.zip").sortedByDescending {
-        java.nio.file.Files.getLastModifiedTime(it)
-      }
+      backupDir
+        .listDirectoryEntries("{$AUTO_PREFIX,$OLD_AUTO_PREFIX}*.{zip,$LOCKED}")
+        .sortedByDescending {
+          java.nio.file.Files.getLastModifiedTime(it)
+        }
 
   // Export
 
@@ -495,15 +502,23 @@ class BackupService(
       .toMap()
   }
 
-  private suspend fun write(prefix: String, bytes: ByteArray): Path =
-    withContext(Dispatchers.IO) {
+  /** Saves [bytes] to [backupDir], locked with this computer's key when it has one. */
+  private suspend fun write(prefix: String, bytes: ByteArray): Path {
+    val key = deviceKeys?.get()
+    val (content, extension) =
+      if (key == null) bytes to "zip"
+      else withContext(Dispatchers.Default) { BackupCrypto.lock(bytes, emptyList(), key) } to LOCKED
+    return withContext(Dispatchers.IO) {
       backupDir.createDirectories()
       val stamp = LocalDateTime.now().format(STAMP)
-      var file = backupDir.resolve("$prefix$stamp.zip")
+      var file = backupDir.resolve("$prefix$stamp.$extension")
       var n = 2
-      while (java.nio.file.Files.exists(file)) file = backupDir.resolve("$prefix$stamp-${n++}.zip")
-      file.also { it.writeBytes(bytes) }
+      while (java.nio.file.Files.exists(file)) {
+        file = backupDir.resolve("$prefix$stamp-${n++}.$extension")
+      }
+      file.also { it.writeBytes(content) }
     }
+  }
 
   companion object {
     private val log = LoggerFactory.getLogger("jobfinder.backup")
@@ -513,6 +528,9 @@ class BackupService(
     const val BEFORE_PREFIX = "jobfinder-before-restore-"
     const val DAY_MS = 24L * 60 * 60 * 1000
     const val AUTO_KEEP = 7
+
+    /** A locked backup file's extension (the app's old short name). */
+    const val LOCKED = "f2a"
 
     /** A partial backup (the phone's copy) can be added, never replace everything. */
     fun checkReplace(manifest: BackupManifest) {

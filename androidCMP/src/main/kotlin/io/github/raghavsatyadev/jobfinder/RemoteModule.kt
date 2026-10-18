@@ -38,6 +38,7 @@ import io.github.raghavsatyadev.jobfinder.pairing.PairingStorage
 import io.github.raghavsatyadev.jobfinder.pairing.PairingStore
 import io.github.raghavsatyadev.jobfinder.pairing.QrCodeScanner
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiFailure
+import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteAiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteApi
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteAtsRepository
@@ -90,6 +91,7 @@ private val APP_SCOPE = named("appScope")
 
 /** Backups imported on the phone, in the app's files, until the computer has them. */
 private const val IMPORTS_DIR = "imports"
+private const val BACKUP_KEY_FILE = "backup-key"
 
 /**
  * An HTTP client that reaches only the computer at [paired], through [PairedHostDns]. SSE streams
@@ -184,6 +186,9 @@ fun remoteModule(): Module = module {
     )
   }
   single<ImportFiles> { FileImportFiles(get<Context>().filesDir.resolve(IMPORTS_DIR)) }
+  single<DeviceBackupKeys> {
+    AndroidDeviceBackupKeys(get<Context>().noBackupFilesDir.resolve(BACKUP_KEY_FILE))
+  }
   single<BackupRepository> {
     OfflineBackupRepository(RemoteBackupRepository(get()), get(), get()) {
       get<PhoneSync>().syncNow()

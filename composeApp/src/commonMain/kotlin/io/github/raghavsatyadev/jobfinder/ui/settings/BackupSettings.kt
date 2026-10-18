@@ -62,7 +62,6 @@ import io.github.raghavsatyadev.jobfinder.resources.backup_imported_waiting
 import io.github.raghavsatyadev.jobfinder.resources.backup_keys_ignored
 import io.github.raghavsatyadev.jobfinder.resources.backup_keys_import_desktop
 import io.github.raghavsatyadev.jobfinder.resources.backup_keys_import_phone
-import io.github.raghavsatyadev.jobfinder.resources.backup_keys_left_out
 import io.github.raghavsatyadev.jobfinder.resources.backup_keys_restored
 import io.github.raghavsatyadev.jobfinder.resources.backup_keys_saved
 import io.github.raghavsatyadev.jobfinder.resources.backup_mode_merge
@@ -87,7 +86,9 @@ import io.github.raghavsatyadev.jobfinder.shared.api.ApiFailure
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupCrypto
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFiles
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFormatException
+import io.github.raghavsatyadev.jobfinder.shared.backup.BackupOtherDeviceException
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupPasswordException
+import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupApiKey
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupManifest
 import io.github.raghavsatyadev.jobfinder.shared.model.ImportMode
@@ -184,9 +185,6 @@ sealed interface KeysNote {
   /** A locked export from the computer holds [count] keys. */
   data class Saved(val count: Int) : KeysNote
 
-  /** An export without a password: the computer's keys were left out. */
-  data object LeftOut : KeysNote
-
   /** [added] keys from the file were added to this computer (the rest were here already). */
   data class Restored(val added: Int) : KeysNote
 
@@ -219,6 +217,8 @@ data class BackupUiState(
   val available: Boolean = true,
   /** On the computer: the port part and the daily backups show, and a replace needs no approval. */
   val desktop: Boolean = false,
+  /** This device keeps its own backup key: an export can be saved without a password. */
+  val deviceLock: Boolean = true,
   val working: Boolean = false,
   /** A replace sent from the phone waits for the user's yes on the computer. */
   val awaitingApproval: Boolean = false,
@@ -268,8 +268,8 @@ sealed interface BackupUiEvent {
   /** Saves the export locked with the password. */
   data object ExportLocked : BackupUiEvent
 
-  /** Saves the export as a plain file, without the API keys. */
-  data object ExportPlain : BackupUiEvent
+  /** Saves the export locked with this device's own key: only this device opens it. */
+  data object ExportDevice : BackupUiEvent
 
   data class SetImportPassword(val password: String) : BackupUiEvent {
     override fun toString() = "SetImportPassword"
@@ -281,12 +281,13 @@ sealed interface BackupUiEvent {
 }
 
 /**
- * Settings and full backups, on both apps: export to a file the user picks, import from one. An
- * export is locked with a password the user chooses ([BackupCrypto]); on the computer it carries
- * the online API keys too. A plain export stays possible for older apps, without the keys. A locked
- * file asks for its password first. A picked settings file asks which parts to bring in; a full
- * backup shows what it holds and whether to add or replace (from the phone, a replace waits for the
- * user's yes on the computer). The phone never keeps API keys: a file's keys are ignored there.
+ * Settings and full backups, on both apps: export to a file the user picks, import from one. Every
+ * export is locked ([BackupCrypto]): with a password the user chooses, so it opens anywhere, or
+ * with this device's own key, so it opens only here. On the computer it carries the online API keys
+ * too. A password-locked file asks for its password first; plain files from older apps still
+ * import. A picked settings file asks which parts to bring in; a full backup shows what it holds
+ * and whether to add or replace (from the phone, a replace waits for the user's yes on the
+ * computer). The phone never keeps API keys: a file's keys are ignored there.
  */
 class BackupViewModel(
   private val backups: BackupRepository?,
@@ -295,12 +296,18 @@ class BackupViewModel(
   desktop: Boolean,
   /** The computer's online keys; `null` on the phone, which never holds them. */
   private val aiKeys: AiKeys? = null,
+  /** This device's own backup key, for files saved without a password. */
+  private val deviceKeys: DeviceBackupKeys? = null,
   /** Reads picked files and locks or opens them off the main thread. */
   private val reader: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
   private val _state =
     MutableStateFlow(
-      BackupUiState(available = backups != null && picker != null, desktop = desktop)
+      BackupUiState(
+        available = backups != null && picker != null,
+        desktop = desktop,
+        deviceLock = deviceKeys != null,
+      )
     )
   val state: StateFlow<BackupUiState> = _state.asStateFlow()
 
@@ -321,7 +328,7 @@ class BackupViewModel(
       is BackupUiEvent.SetPasswordAgain ->
         _state.update { s -> s.copy(exportLock = s.exportLock?.copy(again = event.password)) }
       BackupUiEvent.ExportLocked -> exportLocked()
-      BackupUiEvent.ExportPlain -> exportPlain()
+      BackupUiEvent.ExportDevice -> exportDevice()
       is BackupUiEvent.SetImportPassword ->
         _state.update { s ->
           s.copy(importUnlock = s.importUnlock?.copy(password = event.password, wrong = false))
@@ -367,11 +374,29 @@ class BackupViewModel(
 
   private fun exportLocked() {
     val lock = _state.value.exportLock?.takeIf { it.ready } ?: return
+    export(lock.export) { bytes, keys -> BackupCrypto.lock(bytes, keys, lock.password) }
+  }
+
+  /** Locked with this device's own key: no password to remember, but only this device opens it. */
+  private fun exportDevice() {
+    val export = _state.value.exportLock?.export ?: return
+    val deviceKeys = deviceKeys ?: return
+    export(export) { bytes, keys ->
+      val key = deviceKeys.get() ?: throw BackupFormatException(DEVICE_KEY_MISSING)
+      BackupCrypto.lock(bytes, keys, key)
+    }
+  }
+
+  /** Saves [export] locked by [lock], with the computer's API keys. */
+  private fun export(
+    export: PendingExport,
+    lock: suspend (ByteArray, List<BackupApiKey>) -> ByteArray,
+  ) {
     _state.update { it.copy(exportLock = null) }
     work {
-      val file = exportFile(lock.export)
+      val file = exportFile(export)
       val keys = aiKeys?.backupKeys().orEmpty()
-      val locked = withContext(reader) { BackupCrypto.lock(file.bytes, keys, lock.password) }
+      val locked = withContext(reader) { lock(file.bytes, keys) }
       if (keys.isNotEmpty()) _state.update { it.copy(keysNote = KeysNote.Saved(keys.size)) }
       save("${file.name}.$LOCKED_EXTENSION", OCTET_STREAM, locked)?.let { file.result(it) }
     }
@@ -387,24 +412,9 @@ class BackupViewModel(
     }
   }
 
-  /** The old plain file, which older apps read: never with the API keys. */
-  private fun exportPlain() {
-    val export = _state.value.exportLock?.export ?: return
-    _state.update { it.copy(exportLock = null) }
-    work {
-      val file = exportFile(export)
-      if (aiKeys?.backupKeys()?.isNotEmpty() == true) {
-        _state.update { it.copy(keysNote = KeysNote.LeftOut) }
-      }
-      save("${file.name}.${file.extension}", file.mime, file.bytes)?.let { file.result(it) }
-    }
-  }
-
-  /** A plain backup file to save, as [BackupFiles] writes it. */
+  /** A plain backup file to lock and save, as [BackupFiles] writes it. */
   private class ExportFile(
     val name: String,
-    val extension: String,
-    val mime: String,
     val bytes: ByteArray,
     /** Jobs in the phone's own copy, saved when the computer was out of reach. */
     val partialJobs: Int? = null,
@@ -418,19 +428,13 @@ class BackupViewModel(
     return when (export) {
       is PendingExport.Settings -> {
         val backup = requireNotNull(backups).exportSettings(export.parts)
-        ExportFile("jobfinder-settings-$date", "json", JSON, BackupFiles.encodeSettings(backup))
+        ExportFile("jobfinder-settings-$date", BackupFiles.encodeSettings(backup))
       }
       PendingExport.Everything -> {
         val bytes = requireNotNull(backups).exportFull()
         val manifest = withContext(reader) { BackupFiles.readManifest(bytes) }
         val name = if (manifest.partial) "jobfinder-phone-copy" else "jobfinder-backup"
-        ExportFile(
-          "$name-$date",
-          "zip",
-          ZIP,
-          bytes,
-          partialJobs = manifest.jobs.takeIf { manifest.partial },
-        )
+        ExportFile("$name-$date", bytes, partialJobs = manifest.jobs.takeIf { manifest.partial })
       }
     }
   }
@@ -451,11 +455,29 @@ class BackupViewModel(
         } catch (_: Exception) {
           null
         } ?: return@launch
-      if (BackupCrypto.isLocked(file.bytes)) {
-        _state.update { it.copy(importUnlock = ImportUnlock(file.bytes)) }
-      } else {
-        readPlain(file.bytes, emptyList())
+      when {
+        BackupCrypto.isDeviceLocked(file.bytes) -> openDeviceLocked(file.bytes)
+        BackupCrypto.isLocked(file.bytes) ->
+          _state.update { it.copy(importUnlock = ImportUnlock(file.bytes)) }
+        else -> readPlain(file.bytes, emptyList())
       }
+    }
+  }
+
+  /**
+   * A file saved without a password: this device's key opens it, or it says another one locked it.
+   */
+  private suspend fun openDeviceLocked(bytes: ByteArray) {
+    try {
+      val key = deviceKeys?.get() ?: throw BackupOtherDeviceException()
+      val opened = withContext(reader) { BackupCrypto.open(bytes, key) }
+      readPlain(opened.content, opened.apiKeys)
+    } catch (e: CancellationException) {
+      throw e
+    } catch (e: BackupFormatException) {
+      _state.update { it.copy(result = BackupResult.Failed(e.message)) }
+    } catch (_: Exception) {
+      _state.update { it.copy(result = BackupResult.Failed(null)) }
     }
   }
 
@@ -563,13 +585,14 @@ class BackupViewModel(
     if (part in this) this - part else this + part
 
   companion object {
-    const val JSON = "application/json"
     const val CSV = "text/csv"
-    const val ZIP = "application/zip"
     const val OCTET_STREAM = "application/octet-stream"
 
     /** A password-locked backup, settings or everything. */
     const val LOCKED_EXTENSION = "f2a"
+
+    private const val DEVICE_KEY_MISSING =
+      "This device can't keep a backup key. Lock the file with a password instead."
   }
 }
 
@@ -704,7 +727,7 @@ fun BackupContent(state: BackupUiState, onEvent: (BackupUiEvent) -> Unit) {
     )
   }
   state.fullImport?.let { FullImportDialog(it, state.desktop, onEvent) }
-  state.exportLock?.let { ExportPasswordDialog(it, state.desktop, onEvent) }
+  state.exportLock?.let { ExportPasswordDialog(it, state.desktop, state.deviceLock, onEvent) }
   state.importUnlock?.let { ImportPasswordDialog(it, onEvent) }
 }
 
@@ -722,7 +745,6 @@ private fun KeysNoteText(note: KeysNote) {
   Text(
     when (note) {
       is KeysNote.Saved -> stringResource(Res.string.backup_keys_saved, note.count)
-      KeysNote.LeftOut -> stringResource(Res.string.backup_keys_left_out)
       is KeysNote.Restored -> stringResource(Res.string.backup_keys_restored, note.added)
       is KeysNote.Ignored -> stringResource(Res.string.backup_keys_ignored, note.count)
     },

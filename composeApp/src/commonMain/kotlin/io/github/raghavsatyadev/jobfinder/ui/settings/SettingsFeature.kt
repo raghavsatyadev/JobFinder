@@ -225,6 +225,7 @@ val settingsUiModule = module {
       get(),
       desktop = getOrNull<DesktopFeatures>() != null,
       aiKeys = getOrNull(),
+      deviceKeys = getOrNull(),
     )
   }
   viewModel { DetailLayoutViewModel(get()) }

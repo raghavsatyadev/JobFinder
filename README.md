@@ -39,8 +39,9 @@ There is no account and no server. Your searches, jobs, resume and notes stay on
   removed are deleted, and filtered-out jobs are deleted after 30 days (you choose the days, or
   keep them).
 - **Backs up everything.** One file with your searches, jobs, notes, ATS reviews and settings,
-  locked with a password if you want. The computer also makes a backup each day. A CSV export of
-  your jobs opens in any spreadsheet app.
+  always locked: with a password it opens on any computer or phone, without one only on the device
+  that saved it. The computer also makes a locked backup each day. A CSV export of your jobs opens
+  in any spreadsheet app.
 
 JobFinder does not apply to jobs for you. It finds them early; you apply yourself.
 
@@ -65,8 +66,8 @@ that the setup downloads for you. Nothing you send to it leaves the computer.
 If your computer is slow, you can add free API keys from NVIDIA, Groq, OpenRouter or Google Gemini
 (no payment card needed). Job pages then go to the online keys first and your computer takes over
 when they run out for the day. Work that reads your resume stays on your computer unless you choose
-otherwise. Keys are kept with Windows data protection and never go into backups without a password,
-logs or the database.
+otherwise. Keys are kept with Windows data protection and never go into logs, the database or the
+phone; only locked backups made on the computer carry them.
 
 ## The browser extension
 
@@ -153,8 +154,8 @@ Help in the app (the question mark) has step-by-step guides and answers to commo
 - **Look:** light, dark or system theme.
 - **In-app browser:** open jobs in the app or in your default browser.
 - **Phone:** pair more phones, reset the pairing code, and the port the phone connects on.
-- **Backups:** export everything (with or without a password), import (replace everything or add
-  what is missing), and a CSV of your jobs.
+- **Backups:** export everything, locked with a password or with this device's own key, import
+  (replace everything or add what is missing), and a CSV of your jobs.
 - **Form answers:** see, edit, search and delete the answers the extension keeps; choose the sites
   it works on.
 

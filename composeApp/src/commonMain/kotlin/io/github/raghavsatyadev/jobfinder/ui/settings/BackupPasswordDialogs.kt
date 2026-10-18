@@ -76,10 +76,16 @@ enum class PasswordStrength {
 
 /**
  * The export's password, typed twice, with a strength hint. On the computer it says the API keys go
- * in the file. "Save without a password" writes the old plain file for older apps, without keys.
+ * in the file. "Save without a password" locks it with this device's own key instead, shown only
+ * where the device keeps one ([deviceLock]).
  */
 @Composable
-fun ExportPasswordDialog(lock: ExportLock, desktop: Boolean, onEvent: (BackupUiEvent) -> Unit) {
+fun ExportPasswordDialog(
+  lock: ExportLock,
+  desktop: Boolean,
+  deviceLock: Boolean,
+  onEvent: (BackupUiEvent) -> Unit,
+) {
   AlertDialog(
     onDismissRequest = { onEvent(BackupUiEvent.Dismiss) },
     title = { Text(stringResource(Res.string.backup_password_title)) },
@@ -108,17 +114,19 @@ fun ExportPasswordDialog(lock: ExportLock, desktop: Boolean, onEvent: (BackupUiE
           supporting = if (mismatch) stringResource(Res.string.backup_password_mismatch) else null,
           error = mismatch,
         )
-        HorizontalDivider(Modifier.padding(top = 4.dp))
-        Text(
-          stringResource(
-            if (desktop) Res.string.backup_password_plain_keys
-            else Res.string.backup_password_plain_hint
-          ),
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        TextButton(onClick = { onEvent(BackupUiEvent.ExportPlain) }) {
-          Text(stringResource(Res.string.backup_password_plain))
+        if (deviceLock) {
+          HorizontalDivider(Modifier.padding(top = 4.dp))
+          Text(
+            stringResource(
+              if (desktop) Res.string.backup_password_plain_keys
+              else Res.string.backup_password_plain_hint
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          TextButton(onClick = { onEvent(BackupUiEvent.ExportDevice) }) {
+            Text(stringResource(Res.string.backup_password_plain))
+          }
         }
       }
     },

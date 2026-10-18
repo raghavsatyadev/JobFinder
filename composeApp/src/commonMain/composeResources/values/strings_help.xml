@@ -73,9 +73,9 @@
     <string name="help_guide_phone_jobs">The phone shows your jobs and tells you when new ones arrive, while it is on the computer’s Wi-Fi.</string>
     <string name="help_guide_backup_title">Back up and move to a new computer</string>
     <string name="help_guide_backup_export_title">Export everything</string>
-    <string name="help_guide_backup_export">In Settings, under Backup and move, Export everything saves one file with your searches, jobs, notes, ATS reviews and settings, locked with a password you choose. On the computer it holds your online API keys too. The computer also saves one each day, without a password or API keys, and keeps the last 7.</string>
+    <string name="help_guide_backup_export">In Settings, under Backup and move, Export everything saves one locked file with your searches, jobs, notes, ATS reviews and settings. Lock it with a password you choose to move to another computer or phone; without a password, only this device can open it. On the computer it holds your online API keys too. The computer also saves one each day, locked so only it can open it, and keeps the last 7.</string>
     <string name="help_guide_backup_keep_title">Keep the file safe</string>
-    <string name="help_guide_backup_keep">Copy it to a USB drive or a cloud folder, and keep the password somewhere safe: without it the file can’t be opened. Pairing codes and site sign-ins are never in it, so you sign in to the job sites again after a move.</string>
+    <string name="help_guide_backup_keep">Copy it to a USB drive or a cloud folder. For a move, use a password and keep it somewhere safe: without it the file can’t be opened. Pairing codes and site sign-ins are never in it, so you sign in to the job sites again after a move.</string>
     <string name="help_guide_backup_restore_title">Restore it on the new computer</string>
     <string name="help_guide_backup_restore">Install JobFinder and finish the setup. Then in Settings, Import a backup, pick the file, type its password and choose Replace everything. Your online API keys come back too. On a computer you already use, choose Add what’s missing instead.</string>
     <string name="help_guide_backup_pair_title">Connect your phone again</string>

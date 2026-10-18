@@ -1,12 +1,12 @@
 <resources>
     <!-- Settings: backup and move -->
     <string name="settings_section_backup">Backup and move</string>
-    <string name="backup_hint">Save your settings, or everything, to a file locked with a password you choose. Open it on another computer or phone to bring it all back. On the computer, your online API keys go in the file too. Pairing codes and site sign-ins are never saved. "Export jobs as CSV" saves only your jobs, as a spreadsheet, without a password.</string>
+    <string name="backup_hint">Save your settings, or everything, to a locked file. Lock it with a password you choose to open it on another computer or phone, or save it without one: then only this device can open it. On the computer, your online API keys go in the file too. Pairing codes and site sign-ins are never saved. "Export jobs as CSV" saves only your jobs, as a spreadsheet, without a lock.</string>
     <string name="backup_export_settings">Export settings</string>
     <string name="backup_export_all">Export everything</string>
     <string name="backup_import">Import a backup</string>
     <string name="backup_export_csv">Export jobs as CSV</string>
-    <string name="backup_auto_hint">The computer also saves everything once a day and keeps the last 7 days.</string>
+    <string name="backup_auto_hint">The computer also saves everything once a day, locked so only this computer can open it, and keeps the last 7 days.</string>
     <string name="backup_dialog_open">Open a JobFinder backup</string>
     <string name="backup_dialog_save">Save the backup</string>
     <string name="backup_export_title">Export settings</string>
@@ -47,9 +47,9 @@
     <string name="backup_saved_partial">The computer is out of reach, so only this phone’s copy was saved: %1$d jobs, without notes or ATS scores.</string>
     <!-- Backup passwords and API keys -->
     <string name="backup_export_next">Next</string>
-    <string name="backup_password_title">Lock the file with a password</string>
-    <string name="backup_password_text">Choose a password of at least 10 characters. You need it to import the file. It can’t be recovered if you forget it.</string>
-    <string name="backup_password_keys">Your online API keys go in the file too, safe behind the password.</string>
+    <string name="backup_password_title">Lock the file</string>
+    <string name="backup_password_text">Choose a password of at least 10 characters to import the file on any computer or phone. It can’t be recovered if you forget it.</string>
+    <string name="backup_password_keys">Your online API keys go in the file too, safe behind the lock.</string>
     <string name="backup_password">Password</string>
     <string name="backup_password_again">Password again</string>
     <string name="backup_password_too_short">At least %1$d characters</string>
@@ -59,15 +59,14 @@
     <string name="backup_password_mismatch">The two passwords are different.</string>
     <string name="backup_password_export">Export</string>
     <string name="backup_password_plain">Save without a password</string>
-    <string name="backup_password_plain_hint">Only for older versions of the app. Anyone with the file can read it.</string>
-    <string name="backup_password_plain_keys">Only for older versions of the app. Anyone with the file can read it, and your API keys are left out.</string>
+    <string name="backup_password_plain_hint">Only this phone can open the file. After the app is uninstalled, nothing can open it.</string>
+    <string name="backup_password_plain_keys">Only this computer, signed in as you, can open the file. After the system is reinstalled, nothing can open it.</string>
     <string name="backup_unlock_title">Enter the password</string>
     <string name="backup_unlock_text">This backup is locked with a password.</string>
     <string name="backup_unlock_wrong">Wrong password, or the file is damaged.</string>
     <string name="backup_unlock_opening">Checking the password…</string>
     <string name="backup_unlock_button">Open</string>
     <string name="backup_keys_saved">The file also holds your %1$d online API keys.</string>
-    <string name="backup_keys_left_out">Your API keys were left out: the file has no password.</string>
     <string name="backup_keys_restored">Online API keys added to this computer: %1$d.</string>
     <string name="backup_keys_ignored">The file’s %1$d API keys were not added: API keys stay on the computer only.</string>
     <string name="backup_keys_import_desktop">It also holds %1$d online API keys. They are added to this computer.</string>
