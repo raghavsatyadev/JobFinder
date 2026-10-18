@@ -69,6 +69,14 @@ import io.github.raghavsatyadev.jobfinder.resources.prompt_saved
 import io.github.raghavsatyadev.jobfinder.resources.prompt_show_default
 import io.github.raghavsatyadev.jobfinder.resources.prompt_tips_hint
 import io.github.raghavsatyadev.jobfinder.resources.prompt_tips_title
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_ats
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_excluded
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_failed
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_job
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_kept
+import io.github.raghavsatyadev.jobfinder.resources.prompt_try_not_saved
+import io.github.raghavsatyadev.jobfinder.resources.prompt_trying
 import io.github.raghavsatyadev.jobfinder.resources.prompt_warn_again_text
 import io.github.raghavsatyadev.jobfinder.resources.prompt_warn_again_title
 import io.github.raghavsatyadev.jobfinder.resources.prompt_warn_continue
@@ -85,7 +93,9 @@ import io.github.raghavsatyadev.jobfinder.resources.prompts_load_failed
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptChecks
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptWarning
+import io.github.raghavsatyadev.jobfinder.shared.model.tryable
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
 import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
@@ -126,6 +136,12 @@ data class AiPromptsUiState(
   val confirm: PromptConfirm? = null,
   /** The last save or reset, said under its prompt. */
   val message: Pair<PromptId, StringResource>? = null,
+  /** The prompt "Try it" is running for. */
+  val trying: PromptId? = null,
+  /** The last try of each prompt. */
+  val trials: Map<PromptId, PromptTrial> = emptyMap(),
+  /** Why the last try failed, under its prompt. */
+  val tryFailed: Pair<PromptId, String>? = null,
 ) {
   fun text(prompt: AiPrompt): String = drafts[prompt.id] ?: prompt.text
 
@@ -150,6 +166,9 @@ sealed interface AiPromptsEvent {
   data class ToggleDefault(val id: PromptId) : AiPromptsEvent
 
   data object Retry : AiPromptsEvent
+
+  /** Runs the text as typed on one job, without saving it. */
+  data class TryIt(val id: PromptId) : AiPromptsEvent
 }
 
 /** The AI instructions on the AI filters tab: edit, save with warnings, reset. */
@@ -178,6 +197,27 @@ class AiPromptsViewModel(private val repository: AiPromptsRepository) : ViewMode
           it.copy(showingDefault = if (event.id in shown) shown - event.id else shown + event.id)
         }
       AiPromptsEvent.Retry -> load()
+      is AiPromptsEvent.TryIt -> tryIt(event.id)
+    }
+  }
+
+  private fun tryIt(id: PromptId) {
+    val state = _state.value
+    if (state.trying != null) return
+    val prompt = state.prompts?.firstOrNull { it.id == id } ?: return
+    val text = state.text(prompt)
+    _state.update { it.copy(trying = id, tryFailed = null) }
+    viewModelScope.launch {
+      try {
+        val trial = repository.tryPrompt(id, text)
+        _state.update { it.copy(trying = null, trials = it.trials + (id to trial)) }
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        _state.update {
+          it.copy(trying = null, trials = it.trials - id, tryFailed = id to e.message.orEmpty())
+        }
+      }
     }
   }
 
@@ -389,6 +429,15 @@ private fun PromptEditor(
           Text(stringResource(Res.string.prompt_reset))
         }
       }
+      if (prompt.id.tryable) {
+        TextButton(
+          onClick = { onEvent(AiPromptsEvent.TryIt(prompt.id)) },
+          enabled = !saving && state.trying == null && !LocalComputerOffline.current,
+          shapes = ButtonDefaults.shapes(),
+        ) {
+          Text(stringResource(Res.string.prompt_try))
+        }
+      }
       if (prompt.edited || state.changed(prompt)) {
         TextButton(
           onClick = { onEvent(AiPromptsEvent.ToggleDefault(prompt.id)) },
@@ -404,6 +453,24 @@ private fun PromptEditor(
       }
     }
     if (saving) WavyProgress()
+    if (state.trying == prompt.id) {
+      Text(
+        stringResource(Res.string.prompt_trying),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      WavyProgress()
+    }
+    state.tryFailed
+      ?.takeIf { it.first == prompt.id }
+      ?.let { (_, reason) ->
+        Text(
+          stringResource(Res.string.prompt_try_failed, reason),
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.error,
+        )
+      }
+    state.trials[prompt.id]?.let { TrialResult(it) }
     state.message
       ?.takeIf { it.first == prompt.id }
       ?.let { (_, message) ->
@@ -430,6 +497,49 @@ private fun PromptEditor(
           }
         }
       }
+    }
+  }
+}
+
+/** What a try answered, for the job it ran on. */
+@Composable
+private fun TrialResult(trial: PromptTrial) {
+  Surface(
+    color = MaterialTheme.colorScheme.secondaryContainer,
+    shape = MaterialTheme.shapes.medium,
+  ) {
+    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      Text(
+        stringResource(Res.string.prompt_try_job, trial.title, trial.company),
+        style = MaterialTheme.typography.labelLarge,
+      )
+      trial.excluded?.let { excluded ->
+        Text(
+          if (excluded) {
+            stringResource(Res.string.prompt_try_excluded, trial.reason.orEmpty())
+          } else {
+            stringResource(Res.string.prompt_try_kept)
+          },
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+      trial.atsMatch?.let { match ->
+        Text(
+          stringResource(Res.string.prompt_try_ats, match),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+      trial.assessment
+        ?.takeIf { it.isNotBlank() }
+        ?.let {
+          Text(it, style = MaterialTheme.typography.bodySmall)
+        }
+      trial.fixes.forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
+      Text(
+        stringResource(Res.string.prompt_try_not_saved),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
     }
   }
 }

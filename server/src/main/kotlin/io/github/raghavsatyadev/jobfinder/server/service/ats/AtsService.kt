@@ -7,6 +7,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.ResumeDao
 import io.github.raghavsatyadev.jobfinder.server.db.ResumeEntity
 import io.github.raghavsatyadev.jobfinder.server.db.toModel
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.ApiException
 import io.github.raghavsatyadev.jobfinder.server.service.JobAiRider
 import io.github.raghavsatyadev.jobfinder.server.service.Ride
@@ -46,6 +47,7 @@ class AtsService(
   private val model: AtsModel,
   private val events: ServerEvents,
   private val clock: () -> Long = System::currentTimeMillis,
+  private val pause: AiWorkPause = AiWorkPause.NEVER,
 ) : AtsRepository, JobAiRider {
   private val wake = Channel<Unit>(Channel.CONFLATED)
   private val asked = ConcurrentLinkedDeque<Long>()
@@ -79,6 +81,8 @@ class AtsService(
     scope.launch {
       events.events.collect { if (it is ServerEvent.NewJobs) wake.trySend(Unit) }
     }
+    // Resuming wakes the worker for the jobs it passed over.
+    scope.launch { pause.paused.collect { if (!it) wake.trySend(Unit) } }
     scope.launch {
       while (true) {
         val next = next()
@@ -164,13 +168,17 @@ class AtsService(
     return AtsSummary(stored.overall, stored.atsMatch, stored.shortlisted)
   }
 
-  /** The job asked for first, else the newest unscored new job; `null` when there is none. */
+  /**
+   * The job asked for first, else (unless AI work is paused) the newest unscored new job; `null`
+   * when there is none.
+   */
   internal suspend fun next(): Long? {
     val hash = resumes.get()?.hash ?: return null
     while (true) {
       val id = asked.pollFirst() ?: break
       if (reviews.get(id, hash) == null) return id
     }
+    if (pause.paused.value) return null
     return reviews.nextUnscored(JobStatus.NEW.wire, hash)
   }
 

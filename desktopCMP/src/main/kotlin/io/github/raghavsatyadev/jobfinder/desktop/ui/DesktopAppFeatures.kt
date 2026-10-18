@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefRuntime
 import io.github.raghavsatyadev.jobfinder.desktop.browser.ExtensionSignIns
 import io.github.raghavsatyadev.jobfinder.desktop.browser.SystemBrowserSignIn
+import io.github.raghavsatyadev.jobfinder.desktop.setup.SetupMemory
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
 import io.github.raghavsatyadev.jobfinder.server.http.PairedPhones
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsRepository
@@ -37,6 +38,8 @@ class DesktopAppFeatures(
   private val signIn: SystemBrowserSignIn? = null,
   private val phones: PairedPhones? = null,
   private val extensionSignIns: ExtensionSignIns? = null,
+  /** Remembers a sign-in opened from anywhere, so the setup step shows done. */
+  private val setupMemory: SetupMemory? = null,
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : DesktopFeatures, AutoCloseable {
   private val log = LoggerFactory.getLogger(DesktopAppFeatures::class.java)
@@ -77,6 +80,7 @@ class DesktopAppFeatures(
    */
   override fun openLoginBrowser(url: String?) {
     val target = url ?: BLANK_PAGE
+    if (url != null) setupMemory?.signedIn = true
     if (signIn?.isAvailable != true) return login.open(target)
     scope.launch {
       try {

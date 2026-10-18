@@ -22,6 +22,17 @@
     <string name="keys_used_requests_open">Today: %1$d requests</string>
     <string name="keys_used_tokens">%1$s of %2$s words</string>
     <string name="keys_remove">Remove %1$s</string>
+    <string name="keys_edit">Edit</string>
+    <string name="keys_edit_label">Name</string>
+    <string name="keys_edit_model">Model</string>
+    <string name="keys_edit_per_minute">A minute</string>
+    <string name="keys_edit_per_day">A day</string>
+    <string name="keys_edit_tokens">Tokens a day</string>
+    <string name="keys_edit_limits_hint">Requests a minute and a day, and tokens a day. Once one is reached the key rests and the next model takes the work. Leave blank for no limit.</string>
+    <string name="keys_edit_save">Save</string>
+    <string name="keys_route_up">Try %1$s earlier</string>
+    <string name="keys_route_down">Try %1$s later</string>
+    <string name="keys_route_remove">Stop using %1$s for this</string>
     <string name="keys_routing_title">Which model does which work</string>
     <string name="keys_routing_hint">Tried left to right. A model out of quota hands the work to the next.</string>
     <string name="keys_local">This computer</string>

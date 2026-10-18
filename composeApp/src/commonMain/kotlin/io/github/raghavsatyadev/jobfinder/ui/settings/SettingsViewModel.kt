@@ -72,6 +72,8 @@ sealed interface SettingsUiEvent {
 
   data class SetSound(val enabled: Boolean) : SettingsUiEvent
 
+  data class SetAiPaused(val paused: Boolean) : SettingsUiEvent
+
   data class SetInAppBrowser(val enabled: Boolean) : SettingsUiEvent
 
   /** `null` keeps filtered-out jobs forever. */
@@ -165,6 +167,7 @@ class SettingsViewModel(
       SettingsUiEvent.DismissFrequency -> _state.update { it.copy(confirmFrequency = null) }
       is SettingsUiEvent.SetPreventSleep -> changeScanner { it.copy(preventSleep = event.enabled) }
       is SettingsUiEvent.SetSound -> changeScanner { it.copy(useSound = event.enabled) }
+      is SettingsUiEvent.SetAiPaused -> changeScanner { it.copy(aiPaused = event.paused) }
       is SettingsUiEvent.SetExcludedKeepDays ->
         changeScanner { it.copy(excludedKeepDays = event.days) }
       is SettingsUiEvent.SetInAppBrowser ->

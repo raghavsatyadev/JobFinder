@@ -6,6 +6,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.GhostDao
 import io.github.raghavsatyadev.jobfinder.server.db.JobEntity
 import io.github.raghavsatyadev.jobfinder.server.db.JobsDao
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.insights.CompanyNames
 import io.github.raghavsatyadev.jobfinder.server.service.notFound
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
@@ -56,6 +57,7 @@ class GhostService(
   private val gap: () -> Duration = { Random.nextLong(GAP_MIN_MS, GAP_MAX_MS + 1).milliseconds },
   /** The pause between two requests to the careers hosts. */
   private val pause: () -> Duration = { Random.nextLong(1_500, 4_001).milliseconds },
+  private val aiPause: AiWorkPause = AiWorkPause.NEVER,
 ) : GhostRepository {
   private val queue = Channel<Long>(Channel.UNLIMITED)
   private val queued = ConcurrentHashMap.newKeySet<Long>()
@@ -87,6 +89,7 @@ class GhostService(
   private suspend fun backfill() {
     delay(BACKFILL_START)
     while (true) {
+      aiPause.awaitResumed()
       while (queued.isNotEmpty()) delay(QUEUE_POLL)
       val next =
         try {

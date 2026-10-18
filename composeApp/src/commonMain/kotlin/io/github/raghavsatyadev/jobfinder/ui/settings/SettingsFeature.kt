@@ -95,6 +95,8 @@ import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
 import io.github.raghavsatyadev.jobfinder.resources.help_title
+import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_hint
+import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_add
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_check
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_connected
@@ -524,6 +526,14 @@ private fun ScanningSection(scanner: ScannerSettings?, onEvent: (SettingsUiEvent
   val enabled = !LocalComputerOffline.current
   FrequencyPicker(scanner.cronRule, enabled) { onEvent(SettingsUiEvent.SetFrequency(it)) }
   HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+  SwitchRow(
+    Res.string.settings_ai_paused_title,
+    Res.string.settings_ai_paused_hint,
+    scanner.aiPaused,
+    enabled,
+  ) {
+    onEvent(SettingsUiEvent.SetAiPaused(it))
+  }
   SwitchRow(
     Res.string.settings_prevent_sleep_title,
     Res.string.settings_prevent_sleep_hint,

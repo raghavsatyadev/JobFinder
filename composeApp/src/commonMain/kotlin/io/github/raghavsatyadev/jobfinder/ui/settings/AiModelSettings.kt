@@ -55,6 +55,7 @@ import io.github.raghavsatyadev.jobfinder.resources.ai_provider_anthropic
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_custom
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_gemini
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_groq
+import io.github.raghavsatyadev.jobfinder.resources.ai_provider_huggingface
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_nvidia
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_ollama
 import io.github.raghavsatyadev.jobfinder.resources.ai_provider_ollama_hint
@@ -288,6 +289,7 @@ private val PROVIDERS: List<Pair<AiProvider, StringResource>> =
     AiProvider.OPENROUTER to Res.string.ai_provider_openrouter,
     AiProvider.NVIDIA to Res.string.ai_provider_nvidia,
     AiProvider.GROQ to Res.string.ai_provider_groq,
+    AiProvider.HUGGINGFACE to Res.string.ai_provider_huggingface,
     AiProvider.CUSTOM to Res.string.ai_provider_custom,
   )
 

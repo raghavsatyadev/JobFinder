@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -24,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,6 +51,14 @@ import io.github.raghavsatyadev.jobfinder.resources.keys_add
 import io.github.raghavsatyadev.jobfinder.resources.keys_added
 import io.github.raghavsatyadev.jobfinder.resources.keys_adding
 import io.github.raghavsatyadev.jobfinder.resources.keys_detected
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_label
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_limits_hint
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_model
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_per_day
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_per_minute
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_save
+import io.github.raghavsatyadev.jobfinder.resources.keys_edit_tokens
 import io.github.raghavsatyadev.jobfinder.resources.keys_expired
 import io.github.raghavsatyadev.jobfinder.resources.keys_expires_in
 import io.github.raghavsatyadev.jobfinder.resources.keys_expiry_days
@@ -68,6 +81,9 @@ import io.github.raghavsatyadev.jobfinder.resources.keys_refused
 import io.github.raghavsatyadev.jobfinder.resources.keys_remove
 import io.github.raghavsatyadev.jobfinder.resources.keys_reset
 import io.github.raghavsatyadev.jobfinder.resources.keys_resume_warning
+import io.github.raghavsatyadev.jobfinder.resources.keys_route_down
+import io.github.raghavsatyadev.jobfinder.resources.keys_route_remove
+import io.github.raghavsatyadev.jobfinder.resources.keys_route_up
 import io.github.raghavsatyadev.jobfinder.resources.keys_routing_hint
 import io.github.raghavsatyadev.jobfinder.resources.keys_routing_title
 import io.github.raghavsatyadev.jobfinder.resources.keys_tokens_per_day
@@ -131,10 +147,37 @@ data class OnlineKeysUiState(
   /** The key whose expiry is being set, and the days typed for it. */
   val editingExpiry: String? = null,
   val editDays: String = AiKey.SUGGESTED_EXPIRY_DAYS.toString(),
+  /** The key whose name, model and limits are being edited. */
+  val editingKey: KeyEdit? = null,
+  /** The models the edited key's site offers, once read. */
+  val keyModels: List<String> = emptyList(),
 ) {
   /** The site [draft] looks like it's from, while typing. */
   val detected: AiProvider?
     get() = AiProvider.detect(draft.trim())
+}
+
+/** A key's name, model and limits as typed; blank limits keep none. */
+@Immutable
+data class KeyEdit(
+  val id: String,
+  val label: String,
+  val model: String,
+  val perMinute: String,
+  val perDay: String,
+  val tokensPerDay: String,
+) {
+  companion object {
+    fun of(key: AiKey) =
+      KeyEdit(
+        id = key.id,
+        label = key.label.orEmpty(),
+        model = key.defaultModel,
+        perMinute = key.requestsPerMinute?.toString().orEmpty(),
+        perDay = key.requestsPerDay?.toString().orEmpty(),
+        tokensPerDay = key.tokensPerDay?.toString().orEmpty(),
+      )
+  }
 }
 
 sealed interface OnlineKeysUiEvent {
@@ -154,6 +197,17 @@ sealed interface OnlineKeysUiEvent {
   data object CancelExpiry : OnlineKeysUiEvent
 
   data class Remove(val id: String) : OnlineKeysUiEvent
+
+  data class EditKey(val id: String) : OnlineKeysUiEvent
+
+  data class SetKeyEdit(val edit: KeyEdit) : OnlineKeysUiEvent
+
+  data object SaveKey : OnlineKeysUiEvent
+
+  data object CancelKey : OnlineKeysUiEvent
+
+  /** Moves [route] [by] places in [task]'s order: -1 earlier, 1 later. */
+  data class Move(val task: AiTask, val route: AiRoute, val by: Int) : OnlineKeysUiEvent
 
   /** Turns [route] on or off for [task]. */
   data class Toggle(val task: AiTask, val route: AiRoute) : OnlineKeysUiEvent
@@ -208,6 +262,22 @@ class OnlineKeysViewModel(
       }
       OnlineKeysUiEvent.CancelExpiry -> _state.update { it.copy(editingExpiry = null) }
       is OnlineKeysUiEvent.Remove -> change { keys.remove(event.id) }
+      is OnlineKeysUiEvent.EditKey -> editKey(event.id)
+      is OnlineKeysUiEvent.SetKeyEdit ->
+        _state.update {
+          val e = event.edit
+          it.copy(
+            editingKey =
+              e.copy(
+                perMinute = e.perMinute.filter(Char::isDigit).take(6),
+                perDay = e.perDay.filter(Char::isDigit).take(7),
+                tokensPerDay = e.tokensPerDay.filter(Char::isDigit).take(10),
+              )
+          )
+        }
+      OnlineKeysUiEvent.SaveKey -> saveKey()
+      OnlineKeysUiEvent.CancelKey -> _state.update { it.copy(editingKey = null) }
+      is OnlineKeysUiEvent.Move -> move(event.task, event.route, event.by)
       is OnlineKeysUiEvent.Toggle -> toggle(event.task, event.route)
       OnlineKeysUiEvent.ResetRouting ->
         saveRouting(_state.value.pool.routing.copy(routes = emptyMap()))
@@ -279,6 +349,60 @@ class OnlineKeysViewModel(
     }
   }
 
+  private fun editKey(id: String) {
+    val key = _state.value.pool.keys.firstOrNull { it.id == id } ?: return
+    _state.update { it.copy(editingKey = KeyEdit.of(key), keyModels = emptyList()) }
+    viewModelScope.launch {
+      val models =
+        try {
+          keys.models(id)
+        } catch (e: CancellationException) {
+          throw e
+        } catch (_: Exception) {
+          emptyList()
+        }
+      _state.update { if (it.editingKey?.id == id) it.copy(keyModels = models.sorted()) else it }
+    }
+  }
+
+  /** Saves the edit; the key's place in each task then uses its new model. */
+  private fun saveKey() {
+    val s = _state.value
+    val edit = s.editingKey ?: return
+    val key = s.pool.keys.firstOrNull { it.id == edit.id } ?: return
+    val updated =
+      key.copy(
+        label = edit.label.trim().takeIf { it.isNotEmpty() },
+        model =
+          edit.model.trim().takeIf {
+            it.isNotEmpty() && it != KeyEdit.of(key.copy(model = null)).model
+          },
+        requestsPerMinute = edit.perMinute.toIntOrNull()?.takeIf { it > 0 },
+        requestsPerDay = edit.perDay.toIntOrNull()?.takeIf { it > 0 },
+        tokensPerDay = edit.tokensPerDay.toLongOrNull()?.takeIf { it > 0 },
+      )
+    val routing = s.pool.routing
+    val routes =
+      routing.routes.mapValues { (_, list) ->
+        list.map { if (it.keyId == key.id) it.copy(model = updated.defaultModel) else it }
+      }
+    _state.update { it.copy(editingKey = null) }
+    change {
+      keys.update(updated)
+      if (routes != routing.routes) keys.setRouting(routing.copy(routes = routes))
+    }
+  }
+
+  private fun move(task: AiTask, route: AiRoute, by: Int) {
+    val pool = _state.value.pool
+    val list = pool.routing.forTask(task, pool.keys).toMutableList()
+    val from = list.indexOfFirst { it.keyId == route.keyId }
+    val to = from + by
+    if (from < 0 || to !in list.indices) return
+    list.add(to, list.removeAt(from))
+    saveRouting(pool.routing.copy(routes = pool.routing.routes + (task to list)))
+  }
+
   /** [days] from now; `null` for blank or 0 (no expiry). */
   private fun expiryFrom(days: String): Long? =
     days.toLongOrNull()?.takeIf { it > 0 }?.let { clock() + it * AiKey.DAY_MS }
@@ -325,17 +449,17 @@ class OnlineKeysViewModel(
     }
   }
 
-  /** The task's list keeps the suggested order (keys by free quota, then this computer). */
+  /** Taking a model out keeps the order; one added goes before this computer, else last. */
   private fun toggle(task: AiTask, route: AiRoute) {
     val pool = _state.value.pool
     val current = pool.routing.forTask(task, pool.keys)
     val on = current.any { it.keyId == route.keyId }
     val next =
       if (on) current.filterNot { it.keyId == route.keyId }
-      else
-        candidates(pool.keys, pool.routing).filter { c ->
-          c.keyId == route.keyId || current.any { it.keyId == c.keyId }
-        }
+      else {
+        val local = current.indexOfFirst { it.local }.takeIf { it >= 0 && !route.local }
+        if (local == null) current + route else current.take(local) + route + current.drop(local)
+      }
     // A task always keeps one model.
     if (next.isEmpty()) return
     saveRouting(pool.routing.copy(routes = pool.routing.routes + (task to next)))
@@ -344,9 +468,7 @@ class OnlineKeysViewModel(
 
 /** Every model a task can use, in the suggested order. */
 private fun candidates(keys: List<AiKey>, routing: AiRouting): List<AiRoute> =
-  keys
-    .sortedBy { FreeAiCatalog.rank(it.provider) }
-    .map { AiRoute(it.id, FreeAiCatalog.of(it.provider)?.model ?: it.provider.suggestedModel) } +
+  keys.sortedBy { FreeAiCatalog.rank(it.provider) }.map { AiRoute(it.id, it.defaultModel) } +
     listOfNotNull(
       AiRoute.OPEN_CODE.takeIf { routing.openCode.enabled },
       AiRoute.AGY.takeIf { routing.agy.enabled },
@@ -469,7 +591,18 @@ private fun KeyRow(key: AiKey, state: OnlineKeysUiState, onEvent: (OnlineKeysUiE
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
+      Text(
+        key.defaultModel,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
       ExpiryLine(key, state.pool.now)
+    }
+    TextButton(
+      onClick = { onEvent(OnlineKeysUiEvent.EditKey(key.id)) },
+      shapes = ButtonDefaults.shapes(),
+    ) {
+      Text(stringResource(Res.string.keys_edit))
     }
     TextButton(
       onClick = { onEvent(OnlineKeysUiEvent.EditExpiry(key.id)) },
@@ -484,6 +617,7 @@ private fun KeyRow(key: AiKey, state: OnlineKeysUiState, onEvent: (OnlineKeysUiE
       Icon(Icons.Rounded.Delete, contentDescription = stringResource(Res.string.keys_remove, name))
     }
   }
+  state.editingKey?.takeIf { it.id == key.id }?.let { KeyEditor(it, state.keyModels, onEvent) }
   if (state.editingExpiry == key.id) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
@@ -510,6 +644,94 @@ private fun KeyRow(key: AiKey, state: OnlineKeysUiState, onEvent: (OnlineKeysUiE
     }
   }
 }
+
+/** A key's name, model (with the site's models to pick from) and limits. */
+@Composable
+private fun KeyEditor(edit: KeyEdit, models: List<String>, onEvent: (OnlineKeysUiEvent) -> Unit) {
+  val set = { e: KeyEdit -> onEvent(OnlineKeysUiEvent.SetKeyEdit(e)) }
+  Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    OutlinedTextField(
+      value = edit.label,
+      onValueChange = { set(edit.copy(label = it.take(80))) },
+      label = { Text(stringResource(Res.string.keys_edit_label)) },
+      singleLine = true,
+      modifier = Modifier.fillMaxWidth(),
+    )
+    OutlinedTextField(
+      value = edit.model,
+      onValueChange = { set(edit.copy(model = it.take(200))) },
+      label = { Text(stringResource(Res.string.keys_edit_model)) },
+      singleLine = true,
+      modifier = Modifier.fillMaxWidth(),
+    )
+    val typed = edit.model.trim().lowercase()
+    val offered = models.filter { typed.isEmpty() || typed in it.lowercase() }.take(MODEL_CHOICES)
+    if (offered.isNotEmpty() && offered != listOf(edit.model.trim())) {
+      FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+      ) {
+        offered.forEach { model ->
+          SuggestionChip(onClick = { set(edit.copy(model = model)) }, label = { Text(model) })
+        }
+      }
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      NumberField(
+        edit.perMinute,
+        Res.string.keys_edit_per_minute,
+        Modifier.weight(1f),
+      ) {
+        set(edit.copy(perMinute = it))
+      }
+      NumberField(edit.perDay, Res.string.keys_edit_per_day, Modifier.weight(1f)) {
+        set(edit.copy(perDay = it))
+      }
+      NumberField(edit.tokensPerDay, Res.string.keys_edit_tokens, Modifier.weight(1f)) {
+        set(edit.copy(tokensPerDay = it))
+      }
+    }
+    Text(
+      stringResource(Res.string.keys_edit_limits_hint),
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      TextButton(
+        onClick = { onEvent(OnlineKeysUiEvent.CancelKey) },
+        shapes = ButtonDefaults.shapes(),
+      ) {
+        Text(stringResource(Res.string.common_cancel))
+      }
+      Button(
+        onClick = { onEvent(OnlineKeysUiEvent.SaveKey) },
+        shapes = ButtonDefaults.shapes(),
+      ) {
+        Text(stringResource(Res.string.keys_edit_save))
+      }
+    }
+  }
+}
+
+@Composable
+private fun NumberField(
+  value: String,
+  label: StringResource,
+  modifier: Modifier,
+  onChange: (String) -> Unit,
+) {
+  OutlinedTextField(
+    value = value,
+    onValueChange = onChange,
+    label = { Text(stringResource(label)) },
+    singleLine = true,
+    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+    modifier = modifier,
+  )
+}
+
+/** At most this many of the site's models show under the model field. */
+private const val MODEL_CHOICES = 12
 
 /** Days left on the key: plain, then a warning in the last two weeks, then expired. */
 @Composable
@@ -637,23 +859,22 @@ private fun Routing(pool: AiKeysState, onEvent: (OnlineKeysUiEvent) -> Unit) {
     val chosen = pool.routing.forTask(task, pool.keys)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Text(stringResource(label), style = MaterialTheme.typography.bodyLarge)
-      FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        all.forEach { route ->
-          val key = pool.keys.firstOrNull { it.id == route.keyId }
-          FilterChip(
-            selected = chosen.any { it.keyId == route.keyId },
-            onClick = { onEvent(OnlineKeysUiEvent.Toggle(task, route)) },
-            label = {
-              Text(
-                when {
-                  route.openCode -> stringResource(Res.string.opencode_chip)
-                  route.agy -> stringResource(Res.string.agy_chip)
-                  key == null -> stringResource(Res.string.keys_local)
-                  else -> key.label ?: stringResource(providerName(key.provider))
-                }
-              )
-            },
-          )
+      chosen.forEachIndexed { index, route ->
+        RouteRow(task, route, index, chosen.size, pool, onEvent)
+      }
+      val others = all.filter { c -> chosen.none { it.keyId == c.keyId } }
+      if (others.isNotEmpty()) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          others.forEach { route ->
+            FilterChip(
+              selected = false,
+              onClick = { onEvent(OnlineKeysUiEvent.Toggle(task, route)) },
+              leadingIcon = {
+                Icon(Icons.Rounded.Add, contentDescription = null, Modifier.size(18.dp))
+              },
+              label = { Text(routeName(route, pool)) },
+            )
+          }
         }
       }
       if (task.usesResume && chosen.any { !it.local }) {
@@ -670,6 +891,76 @@ private fun Routing(pool: AiKeysState, onEvent: (OnlineKeysUiEvent) -> Unit) {
     shapes = ButtonDefaults.shapes(),
   ) {
     Text(stringResource(Res.string.keys_reset))
+  }
+}
+
+/** One model in a task's order: its place, name and model, moved up or down or taken out. */
+@Composable
+private fun RouteRow(
+  task: AiTask,
+  route: AiRoute,
+  index: Int,
+  count: Int,
+  pool: AiKeysState,
+  onEvent: (OnlineKeysUiEvent) -> Unit,
+) {
+  val name = routeName(route, pool)
+  val model =
+    when {
+      route.openCode -> route.model.ifBlank { pool.routing.openCode.model }
+      route.agy -> route.model.ifBlank { pool.routing.agy.model }
+      route.local -> null
+      else -> route.model.ifBlank { pool.keys.firstOrNull { it.id == route.keyId }?.defaultModel }
+    }
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    Text(
+      "${index + 1}.",
+      style = MaterialTheme.typography.bodyMedium,
+      modifier = Modifier.padding(end = 8.dp),
+    )
+    Column(Modifier.weight(1f)) {
+      Text(name, style = MaterialTheme.typography.bodyMedium)
+      if (!model.isNullOrBlank()) {
+        Text(
+          model,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    }
+    IconButton(
+      onClick = { onEvent(OnlineKeysUiEvent.Move(task, route, -1)) },
+      enabled = index > 0,
+      shapes = IconButtonDefaults.shapes(),
+    ) {
+      Icon(Icons.Rounded.KeyboardArrowUp, stringResource(Res.string.keys_route_up, name))
+    }
+    IconButton(
+      onClick = { onEvent(OnlineKeysUiEvent.Move(task, route, 1)) },
+      enabled = index < count - 1,
+      shapes = IconButtonDefaults.shapes(),
+    ) {
+      Icon(Icons.Rounded.KeyboardArrowDown, stringResource(Res.string.keys_route_down, name))
+    }
+    // A task always keeps one model.
+    IconButton(
+      onClick = { onEvent(OnlineKeysUiEvent.Toggle(task, route)) },
+      enabled = count > 1,
+      shapes = IconButtonDefaults.shapes(),
+    ) {
+      Icon(Icons.Rounded.Close, stringResource(Res.string.keys_route_remove, name))
+    }
+  }
+}
+
+@Composable
+private fun routeName(route: AiRoute, pool: AiKeysState): String {
+  val key = pool.keys.firstOrNull { it.id == route.keyId }
+  return when {
+    route.openCode -> stringResource(Res.string.opencode_chip)
+    route.agy -> stringResource(Res.string.agy_chip)
+    key == null -> stringResource(Res.string.keys_local)
+    else -> key.label ?: stringResource(providerName(key.provider))
   }
 }
 

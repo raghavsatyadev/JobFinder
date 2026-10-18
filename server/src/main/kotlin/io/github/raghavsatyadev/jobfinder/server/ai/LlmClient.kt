@@ -558,6 +558,7 @@ class LlmClient(
         AiProvider.OPENROUTER -> "OpenRouter"
         AiProvider.NVIDIA -> "NVIDIA"
         AiProvider.GROQ -> "Groq"
+        AiProvider.HUGGINGFACE -> "Hugging Face"
         AiProvider.CUSTOM -> "The AI server"
       }
 

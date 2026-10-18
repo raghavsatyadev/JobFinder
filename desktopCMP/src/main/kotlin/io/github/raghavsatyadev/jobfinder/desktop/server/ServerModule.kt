@@ -18,6 +18,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.PromptBook
+import io.github.raghavsatyadev.jobfinder.server.ai.PromptTrials
 import io.github.raghavsatyadev.jobfinder.server.ai.SecretStore
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabase
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabaseFactory
@@ -47,6 +48,7 @@ import io.github.raghavsatyadev.jobfinder.server.scan.Scanner
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
 import io.github.raghavsatyadev.jobfinder.server.scan.UnavailableScanner
 import io.github.raghavsatyadev.jobfinder.server.service.AdvancedMatchingFilter
+import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.BackupService
 import io.github.raghavsatyadev.jobfinder.server.service.CustomBoards
 import io.github.raghavsatyadev.jobfinder.server.service.JobIngestService
@@ -177,7 +179,16 @@ fun serverModule(dataDir: File) = module {
   single { OpenCodeClient(get(), LlmClient.defaultHttpClient()) }
   single<AiUsageRecorder> { RoomAiUsageRecorder(get<ServerDatabase>().aiUsageDao()) }
   // The AI instructions, as edited in Settings; read before every call.
-  single { PromptBook(get<ServerDatabase>().aiPromptsDao()) } bind AiPromptsRepository::class
+  single {
+    val db = get<ServerDatabase>()
+    PromptTrials(db.jobsDao(), db.resumeDao(), db.advancedMatchingDao(), get())
+  }
+  single {
+    val scope = this
+    PromptBook(get<ServerDatabase>().aiPromptsDao()) { id, text ->
+      scope.get<PromptTrials>().run(id, text)
+    }
+  } bind AiPromptsRepository::class
   single {
     JobPageParsers(
       customParser =
@@ -225,6 +236,7 @@ fun serverModule(dataDir: File) = module {
     {
       it?.cancel()
     }
+  single { AiWorkPause(get<LocalSettingsRepository>().scannerSettings, get(ATS_SCOPE)) }
   // Scores jobs against the resume in the background, on the same model client as matching.
   single {
     val db = get<ServerDatabase>()
@@ -234,6 +246,7 @@ fun serverModule(dataDir: File) = module {
         db.jobsDao(),
         OllamaAtsModel(get(), get()) { get<PromptBook>().instructions(PromptId.ATS_REVIEW) },
         get(),
+        pause = get(),
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind AtsRepository::class
@@ -245,6 +258,7 @@ fun serverModule(dataDir: File) = module {
         db.jobsDao(),
         getOrNull<BrowserPool>()?.let { ScraperInsightPages(PageScraper(it)) },
         get(),
+        aiPause = get(),
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind InsightsRepository::class
@@ -257,6 +271,7 @@ fun serverModule(dataDir: File) = module {
         CareersReader(LlmClient.defaultHttpClient()),
         CareersMatcher(get(), get()) { get<PromptBook>().instructions(PromptId.GHOST_MATCH) },
         get(),
+        aiPause = get(),
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind GhostRepository::class

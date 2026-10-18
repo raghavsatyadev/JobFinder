@@ -69,8 +69,32 @@ data class AiPrompt(val id: PromptId, val text: String, val defaultText: String)
   }
 }
 
+/** Whether "Try it" can run [this] on a saved job: the filter and the ATS review. */
+val PromptId.tryable: Boolean
+  get() = this == PromptId.MATCHING || this == PromptId.ATS_REVIEW
+
 /** `PUT /prompts/{id}`: new instructions, or `null` for the app's own text. */
 @Serializable data class PromptEdit(val text: String?)
+
+/** `POST /prompts/{id}/try`: [text] run once on [jobId] (by default the newest new job). */
+@Serializable data class PromptTry(val text: String, val jobId: Long? = null)
+
+/**
+ * What instructions answered for one job, without saving anything: for [PromptId.MATCHING]
+ * [excluded] and [reason]; for [PromptId.ATS_REVIEW] the scores, [assessment] and [fixes].
+ */
+@Serializable
+data class PromptTrial(
+  val jobId: Long,
+  val title: String,
+  val company: String,
+  val excluded: Boolean? = null,
+  val reason: String? = null,
+  val atsMatch: Int? = null,
+  val overall: Double? = null,
+  val assessment: String? = null,
+  val fixes: List<String> = emptyList(),
+)
 
 /** Something about an edit that may break what the prompt drives. */
 sealed interface PromptWarning {

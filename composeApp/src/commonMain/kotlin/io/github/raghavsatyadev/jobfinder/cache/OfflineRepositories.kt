@@ -20,6 +20,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptEdit
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.ServerSettings
@@ -249,6 +250,10 @@ class OfflineAiPromptsRepository(
   override suspend fun savePrompt(id: PromptId, text: String): AiPrompt = write(id, text)
 
   override suspend fun resetPrompt(id: PromptId): AiPrompt = write(id, null)
+
+  /** Needs the computer: its AI runs it. */
+  override suspend fun tryPrompt(id: PromptId, text: String): PromptTrial =
+    remote.tryPrompt(id, text)
 
   /** Saves [text], or resets with `null`. */
   private suspend fun write(id: PromptId, text: String?): AiPrompt {

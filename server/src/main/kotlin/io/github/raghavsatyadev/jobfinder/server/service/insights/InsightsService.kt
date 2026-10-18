@@ -5,6 +5,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.CompanySalaryEntity
 import io.github.raghavsatyadev.jobfinder.server.db.InsightsDao
 import io.github.raghavsatyadev.jobfinder.server.db.JobsDao
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.notFound
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
@@ -55,6 +56,7 @@ class InsightsService(
   private val events: ServerEvents,
   private val clock: () -> Long = System::currentTimeMillis,
   private val gap: () -> Duration = { Random.nextLong(GAP_MIN_MS, GAP_MAX_MS + 1).milliseconds },
+  private val aiPause: AiWorkPause = AiWorkPause.NEVER,
 ) : InsightsRepository {
   private val queue = Channel<Long>(Channel.UNLIMITED)
   private val queued = ConcurrentHashMap.newKeySet<Long>()
@@ -90,6 +92,7 @@ class InsightsService(
   private suspend fun backfill() {
     delay(BACKFILL_START)
     while (true) {
+      aiPause.awaitResumed()
       // Opened jobs first: wait until the queue is empty.
       while (queued.isNotEmpty()) delay(QUEUE_POLL)
       val next =

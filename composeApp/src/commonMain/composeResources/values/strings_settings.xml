@@ -8,7 +8,7 @@
     <string name="settings_section_open">Open</string>
     <string name="settings_section_close">Close</string>
     <!-- Words each section is found by in the settings search, besides its title. Comma separated. -->
-    <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days</string>
+    <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days, pause, ai work, background, ats, ratings, careers, cpu, gpu</string>
     <string name="settings_keywords_layout">job details, order, sections, hide, show, description, notes, labels, insights, ghost, ATS, tips, layout</string>
     <string name="settings_keywords_ai">AI model, Ollama, local model, provider, key, address, OpenAI, Anthropic, Gemini, Groq, download, Hugging Face, test, memory, graphics card</string>
     <string name="settings_keywords_keys">free, online, API key, NVIDIA, Groq, OpenRouter, Gemini, quota, expiry, limit, routing, which model</string>
@@ -33,6 +33,8 @@
     <string name="settings_frequency_risk_text">Searching for jobs this often (%1$s) may get your internet address blocked by job sites. You may then see captchas or no jobs at all for days. Every 12 hours is the shortest we advise.</string>
     <string name="settings_frequency_risk_confirm">Search more often</string>
     <string name="settings_frequency_custom">Custom (%1$s)</string>
+    <string name="settings_ai_paused_title">Pause AI work</string>
+    <string name="settings_ai_paused_hint">Stops ATS scores, company ratings and careers checks of jobs you haven’t opened, to free the computer. A job you open still gets them.</string>
     <string name="settings_prevent_sleep_title">Keep the computer awake</string>
     <string name="settings_prevent_sleep_hint">The app must run in the background to find new jobs.</string>
     <string name="settings_sound_title">Notification sound</string>

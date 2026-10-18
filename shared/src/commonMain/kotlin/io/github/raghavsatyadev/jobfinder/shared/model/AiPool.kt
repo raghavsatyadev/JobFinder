@@ -42,9 +42,18 @@ data class AiKey(
   val createdAt: Long = 0,
   /** When the site stops taking the key; `null` when unknown or never. */
   val expiresAt: Long? = null,
+  /** The model the key's work uses; `null` takes the free tier's (or the provider's) model. */
+  val model: String? = null,
 ) {
   val endpoint: String
     get() = baseUrl?.trim()?.takeIf { it.isNotEmpty() } ?: provider.defaultBaseUrl
+
+  /** [model], else the free tier's model, else the provider's suggested one. */
+  val defaultModel: String
+    get() =
+      model?.trim()?.takeIf { it.isNotEmpty() }
+        ?: FreeAiCatalog.of(provider)?.model
+        ?: provider.suggestedModel
 
   fun expired(now: Long): Boolean = expiresAt != null && expiresAt <= now
 
@@ -167,11 +176,7 @@ data class AiRouting(
     ): List<AiRoute> =
       if (task.usesResume) listOf(AiRoute.LOCAL)
       else
-        keys
-          .sortedBy { FreeAiCatalog.rank(it.provider) }
-          .map {
-            AiRoute(it.id, FreeAiCatalog.of(it.provider)?.model ?: it.provider.suggestedModel)
-          } +
+        keys.sortedBy { FreeAiCatalog.rank(it.provider) }.map { AiRoute(it.id, it.defaultModel) } +
           listOfNotNull(AiRoute.OPEN_CODE.takeIf { openCode }, AiRoute.AGY.takeIf { agy }) +
           AiRoute.LOCAL
   }
@@ -230,6 +235,16 @@ object FreeAiCatalog {
         "deepseek/deepseek-v4-flash:free",
         requestsPerMinute = 20,
         requestsPerDay = 50,
+        tokensPerDay = null,
+        suits = listOf(AiTask.GHOST, AiTask.INSIGHTS),
+        keepsPrompts = true,
+      ),
+      FreeTier(
+        AiProvider.HUGGINGFACE,
+        "https://huggingface.co/settings/tokens",
+        "openai/gpt-oss-120b",
+        requestsPerMinute = 10,
+        requestsPerDay = 100,
         tokensPerDay = null,
         suits = listOf(AiTask.GHOST, AiTask.INSIGHTS),
         keepsPrompts = true,

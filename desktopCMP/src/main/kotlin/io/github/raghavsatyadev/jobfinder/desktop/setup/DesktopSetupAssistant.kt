@@ -84,6 +84,16 @@ class DesktopSetupAssistant(
       }
     }
     scope.launch { phonePaired.collect { report(SetupStepKind.PHONE, done = it) } }
+    // The extension may connect only while the assistant is closed: noticed within a minute.
+    scope.launch {
+      while (!memory.extensionLinked) {
+        delay(EXTENSION_POLL)
+        if (extensionConnected()) {
+          memory.extensionLinked = true
+          report(SetupStepKind.EXTENSION, true)
+        }
+      }
+    }
   }
 
   override fun show(show: Boolean) {
@@ -349,3 +359,6 @@ class DesktopSetupAssistant(
     }
   }
 }
+
+/** How often a closed assistant looks for the browser extension. */
+private val EXTENSION_POLL = 30.seconds

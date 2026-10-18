@@ -101,6 +101,13 @@ interface JobsDao {
 
   @Query("SELECT * FROM jobs WHERE id = :id") suspend fun get(id: Long): JobEntity?
 
+  /** The newest new job that has a description, for trying AI instructions on. */
+  @Query(
+    "SELECT * FROM jobs WHERE status = 'new' AND description IS NOT NULL AND description != '' " +
+      "ORDER BY created_at DESC LIMIT 1"
+  )
+  suspend fun newestWithDescription(): JobEntity?
+
   /** Jobs whose URL matches the LIKE [pattern] (`\` escapes), newest first; for the browser. */
   @Query(
     "SELECT * FROM jobs WHERE external_url LIKE :pattern ESCAPE '\\' ORDER BY id DESC LIMIT :max"

@@ -104,6 +104,7 @@ fun SettingsEntity.toScannerSettings(): ScannerSettings =
     inAppBrowserEnabled = inAppBrowserEnabled,
     scraperConcurrency = scraperConcurrency,
     excludedKeepDays = excludedKeepDays,
+    aiPaused = aiPaused,
   )
 
 fun SettingsEntity.toAiSettings(): AiSettings =

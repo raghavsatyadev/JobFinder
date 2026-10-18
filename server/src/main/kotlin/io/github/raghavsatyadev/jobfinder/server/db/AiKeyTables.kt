@@ -22,6 +22,8 @@ data class AiKeyEntity(
   @ColumnInfo(name = "created_at") val createdAt: Long,
   /** When the site stops taking the key; `null` when unknown or never. */
   @ColumnInfo(name = "expires_at") val expiresAt: Long? = null,
+  /** The model the key's work uses; `null` takes the free tier's. */
+  val model: String? = null,
 )
 
 /** One key's use on one local day. */

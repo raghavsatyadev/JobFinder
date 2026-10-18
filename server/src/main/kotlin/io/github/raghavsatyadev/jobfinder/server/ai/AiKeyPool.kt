@@ -102,7 +102,7 @@ class AiKeyPool(
     return AddKeyResult.Added(entity.toModel())
   }
 
-  /** Saves a key's label, address and limits; the key itself can't change here. */
+  /** Saves a key's label, address, model and limits; the key itself can't change here. */
   suspend fun update(key: AiKey) {
     val current = keys.get(key.id) ?: return
     keys.upsert(
@@ -112,6 +112,7 @@ class AiKeyPool(
         requestsPerMinute = key.requestsPerMinute,
         requestsPerDay = key.requestsPerDay,
         tokensPerDay = key.tokensPerDay,
+        model = key.model?.trim()?.takeIf { it.isNotEmpty() },
       )
     )
   }
@@ -167,6 +168,7 @@ class AiKeyPool(
           tokensPerDay = key.tokensPerDay,
           createdAt = key.createdAt.takeIf { it > 0 } ?: clock(),
           expiresAt = key.expiresAt,
+          model = key.model?.trim()?.takeIf { it.isNotEmpty() },
         )
       )
       added++
@@ -214,8 +216,7 @@ class AiKeyPool(
       // The site no longer takes it.
       if (key.expired(now)) return@mapNotNull null
       val secret = secrets.get(secretName(key.id)) ?: return@mapNotNull null
-      val model =
-        route.model.ifBlank { FreeAiCatalog.of(key.provider)?.model ?: key.provider.suggestedModel }
+      val model = route.model.ifBlank { key.defaultModel }
       runCatching {
         LlmTarget(
           LlmConfig(
@@ -327,6 +328,7 @@ class AiKeyPool(
       tokensPerDay = tokensPerDay,
       createdAt = createdAt,
       expiresAt = expiresAt,
+      model = model,
     )
 
   companion object {

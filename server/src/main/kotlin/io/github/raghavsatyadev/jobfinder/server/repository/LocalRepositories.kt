@@ -149,6 +149,7 @@ class LocalSettingsRepository(
         scraperConcurrency = settings.scraperConcurrency,
         excludedKeepDays =
           settings.excludedKeepDays?.coerceIn(ScannerSettings.EXCLUDED_KEEP_DAYS_RANGE),
+        aiPaused = settings.aiPaused,
       )
     }
       .toScannerSettings()

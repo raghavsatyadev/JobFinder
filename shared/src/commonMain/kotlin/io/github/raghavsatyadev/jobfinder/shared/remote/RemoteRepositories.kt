@@ -36,6 +36,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptEdit
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTry
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.ServerSettings
@@ -257,6 +259,17 @@ class RemoteAiPromptsRepository(private val api: RemoteApi) : AiPromptsRepositor
 
   override suspend fun resetPrompt(id: PromptId): AiPrompt = edit(id, null)
 
+  /** The local model may first have to load: waits up to [TRY_TIMEOUT_MS]. */
+  override suspend fun tryPrompt(id: PromptId, text: String): PromptTrial =
+    api.call(HttpMethod.Post, "/prompts/${id.wire}/try", PromptTrial.serializer()) {
+      contentType(ContentType.Application.Json)
+      setBody(ApiJson.encodeToString(PromptTry.serializer(), PromptTry(text)))
+      timeout {
+        requestTimeoutMillis = TRY_TIMEOUT_MS
+        socketTimeoutMillis = TRY_TIMEOUT_MS
+      }
+    }
+
   private suspend fun edit(id: PromptId, text: String?): AiPrompt =
     api.send(
       HttpMethod.Put,
@@ -265,6 +278,10 @@ class RemoteAiPromptsRepository(private val api: RemoteApi) : AiPromptsRepositor
       PromptEdit.serializer(),
       AiPrompt.serializer(),
     )
+
+  private companion object {
+    const val TRY_TIMEOUT_MS = 6L * 60 * 1000
+  }
 }
 
 /** Settings over `/v1/settings`. */

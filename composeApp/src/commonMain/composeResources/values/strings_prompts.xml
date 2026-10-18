@@ -17,6 +17,14 @@
     <string name="prompt_improve_hint">Writes exact before and after changes that fit your resume to one job, from its ATS review. Used when you choose Improve my resume for this job.</string>
     <string name="prompt_tips_hint">Writes tips for negotiating a job’s offer from its pay data, reviews, age and ATS match.</string>
     <string name="prompt_edited">Changed</string>
+    <string name="prompt_try">Try it on a job</string>
+    <string name="prompt_trying">Trying the text as typed on your newest job. The AI may take a minute.</string>
+    <string name="prompt_try_failed">Couldn’t try it: %1$s</string>
+    <string name="prompt_try_job">On “%1$s” at %2$s:</string>
+    <string name="prompt_try_excluded">Filters it out: %1$s</string>
+    <string name="prompt_try_kept">Keeps it.</string>
+    <string name="prompt_try_ats">ATS match %1$d%</string>
+    <string name="prompt_try_not_saved">Only a try: nothing was saved or changed.</string>
     <string name="prompt_field">Instructions</string>
     <string name="prompt_save">Save</string>
     <string name="prompt_discard">Discard</string>

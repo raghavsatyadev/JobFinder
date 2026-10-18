@@ -360,6 +360,7 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
     }
     TrayIcon.create(APP_NAME, menu) { windows.show() }
   }
+  single { SetupMemory(dataDir.resolve(SETUP_FILE).toPath()) }
   single<SetupAssistant> {
     val scope = this
     val windows = get<MainWindowRequests>()
@@ -372,7 +373,7 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
         scope.get<LinksRepository>().listLinks().distinctBy { it.siteId }.map { it.url }
       },
       phonePaired = get<PairedPhones>().paired,
-      memory = SetupMemory(dataDir.resolve(SETUP_FILE).toPath()),
+      memory = get(),
       computerName = get<ServerIdentity>().name,
       openSignIn = { pages -> signInTo(pages, scope.get(), scope.get()) },
       openSearches = { windows.show(TopLevel.Links) },

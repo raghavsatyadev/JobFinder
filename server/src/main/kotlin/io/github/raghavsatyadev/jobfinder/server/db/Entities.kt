@@ -191,6 +191,7 @@ data class SettingsEntity(
   /** Days filtered-out jobs are kept; `null` keeps them forever. */
   @ColumnInfo(name = "excluded_keep_days", defaultValue = "30")
   val excludedKeepDays: Int? = ScannerSettings.DEFAULT_EXCLUDED_KEEP_DAYS,
+  @ColumnInfo(name = "ai_paused", defaultValue = "0") val aiPaused: Boolean = false,
 )
 
 /** Debug copies of pages that failed to parse. */

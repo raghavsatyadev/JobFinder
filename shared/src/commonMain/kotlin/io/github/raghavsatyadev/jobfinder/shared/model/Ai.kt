@@ -25,6 +25,9 @@ enum class AiProvider(
   @SerialName("nvidia")
   NVIDIA("https://integrate.api.nvidia.com/v1", "deepseek-ai/deepseek-v4.1-flash", true),
   @SerialName("groq") GROQ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b", true),
+  /** Hugging Face Inference Providers: one key, many open models, small monthly free credits. */
+  @SerialName("huggingface")
+  HUGGINGFACE("https://router.huggingface.co/v1", "openai/gpt-oss-120b", true),
   /** Any OpenAI-compatible server; the key is optional. */
   @SerialName("custom") CUSTOM("", "", false);
 
@@ -40,6 +43,7 @@ enum class AiProvider(
         "sk-proj-" to OPENAI,
         "nvapi-" to NVIDIA,
         "gsk_" to GROQ,
+        "hf_" to HUGGINGFACE,
         "AIza" to GEMINI,
         "sk-" to OPENAI,
       )

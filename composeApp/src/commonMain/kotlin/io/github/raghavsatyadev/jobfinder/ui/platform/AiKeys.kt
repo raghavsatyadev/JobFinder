@@ -54,6 +54,12 @@ interface AiKeys {
 
   suspend fun remove(id: String)
 
+  /** Saves [key]'s name, model and limits. */
+  suspend fun update(key: AiKey)
+
+  /** The models [id]'s site offers; empty when it can't say. */
+  suspend fun models(id: String): List<String>
+
   suspend fun setRouting(routing: AiRouting)
 
   /** Every key with its secret, only for a password-locked export. */

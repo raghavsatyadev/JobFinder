@@ -14,6 +14,11 @@ data class ScannerSettings(
   val scraperConcurrency: Int = DEFAULT_SCRAPER_CONCURRENCY,
   /** Days a job the AI filtered out is kept before it is deleted; `null` keeps them forever. */
   val excludedKeepDays: Int? = DEFAULT_EXCLUDED_KEEP_DAYS,
+  /**
+   * Stops the AI work the app does on its own: ATS scores, company ratings and careers checks of
+   * jobs nobody opened. A job the user opens still gets them.
+   */
+  val aiPaused: Boolean = false,
 ) {
   companion object {
     /**

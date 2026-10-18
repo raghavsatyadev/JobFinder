@@ -41,6 +41,7 @@ val desktopUiModule = module {
       signIn = getOrNull(),
       phones = getOrNull(),
       extensionSignIns = getOrNull(),
+      setupMemory = getOrNull(),
     )
   } onClose
     {

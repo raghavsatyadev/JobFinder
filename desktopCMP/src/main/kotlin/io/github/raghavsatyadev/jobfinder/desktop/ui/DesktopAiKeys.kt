@@ -5,6 +5,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
 import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.SecretStore
+import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRouting
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupApiKey
 import io.github.raghavsatyadev.jobfinder.ui.platform.AddKeyOutcome
@@ -60,6 +61,10 @@ class DesktopAiKeys(
   override suspend fun setExpiry(id: String, expiresAt: Long?) = pool.setExpiry(id, expiresAt)
 
   override suspend fun remove(id: String) = pool.remove(id)
+
+  override suspend fun update(key: AiKey) = pool.update(key)
+
+  override suspend fun models(id: String): List<String> = pool.models(id)
 
   override suspend fun setRouting(routing: AiRouting) = pool.setRouting(routing)
 

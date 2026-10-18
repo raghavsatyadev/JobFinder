@@ -3,13 +3,16 @@ package io.github.raghavsatyadev.jobfinder.server.ai
 import io.github.raghavsatyadev.jobfinder.server.db.AiPromptEntity
 import io.github.raghavsatyadev.jobfinder.server.db.AiPromptsDao
 import io.github.raghavsatyadev.jobfinder.server.parsing.custom.CustomPrompts
+import io.github.raghavsatyadev.jobfinder.server.service.ApiException
 import io.github.raghavsatyadev.jobfinder.server.service.OllamaJobCheck
 import io.github.raghavsatyadev.jobfinder.server.service.ats.OllamaAtsModel
 import io.github.raghavsatyadev.jobfinder.server.service.ats.ResumeImproveService
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.CareersMatcher
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsService
+import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
 import io.github.raghavsatyadev.jobfinder.shared.model.AiPrompt
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 
 /**
@@ -19,6 +22,8 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 class PromptBook(
   private val dao: AiPromptsDao,
   private val clock: () -> Long = System::currentTimeMillis,
+  /** Runs instructions once for "Try it"; `null` where the AI isn't set up (tests). */
+  private val trials: (suspend (PromptId, String) -> PromptTrial)? = null,
 ) : AiPromptsRepository {
   /** What the AI is told for [id] now. */
   suspend fun instructions(id: PromptId): String = dao.get(id.wire)?.text ?: defaultText(id)
@@ -40,6 +45,14 @@ class PromptBook(
   override suspend fun resetPrompt(id: PromptId): AiPrompt {
     dao.delete(id.wire)
     return AiPrompt(id, defaultText(id), defaultText(id))
+  }
+
+  override suspend fun tryPrompt(id: PromptId, text: String): PromptTrial {
+    require(text.length <= AiPrompt.MAX_LENGTH) {
+      "Instructions can be up to ${AiPrompt.MAX_LENGTH} characters."
+    }
+    val run = trials ?: throw ApiException(ApiErrorCode.UNAVAILABLE)
+    return run(id, text)
   }
 
   /** The edited prompts, for a settings backup. */

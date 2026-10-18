@@ -21,6 +21,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
+import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.model.ScanState
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
@@ -108,6 +109,9 @@ interface AiPromptsRepository {
 
   /** Back to the app's own text. */
   suspend fun resetPrompt(id: PromptId): AiPrompt
+
+  /** Runs [text] as [id]'s instructions on one saved job; nothing is saved. */
+  suspend fun tryPrompt(id: PromptId, text: String): PromptTrial
 }
 
 /** The advanced-matching (AI filter) configuration. */
