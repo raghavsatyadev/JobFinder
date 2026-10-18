@@ -110,7 +110,17 @@ data class JobEntity(
   @ColumnInfo(name = "exclude_reason") val excludeReason: String? = null,
   @ColumnInfo(name = "created_at") val createdAt: Long,
   @ColumnInfo(name = "updated_at") val updatedAt: Long,
-)
+  /**
+   * The AI filter a job in `new` passed ((`AdvancedMatchingFilter.key`)), [MATCHED_BY_USER] when
+   * the user put it there, `null` when it was never checked (the check failed). Jobs whose value is
+   * not the current filter are checked again in the background.
+   */
+  @ColumnInfo(name = "matched_with") val matchedWith: String? = null,
+) {
+  companion object {
+    const val MATCHED_BY_USER = "user"
+  }
+}
 
 /**
  * Full-text index over job title and company (replaces the Postgres `job_search_vector`). External

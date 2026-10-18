@@ -10,12 +10,15 @@ import io.github.raghavsatyadev.jobfinder.shared.model.GhostStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.InsightsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReport
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsStatus
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.NotesRepository
@@ -68,6 +71,19 @@ data class JobDetailUiState(
   val tipsFailed: Boolean = false,
   /** The user's section order; the app's own until read. */
   val layout: DetailLayout = DetailLayout.DEFAULT,
+  /** "Shouldn't be in New" can be asked (a computer that runs the AI is there). */
+  val canReport: Boolean = false,
+  /** The report dialog; `null` while closed. */
+  val report: ReportUi? = null,
+)
+
+/** The "Shouldn't be in New" dialog: the note, then the AI's answer. */
+@Immutable
+data class ReportUi(
+  val note: String = "",
+  val checking: Boolean = false,
+  val result: JobReportResult? = null,
+  val failed: Boolean = false,
 )
 
 sealed interface JobDetailEvent {
@@ -99,6 +115,19 @@ sealed interface JobDetailEvent {
   data class EditNote(val id: Long, val text: String) : JobDetailEvent
 
   data class DeleteNote(val id: Long) : JobDetailEvent
+
+  /** Opens "Shouldn't be in New". */
+  data object OpenReport : JobDetailEvent
+
+  data class SetReportNote(val note: String) : JobDetailEvent
+
+  /** Asks the AI to check the job again. */
+  data object SendReport : JobDetailEvent
+
+  data object CloseReport : JobDetailEvent
+
+  /** The AI thinks the job fits; the user moves it to Filtered out anyway. */
+  data object MoveAnyway : JobDetailEvent
 }
 
 sealed interface JobDetailEffect {
@@ -122,8 +151,10 @@ class JobDetailViewModel(
   private val ghost: GhostRepository? = null,
   private val tips: TipsRepository? = null,
   private val settings: SettingsRepository? = null,
+  private val reports: JobReportRepository? = null,
 ) : ViewModel() {
-  private val _state = MutableStateFlow(JobDetailUiState(jobId = jobId, job = preview))
+  private val _state =
+    MutableStateFlow(JobDetailUiState(jobId = jobId, job = preview, canReport = reports != null))
   val state: StateFlow<JobDetailUiState> = _state.asStateFlow()
 
   private val _effects = Channel<JobDetailEffect>(Channel.BUFFERED)
@@ -181,6 +212,17 @@ class JobDetailViewModel(
       is JobDetailEvent.AddNote -> addNote(event.text)
       is JobDetailEvent.EditNote -> editNote(event.id, event.text)
       is JobDetailEvent.DeleteNote -> deleteNote(event.id)
+      JobDetailEvent.OpenReport -> _state.update { it.copy(report = ReportUi()) }
+      is JobDetailEvent.SetReportNote ->
+        _state.update { s ->
+          s.copy(report = s.report?.copy(note = event.note.take(JobReport.MAX_NOTE)))
+        }
+      JobDetailEvent.SendReport -> sendReport()
+      JobDetailEvent.CloseReport -> _state.update { it.copy(report = null) }
+      JobDetailEvent.MoveAnyway -> {
+        _state.update { it.copy(report = null) }
+        changeStatus(JobStatus.EXCLUDED_BY_ADVANCED_MATCHING)
+      }
     }
   }
 
@@ -337,6 +379,31 @@ class JobDetailViewModel(
         throw e
       } catch (_: Exception) {
         _state.update { it.copy(descriptionLoading = false, descriptionFailed = true) }
+      }
+    }
+  }
+
+  private fun sendReport() {
+    val report = _state.value.report ?: return
+    val repository = reports ?: return
+    if (report.checking) return
+    _state.update { it.copy(report = report.copy(checking = true, failed = false)) }
+    viewModelScope.launch {
+      try {
+        val result = repository.reportJob(jobId, report.note.trim().ifBlank { null })
+        _state.update { s -> s.copy(report = s.report?.copy(checking = false, result = result)) }
+        if (result.moved) {
+          val from = _state.value.job?.status ?: JobStatus.NEW
+          val to = JobStatus.EXCLUDED_BY_ADVANCED_MATCHING
+          _state.update { s ->
+            s.copy(job = s.job?.copy(status = to, excludeReason = result.reason))
+          }
+          changes.publish(JobChange.StatusChanged(jobId, from, to))
+        }
+      } catch (e: CancellationException) {
+        throw e
+      } catch (_: Exception) {
+        _state.update { s -> s.copy(report = s.report?.copy(checking = false, failed = true)) }
       }
     }
   }

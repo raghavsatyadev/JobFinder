@@ -136,7 +136,11 @@ interface JobsDao {
   )
   suspend fun untouchedWithDescriptionLike(pattern: String): List<Long>
 
-  @Query("UPDATE jobs SET status = :status, updated_at = :updatedAt WHERE id = :id")
+  /** A job the user moves to `new` stays there: the AI filter does not check it again. */
+  @Query(
+    "UPDATE jobs SET status = :status, updated_at = :updatedAt, " +
+      "matched_with = CASE WHEN :status = 'new' THEN 'user' ELSE matched_with END WHERE id = :id"
+  )
   suspend fun updateStatus(id: Long, status: String, updatedAt: Long): Int
 
   /** [labelsJson] is a JSON array (see [JsonColumnConverters.encodeStringList]). */
@@ -144,14 +148,16 @@ interface JobsDao {
   suspend fun updateLabels(id: Long, labelsJson: String): Int
 
   /**
-   * Stores what the description scan found. Only a job still in `processing` or `new` is changed,
-   * so a job the user deleted or archived meanwhile stays put (old `scan-job-description`).
-   * [tagsJson] is a JSON array.
+   * Stores what the description scan found. Only a job still in `processing` or `new`, or filtered
+   * out for having no description, is changed, so a job the user deleted or archived meanwhile
+   * stays put (old `scan-job-description`). [tagsJson] is a JSON array.
    */
   @Query(
     """UPDATE jobs SET description = :description, salary = :salary, tags = :tagsJson,
-       status = :status, exclude_reason = :excludeReason, updated_at = :updatedAt
-       WHERE id = :id AND status IN ('processing', 'new')"""
+       status = :status, exclude_reason = :excludeReason, matched_with = :matchedWith,
+       updated_at = :updatedAt
+       WHERE id = :id AND (status IN ('processing', 'new') OR
+         (status = 'excluded_by_advanced_matching' AND (description IS NULL OR description = '')))"""
   )
   suspend fun updateAfterDescriptionScan(
     id: Long,
@@ -160,6 +166,31 @@ interface JobsDao {
     tagsJson: String,
     status: String,
     excludeReason: String?,
+    matchedWith: String?,
+    updatedAt: Long,
+  ): Int
+
+  /**
+   * The newest job in `new` the user has not touched (no label, not put there by hand) that the AI
+   * filter [key] has not checked, leaving out [skip]; for checking it again.
+   */
+  @Query(
+    "SELECT * FROM jobs WHERE status = 'new' AND labels = '[]' AND " +
+      "(matched_with IS NULL OR (matched_with != :key AND matched_with != 'user')) " +
+      "AND id NOT IN (:skip) ORDER BY created_at DESC, id DESC LIMIT 1"
+  )
+  suspend fun nextToRecheck(key: String, skip: List<Long>): JobEntity?
+
+  /** Stores the filter's answer for a job still in `new`. */
+  @Query(
+    "UPDATE jobs SET status = :status, exclude_reason = :excludeReason, " +
+      "matched_with = :matchedWith, updated_at = :updatedAt WHERE id = :id AND status = 'new'"
+  )
+  suspend fun updateMatch(
+    id: Long,
+    status: String,
+    excludeReason: String?,
+    matchedWith: String?,
     updatedAt: Long,
   ): Int
 
@@ -167,7 +198,10 @@ interface JobsDao {
   @Query("SELECT * FROM jobs WHERE status = 'processing' ORDER BY id")
   suspend fun listProcessing(): List<JobEntity>
 
-  @Query("UPDATE jobs SET status = :to, updated_at = :updatedAt WHERE status = :from")
+  @Query(
+    "UPDATE jobs SET status = :to, updated_at = :updatedAt, " +
+      "matched_with = CASE WHEN :to = 'new' THEN 'user' ELSE matched_with END WHERE status = :from"
+  )
   suspend fun changeAllStatuses(from: String, to: String, updatedAt: Long): Int
 
   /** Built by [JobQueries.list]. */

@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder.desktop.scan
 import io.github.raghavsatyadev.jobfinder.desktop.ui.PickedPages
 import io.github.raghavsatyadev.jobfinder.server.scan.Scanner
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.scan.UrgentRead
 import io.github.raghavsatyadev.jobfinder.server.service.ApiException
 import io.github.raghavsatyadev.jobfinder.server.service.LinkService
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
@@ -15,6 +16,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 /**
@@ -42,7 +44,7 @@ class DesktopScanRepository(
     guard("scan link $linkId") { scanner.scanLink(linkId) }
 
   override suspend fun scanJob(jobId: Long): Job =
-    guard("scan job $jobId") { scanner.scanJob(jobId) }
+    guard("scan job $jobId") { withContext(UrgentRead) { scanner.scanJob(jobId) } }
 
   override suspend fun createLink(
     title: String,

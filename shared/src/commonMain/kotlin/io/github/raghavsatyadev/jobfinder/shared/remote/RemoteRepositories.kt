@@ -30,6 +30,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobCounts
 import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReport
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
@@ -50,6 +52,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
@@ -279,7 +282,8 @@ class RemoteAiPromptsRepository(private val api: RemoteApi) : AiPromptsRepositor
       AiPrompt.serializer(),
     )
 
-  private companion object {
+  companion object {
+    /** Also how long a job report waits. */
     const val TRY_TIMEOUT_MS = 10L * 60 * 1000
   }
 }
@@ -466,5 +470,21 @@ object BackupParams {
   fun parseMode(value: String?): ImportMode? =
     ImportMode.entries.firstOrNull {
       ApiJson.encodeToString(ImportMode.serializer(), it).trim('"') == value
+    }
+}
+
+/** Reports over `POST /v1/jobs/{id}/report`. */
+class RemoteJobReportRepository(private val api: RemoteApi) : JobReportRepository {
+  /**
+   * The local model may first have to load: waits up to [RemoteAiPromptsRepository.TRY_TIMEOUT_MS].
+   */
+  override suspend fun reportJob(jobId: Long, note: String?): JobReportResult =
+    api.call(HttpMethod.Post, "/jobs/$jobId/report", JobReportResult.serializer()) {
+      contentType(ContentType.Application.Json)
+      setBody(ApiJson.encodeToString(JobReport.serializer(), JobReport(note)))
+      timeout {
+        requestTimeoutMillis = RemoteAiPromptsRepository.TRY_TIMEOUT_MS
+        socketTimeoutMillis = RemoteAiPromptsRepository.TRY_TIMEOUT_MS
+      }
     }
 }

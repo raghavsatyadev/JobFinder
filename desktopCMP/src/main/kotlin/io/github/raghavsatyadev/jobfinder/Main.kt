@@ -75,6 +75,7 @@ import io.github.raghavsatyadev.jobfinder.server.scan.BrowserPool
 import io.github.raghavsatyadev.jobfinder.server.scan.JobScanner
 import io.github.raghavsatyadev.jobfinder.server.service.CustomBoards
 import io.github.raghavsatyadev.jobfinder.server.service.JobRetention
+import io.github.raghavsatyadev.jobfinder.server.service.NewJobsRecheck
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import io.github.raghavsatyadev.jobfinder.ui.pairing.PairingApprovalDialog
@@ -196,6 +197,7 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
     .start()
   val devScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   koin.get<JobRetention>().start(devScope)
+  koin.get<NewJobsRecheck>().start(devScope)
   devScope.launch { runCatching { koin.get<CustomBoards>().splitCatchAll() } }
   if (DevApprovals.enabled()) DevApprovals.start(devScope, pairing, restores)
   try {

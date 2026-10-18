@@ -1,10 +1,12 @@
 package io.github.raghavsatyadev.jobfinder.desktop.browser
 
+import io.github.raghavsatyadev.jobfinder.server.scan.UrgentRead
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -48,6 +50,7 @@ internal class BrowserLane<B : AutoCloseable>(
     try {
       return block(browser)
     } finally {
+      // Also closes the browser an urgent read opened past the limit.
       if (all.size > limit.value) {
         remove(browser)
       } else {
@@ -92,13 +95,15 @@ internal class BrowserLane<B : AutoCloseable>(
     browser.close()
   }
 
+  /** An [UrgentRead] may take one browser past the limit. */
   private suspend fun acquire() {
+    val extra = if (currentCoroutineContext()[UrgentRead.Key] != null) 1 else 0
     while (true) {
       val taken = busy.value
-      if (taken < limit.value) {
+      if (taken < limit.value + extra) {
         if (busy.compareAndSet(taken, taken + 1)) return
       } else {
-        combine(busy, limit) { b, l -> b < l }.first { it }
+        combine(busy, limit) { b, l -> b < l + extra }.first { it }
       }
     }
   }

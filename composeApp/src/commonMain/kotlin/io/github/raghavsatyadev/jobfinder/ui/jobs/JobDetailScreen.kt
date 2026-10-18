@@ -248,6 +248,10 @@ private fun DetailBody(
         ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
         ?.let { ExcludedReason(it) }
       Actions(job, busy = state.busy, onEvent = onEvent, onDelete = onDelete)
+      if (state.canReport && job.status == JobStatus.NEW) {
+        ReportButton(onClick = { onEvent(JobDetailEvent.OpenReport) })
+      }
+      state.report?.let { ReportDialog(it, onEvent) }
       for (section in state.layout.shown) {
         key(section) { MovableSection(section, state, job, now, onEvent) }
       }

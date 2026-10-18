@@ -38,7 +38,7 @@ import kotlinx.coroutines.Dispatchers
       AiKeyUsageEntity::class,
       FormAnswerEntity::class,
     ],
-  version = 14,
+  version = 15,
   autoMigrations =
     [
       AutoMigration(from = 1, to = 2),
@@ -54,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
       AutoMigration(from = 11, to = 12),
       AutoMigration(from = 12, to = 13, spec = AppModelRename::class),
       AutoMigration(from = 13, to = 14),
+      AutoMigration(from = 14, to = 15),
     ],
 )
 @ColumnTypeConverters(JsonColumnConverters::class)

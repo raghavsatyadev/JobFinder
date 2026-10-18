@@ -14,6 +14,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
 import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
 import io.github.raghavsatyadev.jobfinder.server.ai.AiService
 import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
+import io.github.raghavsatyadev.jobfinder.server.ai.JobReports
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
@@ -56,6 +57,7 @@ import io.github.raghavsatyadev.jobfinder.server.service.JobRetention
 import io.github.raghavsatyadev.jobfinder.server.service.JobsCsvExporter
 import io.github.raghavsatyadev.jobfinder.server.service.LinkService
 import io.github.raghavsatyadev.jobfinder.server.service.MergedJobCheck
+import io.github.raghavsatyadev.jobfinder.server.service.NewJobsRecheck
 import io.github.raghavsatyadev.jobfinder.server.service.NoteFiles
 import io.github.raghavsatyadev.jobfinder.server.service.OllamaJobCheck
 import io.github.raghavsatyadev.jobfinder.server.service.ats.AtsService
@@ -77,6 +79,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
@@ -213,9 +216,23 @@ fun serverModule(dataDir: File) = module {
         riders = { listOf(get<AtsService>()) },
         usage = get(),
       ),
+      instructions = { get<PromptBook>().instructions(PromptId.MATCHING) },
     )
   }
   single { JobIngestService(get(), get(), get()) }
+  // "Shouldn't be in New": the AI's second look at a job the user reported.
+  single {
+    val db = get<ServerDatabase>()
+    JobReports(
+      db.jobsDao(),
+      db.advancedMatchingDao(),
+      get(),
+      get(),
+      get(),
+      usage = get(),
+      instructions = { get<PromptBook>().instructions(PromptId.MATCHING) },
+    )
+  } bind JobReportRepository::class
   single { CustomBoards(get()) }
   single {
     JobRetention(
@@ -237,6 +254,10 @@ fun serverModule(dataDir: File) = module {
       it?.cancel()
     }
   single { AiWorkPause(get<LocalSettingsRepository>().scannerSettings, get(ATS_SCOPE)) }
+  // Checks again the jobs in New the current AI filter has not answered for.
+  single {
+    NewJobsRecheck(get<ServerDatabase>().jobsDao(), get(), get<Scanner>(), get(), pause = get())
+  }
   // Scores jobs against the resume in the background, on the same model client as matching.
   single {
     val db = get<ServerDatabase>()
@@ -355,6 +376,7 @@ fun serverModule(dataDir: File) = module {
       improve = get(),
       backup = get(),
       restoreRequests = get(),
+      reports = get(),
     )
   }
   single { ApiServerHost.forApi(get()) }

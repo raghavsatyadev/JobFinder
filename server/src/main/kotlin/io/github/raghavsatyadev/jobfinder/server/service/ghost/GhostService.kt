@@ -6,6 +6,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.GhostDao
 import io.github.raghavsatyadev.jobfinder.server.db.JobEntity
 import io.github.raghavsatyadev.jobfinder.server.db.JobsDao
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.scan.UrgentRead
 import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.insights.CompanyNames
 import io.github.raghavsatyadev.jobfinder.server.service.notFound
@@ -35,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import org.slf4j.LoggerFactory
 
@@ -70,7 +72,8 @@ class GhostService(
     scope.launch {
       for (jobId in queue) {
         try {
-          reading.withLock { check(jobId) }
+          // An opened job: its pages do not wait behind the background readers.
+          withContext(UrgentRead) { reading.withLock { check(jobId) } }
           failedAt.remove(jobId)
         } catch (e: CancellationException) {
           throw e

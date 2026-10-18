@@ -46,6 +46,7 @@ import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteAtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteBackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteGhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteInsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteJobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteJobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteLinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteMatchingRepository
@@ -60,6 +61,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
@@ -269,4 +271,5 @@ fun remoteModule(): Module = module {
     )
   }
   single { NewJobsNotifier(get(), get(), get(APP_SCOPE)) }
+  single<JobReportRepository> { RemoteJobReportRepository(get()) }
 }

@@ -137,13 +137,25 @@ class LlmClient(
     var last: Exception? = null
     for ((index, target) in targets.withIndex()) {
       val more = index < targets.lastIndex
+      val started = System.nanoTime()
+      // Which model answered, and how long each took: the way to see a slow or failing route.
+      fun took() = (System.nanoTime() - started) / NANOS_PER_SECOND
+      val name = "${target.config.provider.name.lowercase()} ${target.config.model}"
       try {
-        return send(target, system, user, schemaName, schema, maxTokens, !more) ?: continue
+        val answer = send(target, system, user, schemaName, schema, maxTokens, !more)
+        if (answer == null) {
+          log.info("{}: {} skipped after {} s", task.name.lowercase(), name, took())
+          continue
+        }
+        log.info("{}: answered by {} in {} s", task.name.lowercase(), name, took())
+        return answer
       } catch (e: CancellationException) {
         throw e
       } catch (e: RateLimitedException) {
+        log.info("{}: {} busy after {} s", task.name.lowercase(), name, took())
         last = e
       } catch (e: LlmException) {
+        log.info("{}: {} failed after {} s: {}", task.name.lowercase(), name, took(), e.message)
         if (!more) throw e
         last = e
       }
@@ -537,6 +549,8 @@ class LlmClient(
 
   companion object {
     private val JSON = Json { ignoreUnknownKeys = true }
+
+    private const val NANOS_PER_SECOND = 1_000_000_000L
 
     private const val ANTHROPIC_VERSION = "2023-06-01"
 

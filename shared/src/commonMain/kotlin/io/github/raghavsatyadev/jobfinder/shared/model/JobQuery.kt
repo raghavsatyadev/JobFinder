@@ -1,7 +1,10 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package io.github.raghavsatyadev.jobfinder.shared.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
 
 /** Filters shared by job lists and job counts. Empty lists and a blank search mean "no filter". */
 @Serializable
@@ -51,33 +54,29 @@ data class JobFilter(
  */
 @Serializable
 enum class JobSort(val wire: String) {
-  /** Latest update first. */
-  @SerialName("latest") LATEST("latest"),
+  /** Latest update first. Saved sorts that were dropped come back as this. */
+  @SerialName("latest") @JsonNames("remote_first", "onsite_first") LATEST("latest"),
+
+  /** Oldest update first. */
+  @SerialName("oldest") OLDEST("oldest"),
 
   /** Highest ATS score first; jobs without a score last. */
-  @SerialName("ats") ATS("ats"),
+  @SerialName("ats") @JsonNames("ats_latest") ATS("ats"),
 
-  /** ATS score in 10% bands, highest first; latest first inside a band. */
-  @SerialName("ats_latest") ATS_LATEST("ats_latest"),
-
-  /** Remote jobs first, then the rest; latest first inside each. */
-  @SerialName("remote_first") REMOTE_FIRST("remote_first"),
-
-  /** Onsite jobs first, then the rest; latest first inside each. */
-  @SerialName("onsite_first") ONSITE_FIRST("onsite_first");
+  /** Lowest ATS score first; jobs without a score last. */
+  @SerialName("ats_lowest") ATS_LOWEST("ats_lowest");
 
   val usesAts: Boolean
-    get() = this == ATS || this == ATS_LATEST
+    get() = this == ATS || this == ATS_LOWEST
 
   /** The sort key of [job], highest first; 0 for every job under [LATEST]. */
   fun key(job: Job): Long =
     when (this) {
       LATEST -> 0
+      OLDEST -> -job.updatedAt
       // Truncated like SQLite's CAST(... AS INTEGER), so both sides agree.
       ATS -> job.ats?.let { (it.overall * ATS_SCALE).toLong() } ?: NO_SCORE
-      ATS_LATEST -> job.ats?.let { minOf(it.overall.toLong(), TOP_BAND) } ?: NO_SCORE
-      REMOTE_FIRST -> if (job.workMode == WorkMode.REMOTE) 1 else 0
-      ONSITE_FIRST -> if (job.workMode == WorkMode.ONSITE) 1 else 0
+      ATS_LOWEST -> job.ats?.let { -(it.overall * ATS_SCALE).toLong() } ?: NO_SCORE_LOWEST
     }
 
   /** Highest [key] first, then latest update, then highest id. */
@@ -91,12 +90,17 @@ enum class JobSort(val wire: String) {
     /** The overall score is out of 10; ×100 keeps two decimals in an integer key. */
     const val ATS_SCALE = 100
 
-    /** Scores of 9 and up (90–100%) share the top band. */
-    const val TOP_BAND = 9L
-
     const val NO_SCORE = -1L
 
-    fun fromWireOrNull(value: String?): JobSort? = entries.firstOrNull { it.wire == value }
+    /** Below every negated score (at most 10 × [ATS_SCALE]). */
+    const val NO_SCORE_LOWEST = -1_000_000L
+
+    /** Sorts that were dropped, as what they became. */
+    private val DROPPED =
+      mapOf("ats_latest" to ATS, "remote_first" to LATEST, "onsite_first" to LATEST)
+
+    fun fromWireOrNull(value: String?): JobSort? =
+      entries.firstOrNull { it.wire == value } ?: DROPPED[value]
   }
 }
 

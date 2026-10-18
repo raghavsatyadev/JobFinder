@@ -775,7 +775,8 @@ private fun JobList(
     delay(600)
     playEntrance = false
   }
-  LaunchedEffect(listState, jobs.size) {
+  // A reload drops a load-more asked meanwhile: once it ends, ask again if still at the end.
+  LaunchedEffect(listState, jobs.size, state.loading, state.nextPageToken) {
     snapshotFlow {
       val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
       last >= listState.layoutInfo.totalItemsCount - LOAD_MORE_THRESHOLD

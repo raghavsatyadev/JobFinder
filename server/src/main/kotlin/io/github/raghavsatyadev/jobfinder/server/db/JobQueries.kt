@@ -6,7 +6,6 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
-import io.github.raghavsatyadev.jobfinder.shared.model.WorkMode
 
 /**
  * Cursor of a job page: the last job's id, `updated_at` and, for orders other than latest, its sort
@@ -106,14 +105,11 @@ object JobQueries {
   fun sortKey(sort: JobSort): String? =
     when (sort) {
       JobSort.LATEST -> null
+      JobSort.OLDEST -> "(-j.updated_at)"
       JobSort.ATS ->
         "COALESCE(CAST(a.overall * ${JobSort.ATS_SCALE} AS INTEGER), ${JobSort.NO_SCORE})"
-      JobSort.ATS_LATEST ->
-        "COALESCE(MIN(CAST(a.overall AS INTEGER), ${JobSort.TOP_BAND}), ${JobSort.NO_SCORE})"
-      JobSort.REMOTE_FIRST ->
-        "(CASE WHEN lower(j.job_type) = '${WorkMode.REMOTE.wire}' THEN 1 ELSE 0 END)"
-      JobSort.ONSITE_FIRST ->
-        "(CASE WHEN lower(j.job_type) = '${WorkMode.ONSITE.wire}' THEN 1 ELSE 0 END)"
+      JobSort.ATS_LOWEST ->
+        "COALESCE(-CAST(a.overall * ${JobSort.ATS_SCALE} AS INTEGER), ${JobSort.NO_SCORE_LOWEST})"
     }
 
   /**

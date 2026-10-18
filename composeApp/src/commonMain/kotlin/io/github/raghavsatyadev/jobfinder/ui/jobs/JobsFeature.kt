@@ -31,6 +31,7 @@ val jobsUiModule = module {
       getOrNull(),
       getOrNull(),
       getOrNull(),
+      getOrNull(),
     )
   }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.android.tools.screenshot.PreviewTest
 import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.ScanState
 import io.github.raghavsatyadev.jobfinder.shared.model.WorkMode
 import io.github.raghavsatyadev.jobfinder.ui.fake.SampleData
@@ -31,6 +32,8 @@ import io.github.raghavsatyadev.jobfinder.ui.jobs.JobFilterSheetContent
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsListContent
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsListUiState
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsPreviewData
+import io.github.raghavsatyadev.jobfinder.ui.jobs.ReportDialog
+import io.github.raghavsatyadev.jobfinder.ui.jobs.ReportUi
 
 /**
  * The jobs list-detail layout as the app lays it out: list and detail side by side from 840 dp, the
@@ -164,3 +167,39 @@ The UK Customer Engagement Lead is responsible for the strategic direction, perf
 **Qualifications:**
 - Bachelor's degree or equivalent experience in software engineering.
 - 3+ years of management experience."""
+
+/** A job in New with "Shouldn't be in New" under its actions. */
+@PreviewTest
+@StatePreviews
+@Composable
+fun JobDetailReportableScreenshot() {
+  ScreenshotHost {
+    JobDetailContent(JobsPreviewData.detail(1).copy(canReport = true), JobsPreviewData.NOW)
+  }
+}
+
+/** The report dialog with a note. */
+@PreviewTest
+@StatePreviews
+@Composable
+fun JobReportDialogScreenshot() {
+  ScreenshotHost { ReportDialog(ReportUi(note = "I don't want fintech companies.")) {} }
+}
+
+/** The AI's answer when it thinks the job fits. */
+@PreviewTest
+@StatePreviews
+@Composable
+fun JobReportAnswerScreenshot() {
+  ScreenshotHost {
+    ReportDialog(
+      ReportUi(
+        result =
+          JobReportResult(
+            userRight = false,
+            reason = "Senior Android role, remote in India, Kotlin: it matches what you asked for.",
+          )
+      )
+    ) {}
+  }
+}

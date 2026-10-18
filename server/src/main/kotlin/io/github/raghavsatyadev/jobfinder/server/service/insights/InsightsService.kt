@@ -5,6 +5,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.CompanySalaryEntity
 import io.github.raghavsatyadev.jobfinder.server.db.InsightsDao
 import io.github.raghavsatyadev.jobfinder.server.db.JobsDao
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
+import io.github.raghavsatyadev.jobfinder.server.scan.UrgentRead
 import io.github.raghavsatyadev.jobfinder.server.service.AiWorkPause
 import io.github.raghavsatyadev.jobfinder.server.service.notFound
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
@@ -31,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import org.slf4j.LoggerFactory
 
@@ -72,7 +74,8 @@ class InsightsService(
     scope.launch {
       for (jobId in queue) {
         try {
-          reading.withLock { fetch(jobId) }
+          // An opened job: its pages do not wait behind the background readers.
+          withContext(UrgentRead) { reading.withLock { fetch(jobId) } }
         } catch (e: CancellationException) {
           throw e
         } catch (e: Exception) {

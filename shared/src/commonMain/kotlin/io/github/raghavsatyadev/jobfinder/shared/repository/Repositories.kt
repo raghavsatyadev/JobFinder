@@ -17,6 +17,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobCounts
 import io.github.raghavsatyadev.jobfinder.shared.model.JobFilter
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
+import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
@@ -251,4 +252,12 @@ interface ScanRepository {
 
   /** Links whose last three or more scans failed. */
   suspend fun brokenLinks(): List<Link>
+}
+
+/**
+ * "Shouldn't be in New": the AI checks a job in New again against the user's filter and their
+ * [note], and moves it to Filtered out when the user is right. Can take minutes on the local model.
+ */
+interface JobReportRepository {
+  suspend fun reportJob(jobId: Long, note: String?): JobReportResult
 }

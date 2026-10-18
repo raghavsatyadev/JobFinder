@@ -158,6 +158,7 @@ class JobIngestService(
         tagsJson = JsonColumnConverters.encodeStringList(updated.tags),
         status = updated.status.wire,
         excludeReason = updated.excludeReason,
+        matchedWith = decision.checkedWith,
         updatedAt = clock(),
       )
     log.info("[{}] {} {}", site.provider.wire, updated.status.wire, job.title)

@@ -17,6 +17,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
@@ -71,6 +72,8 @@ class ApiDependencies(
   val improve: ResumeImproveRepository? = null,
   /** `null` answers the backup routes with "unavailable". */
   val backup: BackupRepository? = null,
+  /** `null` answers job reports with "unavailable". */
+  val reports: JobReportRepository? = null,
   /** A phone's request to replace everything waits here for the user's answer. */
   val restoreRequests: RestoreRequests = RestoreRequests(),
 )
@@ -141,6 +144,7 @@ fun Application.jobFinderApi(deps: ApiDependencies) {
         notesRoutes(deps)
         matchingRoutes(deps)
         promptRoutes(deps)
+        reportRoutes(deps)
         ghostRoutes(deps)
         tipsRoutes(deps)
         improveRoutes(deps)
