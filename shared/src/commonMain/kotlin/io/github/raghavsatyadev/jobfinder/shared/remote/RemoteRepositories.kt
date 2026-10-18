@@ -280,7 +280,7 @@ class RemoteAiPromptsRepository(private val api: RemoteApi) : AiPromptsRepositor
     )
 
   private companion object {
-    const val TRY_TIMEOUT_MS = 6L * 60 * 1000
+    const val TRY_TIMEOUT_MS = 10L * 60 * 1000
   }
 }
 
