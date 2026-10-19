@@ -136,8 +136,13 @@ object LanguageGuess {
 
   private val WORD = Regex("""\p{L}+""")
 
-  /** The language of [title] and [description], or `null` when unsure. */
-  fun guess(title: String, description: String?): String? {
+  /**
+   * The language of [title] and [description], or `null` when too short to say. Close languages
+   * (Danish and Norwegian, Spanish and Portuguese) share many short words: when two are close and
+   * one of them is [target], the job counts as in [target]; otherwise the best one is taken, which
+   * the AI translates well either way.
+   */
+  fun guess(title: String, description: String?, target: String? = null): String? {
     val text = (description.orEmpty().take(SAMPLE_CHARS) + " " + title).lowercase()
     val tokens = WORD.findAll(text).map { it.value }.toList()
     val scores =
@@ -145,11 +150,13 @@ object LanguageGuess {
         .entries
         .sortedByDescending { it.value }
     val best = scores.first()
-    val second = scores.getOrNull(1)?.value ?: 0
-    if (best.value >= MIN_HITS && best.value >= second * MARGIN) return best.key
+    val runnerUp = scores[1]
+    if (best.value >= MIN_HITS) {
+      if (best.value >= runnerUp.value * MARGIN) return best.key
+      return if (target != null && target in setOf(best.key, runnerUp.key)) target else best.key
+    }
     // A title alone has few short words; the German gender mark gives it away.
-    if (GERMAN_GENDER_MARK.containsMatchIn(title.lowercase()) && best.value < MIN_HITS) return "de"
-    return null
+    return if (GERMAN_GENDER_MARK.containsMatchIn(title.lowercase())) "de" else null
   }
 
   private fun words(list: String): Set<String> = list.split(' ').filter(String::isNotEmpty).toSet()

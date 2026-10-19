@@ -137,7 +137,8 @@ class TranslationService(
   private suspend fun current(job: JobEntity, to: String): JobTranslationEntity? =
     dao.get(job.id)?.takeIf { it.toLang == to && it.sourceHash == hash(job) }
 
-  private fun guess(job: JobEntity): String? = LanguageGuess.guess(job.title, job.description)
+  private suspend fun guess(job: JobEntity): String? =
+    LanguageGuess.guess(job.title, job.description, target())
 
   private fun entity(
     job: JobEntity,

@@ -413,6 +413,8 @@ class BackupService(
     db.withWriteTransaction {
       db.notesDao().deleteAll()
       db.atsReviewsDao().deleteAll()
+      // Kept by job id: the restored jobs may reuse ids, so old translations would show on them.
+      db.translationsDao().deleteAll()
       db.jobsDao().deleteAll()
       db.linksDao().deleteAll()
       db.insightsDao().deleteRatings()

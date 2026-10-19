@@ -92,7 +92,7 @@ class AiJobTranslator(
       """You translate job postings from $from into $to. Translate the whole text faithfully: do not summarize, shorten, explain or add anything.
 - Keep the Markdown exactly as it is: headings, lists, bold, links and line breaks.
 - Keep names of companies, products, tools and technologies, e-mail addresses, URLs and numbers as they are.
-- Translate gender marks in titles too, for example "(m/w/d)" becomes "(m/f/d)" in English.
+- Translate gender marks in titles letter for letter, for example "(m/w/d)" becomes "(m/f/d)" and "(H/F)" becomes "(M/F)" in English.
 - If a part is already in $to, return it unchanged.
 Reply with JSON only: "title" (the translated title, when a TITLE is given) and "text" (the translated TEXT, empty when the TEXT is empty)."""
 

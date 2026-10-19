@@ -40,6 +40,8 @@ interface TranslationsDao {
 
   @Query("DELETE FROM job_translations WHERE job_id = :jobId") suspend fun delete(jobId: Long)
 
+  @Query("DELETE FROM job_translations") suspend fun deleteAll()
+
   /** The newest job in [status] with a description and nothing stored for [toLang]. */
   @Query(
     """SELECT j.id FROM jobs j
