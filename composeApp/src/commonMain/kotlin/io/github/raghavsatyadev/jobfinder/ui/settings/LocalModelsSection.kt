@@ -3,6 +3,7 @@
 package io.github.raghavsatyadev.jobfinder.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -320,12 +321,19 @@ private fun ModelRow(
     }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
       if (inUse) {
-        Text(
-          stringResource(Res.string.models_in_use),
-          style = MaterialTheme.typography.labelLarge,
-          color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(vertical = 12.dp),
-        )
+        // Same box as a TextButton, so the label lines up with the buttons beside it.
+        Box(
+          modifier = Modifier
+            .heightIn(min = ButtonDefaults.MinHeight)
+            .padding(ButtonDefaults.TextButtonContentPadding),
+          contentAlignment = Alignment.Center,
+        ) {
+          Text(
+            stringResource(Res.string.models_in_use),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+          )
+        }
       } else {
         TextButton(
           onClick = { onUse(model.name) },
