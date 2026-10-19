@@ -6,6 +6,7 @@ import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
+import io.github.raghavsatyadev.jobfinder.ui.platform.AgentAccess
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiChoice
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
@@ -24,6 +25,7 @@ val desktopUiModule = module {
   single<FilePicker> { DesktopFilePicker() }
   single<AiChoice> { DesktopAiChoice(get(), get()) }
   single<AiKeys> { DesktopAiKeys(get(), get(), getOrNull(), getOrNull()) }
+  single<AgentAccess> { DesktopAgentAccess(get()) }
   single<ScanRepository> { DesktopScanRepository(get(), get(), get(), get()) }
   single<SettingsRepository> {
     val scope = this

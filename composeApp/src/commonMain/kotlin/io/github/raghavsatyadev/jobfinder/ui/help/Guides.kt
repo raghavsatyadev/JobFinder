@@ -101,6 +101,7 @@ import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 /** The device the app runs on, which decides the order of the guides. */
@@ -557,5 +558,17 @@ private fun Link(icon: ImageVector?, modifier: Modifier) {
         Icon(icon, contentDescription = null, modifier = Modifier.padding(4.dp).size(20.dp))
       }
     }
+  }
+}
+
+/** Every guide as Markdown, steps numbered, for AI agents (the MCP server). */
+internal suspend fun guidesMarkdown(): String = buildString {
+  for (guide in listOf(COMPUTER_GUIDE, PHONE_GUIDE, BACKUP_GUIDE)) {
+    append("### ").append(getString(guide.title)).append("\n\n")
+    guide.steps.forEachIndexed { i, step ->
+      append(i + 1).append(". **").append(getString(step.title)).append(".** ")
+      append(getString(step.text)).append('\n')
+    }
+    append('\n')
   }
 }

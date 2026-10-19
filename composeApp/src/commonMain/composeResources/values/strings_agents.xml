@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_section_agents">AI agents (MCP)</string>
+    <string name="settings_keywords_agents">MCP, agent, Claude Code, Gemini CLI, Codex, Cursor, token, automation, assistant</string>
+    <string name="agents_hint">AI agents on this computer, like Claude Code, Gemini CLI, Codex or Cursor, can set JobFinder up for you: job searches, the AI filter, AI instructions, free AI keys and the scan schedule. They read the app’s Help too. Only this computer can connect, and only with the token.</string>
+    <string name="agents_address">Address</string>
+    <string name="agents_off">Starting…</string>
+    <string name="agents_port_in_use">Another program uses port 47822, so agents can’t connect. Close it and restart JobFinder.</string>
+    <string name="agents_copy_title">Copy the setup for your agent</string>
+    <string name="agents_client_claude">Claude Code</string>
+    <string name="agents_client_gemini">Gemini CLI</string>
+    <string name="agents_client_codex">Codex</string>
+    <string name="agents_client_other">Cursor and others</string>
+    <string name="agents_where_claude">Run it in a terminal.</string>
+    <string name="agents_where_gemini">Add it to ~/.gemini/settings.json.</string>
+    <string name="agents_where_codex">Add it to ~/.codex/config.toml.</string>
+    <string name="agents_where_other">Add it to the app’s MCP settings, for Cursor ~/.cursor/mcp.json.</string>
+    <string name="agents_copied">Copied. It holds the token: paste it only into your agent. %1$s</string>
+    <string name="agents_try">Then ask the agent: “Set up JobFinder for me.”</string>
+    <string name="agents_rotate">New token</string>
+    <string name="agents_rotate_title">Make a new agent token?</string>
+    <string name="agents_rotate_text">Agents set up with the old token stop working until you copy the setup again.</string>
+    <string name="agents_rotate_confirm">Make a new token</string>
+    <string name="agents_rotated">New token made. Copy the setup again for your agents.</string>
+</resources>

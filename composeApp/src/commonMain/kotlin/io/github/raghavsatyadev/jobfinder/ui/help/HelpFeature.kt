@@ -109,6 +109,7 @@ import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 
@@ -137,6 +138,26 @@ private val SHORTCUTS: ImmutableList<Shortcut> =
     Shortcut(Res.string.help_shortcut_archive_keys, Res.string.help_shortcut_archive),
     Shortcut(Res.string.help_shortcut_delete_keys, Res.string.help_shortcut_delete),
   )
+
+/**
+ * The app's Help as Markdown: the guides, the questions and answers and the shortcuts, in the app's
+ * language. AI agents read it through the MCP server.
+ */
+suspend fun helpMarkdown(): String = buildString {
+  append("# ").append(getString(Res.string.help_title)).append("\n\n")
+  append("## ").append(getString(Res.string.help_guides_title)).append("\n\n")
+  append(guidesMarkdown())
+  append("## ").append(getString(Res.string.help_faq_title)).append("\n\n")
+  for (faq in FAQS) {
+    append("### ").append(getString(faq.question)).append("\n\n")
+    append(getString(faq.answer)).append("\n\n")
+  }
+  append("## ").append(getString(Res.string.help_shortcuts_title)).append("\n\n")
+  for (shortcut in SHORTCUTS) {
+    append("- ").append(getString(shortcut.keys)).append(": ").append(getString(shortcut.action))
+    append('\n')
+  }
+}
 
 /**
  * How the app works: the illustrated guides, questions and answers, and the keyboard shortcuts. The

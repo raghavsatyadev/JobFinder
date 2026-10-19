@@ -125,6 +125,7 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_frequency_risky_hin
 import io.github.raghavsatyadev.jobfinder.resources.settings_frequency_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_in_app_browser_hint
 import io.github.raghavsatyadev.jobfinder.resources.settings_in_app_browser_title
+import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_agents
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_ai
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_backup
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_computers
@@ -166,6 +167,7 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_save_failed
 import io.github.raghavsatyadev.jobfinder.resources.settings_search
 import io.github.raghavsatyadev.jobfinder.resources.settings_search_clear
 import io.github.raghavsatyadev.jobfinder.resources.settings_search_none
+import io.github.raghavsatyadev.jobfinder.resources.settings_section_agents
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_ai
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_backup
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_close
@@ -194,6 +196,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
+import io.github.raghavsatyadev.jobfinder.ui.platform.AgentAccess
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiChoice
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
@@ -283,6 +286,7 @@ fun SettingsScreen(onOpenHelp: (() -> Unit)? = null) {
     answers =
       if (getKoin().getOrNull<FormAnswersRepository>() != null) ({ FormAnswersSettings() })
       else null,
+    agents = if (getKoin().getOrNull<AgentAccess>() != null) ({ AgentAccessSettings() }) else null,
     onOpenHelp = onOpenHelp,
   )
 }
@@ -306,6 +310,8 @@ fun SettingsContent(
   keys: (@Composable () -> Unit)? = null,
   /** The saved application form answers, desktop only; `null` leaves it out. */
   answers: (@Composable () -> Unit)? = null,
+  /** The MCP server for AI agents, desktop only; `null` leaves it out. */
+  agents: (@Composable () -> Unit)? = null,
   /** Sections open at first; all closed in the app. */
   initiallyOpen: Set<SettingsSection> = emptySet(),
   /** The search at first; empty in the app. */
@@ -349,6 +355,7 @@ fun SettingsContent(
           ai,
           keys,
           answers,
+          agents,
           initiallyOpen,
           initialQuery,
         )
@@ -399,6 +406,7 @@ enum class SettingsSection(val title: StringResource, val keywords: StringResour
     Res.string.settings_section_form_answers,
     Res.string.settings_keywords_form_answers,
   ),
+  AGENTS(Res.string.settings_section_agents, Res.string.settings_keywords_agents),
   COMPUTERS(Res.string.settings_section_desktop, Res.string.settings_keywords_computers),
   PAIRING(Res.string.settings_section_pairing, Res.string.settings_keywords_pairing),
   LOGIN(Res.string.settings_section_login, Res.string.settings_keywords_login),
@@ -420,6 +428,7 @@ private fun SettingsList(
   ai: (@Composable () -> Unit)?,
   keys: (@Composable () -> Unit)?,
   answers: (@Composable () -> Unit)?,
+  agents: (@Composable () -> Unit)?,
   initiallyOpen: Set<SettingsSection>,
   initialQuery: String,
 ) {
@@ -434,6 +443,7 @@ private fun SettingsList(
     resume?.let { add(SectionEntry(SettingsSection.RESUME, it)) }
     backup?.let { add(SectionEntry(SettingsSection.BACKUP, it)) }
     answers?.let { add(SectionEntry(SettingsSection.FORM_ANSWERS, it)) }
+    agents?.let { add(SectionEntry(SettingsSection.AGENTS, it)) }
     if (state.phone && state.computers.isNotEmpty()) {
       add(SectionEntry(SettingsSection.COMPUTERS) { ComputersSection(state, onEvent) })
     }

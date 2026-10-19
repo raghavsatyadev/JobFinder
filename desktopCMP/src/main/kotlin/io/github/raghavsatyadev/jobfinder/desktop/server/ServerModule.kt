@@ -30,6 +30,10 @@ import io.github.raghavsatyadev.jobfinder.server.http.PairedPhones
 import io.github.raghavsatyadev.jobfinder.server.http.PairingRequests
 import io.github.raghavsatyadev.jobfinder.server.http.RestoreRequests
 import io.github.raghavsatyadev.jobfinder.server.http.ServerIdentity
+import io.github.raghavsatyadev.jobfinder.server.mcp.JobFinderMcp
+import io.github.raghavsatyadev.jobfinder.server.mcp.McpDependencies
+import io.github.raghavsatyadev.jobfinder.server.mcp.McpServerHost
+import io.github.raghavsatyadev.jobfinder.server.mcp.McpSetupStep
 import io.github.raghavsatyadev.jobfinder.server.nativehost.FormMessages
 import io.github.raghavsatyadev.jobfinder.server.nativehost.JobUrlLookup
 import io.github.raghavsatyadev.jobfinder.server.nativehost.NativeHostLink
@@ -88,7 +92,9 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveReposit
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.ui.help.helpMarkdown
 import io.github.raghavsatyadev.jobfinder.ui.platform.LocalModels
+import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -258,6 +264,43 @@ fun serverModule(dataDir: File) = module {
   single {
     NewJobsRecheck(get<ServerDatabase>().jobsDao(), get(), get<Scanner>(), get(), pause = get())
   }
+  // The MCP server for AI agents on this computer.
+  single {
+    val koin = getKoin()
+    McpServerHost(
+      JobFinderMcp.server(
+        McpDependencies(
+          jobs = get(),
+          links = get(),
+          sites = get(),
+          linkService = get(),
+          matching = get(),
+          settings = get(),
+          scanner = get(),
+          keys = get(),
+          prompts = getOrNull(),
+          ats = getOrNull(),
+          resumeText = { get<ServerDatabase>().resumeDao().get()?.text },
+          appHelp = { helpMarkdown() },
+          setupSteps = {
+            koin.getOrNull<SetupAssistant>()?.steps?.value.orEmpty().map {
+              McpSetupStep(
+                it.kind.name.lowercase(),
+                it.state.name.lowercase(),
+                it.problem?.name?.lowercase(),
+                it.kind.optional,
+              )
+            }
+          },
+          appVersion = System.getProperty(APP_VERSION_PROPERTY).orEmpty(),
+        )
+      ),
+      get(),
+    )
+  } onClose
+    {
+      it?.stop()
+    }
   // Scores jobs against the resume in the background, on the same model client as matching.
   single {
     val db = get<ServerDatabase>()

@@ -67,6 +67,7 @@ import io.github.raghavsatyadev.jobfinder.server.http.PairedPhones
 import io.github.raghavsatyadev.jobfinder.server.http.PairingRequests
 import io.github.raghavsatyadev.jobfinder.server.http.RestoreRequests
 import io.github.raghavsatyadev.jobfinder.server.http.ServerIdentity
+import io.github.raghavsatyadev.jobfinder.server.mcp.McpServerHost
 import io.github.raghavsatyadev.jobfinder.server.nativehost.ExtensionPageFallback
 import io.github.raghavsatyadev.jobfinder.server.nativehost.NativeHostLink
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsRepository
@@ -198,6 +199,8 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
   val devScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   koin.get<JobRetention>().start(devScope)
   koin.get<NewJobsRecheck>().start(devScope)
+  val mcp = koin.get<McpServerHost>()
+  devScope.launch { mcp.start() }
   devScope.launch { runCatching { koin.get<CustomBoards>().splitCatchAll() } }
   if (DevApprovals.enabled()) DevApprovals.start(devScope, pairing, restores)
   try {
@@ -279,6 +282,7 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
     devScope.cancel()
     scans.close()
     koin.get<CefBrowserPool>().close()
+    mcp.stop()
     server.close()
   }
 }

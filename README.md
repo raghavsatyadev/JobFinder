@@ -37,7 +37,10 @@ There is no account and no server. Your searches, jobs, resume and notes stay on
 - **Helps you fill in applications.** With the browser extension, JobFinder keeps what you type in
   application forms and can fill the same questions next time, or draft an answer from your
   resume and the job. It never sends a form for you.
-- **Keeps your jobs tidy.** Sort by date, ATS score or work mode; filter by board, search, label
+- **Lets your AI agent set it up.** Claude Code, Gemini CLI, Codex, Cursor and other MCP agents on
+  your computer can craft your searches, AI filter and AI instructions, set up free AI keys and
+  read the app's help (Settings → AI agents (MCP)).
+- **Keeps your jobs tidy.** Sort by date or ATS score; filter by board, search, label
   and work mode; archive or delete with one click or a keyboard shortcut. Jobs whose posting was
   removed are deleted, and filtered-out jobs are deleted after 30 days (you choose the days, or
   keep them).
