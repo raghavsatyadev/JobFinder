@@ -144,7 +144,7 @@ class LlmClient(
       try {
         val answer = send(target, system, user, schemaName, schema, maxTokens, !more)
         if (answer == null) {
-          log.info("{}: {} skipped after {} s", task.name.lowercase(), name, took())
+          log.debug("{}: {} skipped (resting or out of quota)", task.name.lowercase(), name)
           continue
         }
         log.info("{}: answered by {} in {} s", task.name.lowercase(), name, took())
@@ -288,6 +288,8 @@ class LlmClient(
         retried = true
       } catch (e: RetryableException) {
         if (retried) throw LlmException("${name(config)} failed twice: ${e.message}", e)
+        // An online model with others behind it: they answer sooner than a second try.
+        if (!last && config.apiKey != null) throw LlmException("${name(config)}: ${e.message}", e)
         retried = true
       }
     }
