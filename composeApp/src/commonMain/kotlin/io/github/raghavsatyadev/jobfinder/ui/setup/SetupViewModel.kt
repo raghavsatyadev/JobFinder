@@ -51,6 +51,10 @@ data class SetupUiState(
   val copyingSignIns: Boolean = false,
   /** How the last copy of the browser's sign-ins went. */
   val signInCopy: SignInCopy? = null,
+  /** The app's own Chrome or Edge, by name; `null` hides its button. */
+  val appBrowser: String? = null,
+  /** How the last "Open JobFinder's browser" went. */
+  val appBrowserOpen: AppBrowserOpen? = null,
 ) {
   val allDone: Boolean
     get() = steps.isNotEmpty() && steps.all { it.kind.optional || it.state == SetupStepState.DONE }
@@ -88,6 +92,11 @@ data class SetupUiState(
     }
 }
 
+/**
+ * How opening the app's browser went: [page] is the copied extensions address, `null` if failed.
+ */
+@Immutable data class AppBrowserOpen(val page: String?)
+
 sealed interface SetupUiEvent {
   /** Opens the confirm dialog for the page's automatic steps. */
   data object FixPage : SetupUiEvent
@@ -95,6 +104,9 @@ sealed interface SetupUiEvent {
   data class GoTo(val page: SetupPage) : SetupUiEvent
 
   data object CopySignIns : SetupUiEvent
+
+  /** Opens the app's own browser, to add the extension there. */
+  data object OpenAppBrowser : SetupUiEvent
 
   data object Confirm : SetupUiEvent
 
@@ -122,6 +134,7 @@ class SetupViewModel(
     val page: SetupPage = SetupPage.AI,
     val copying: Boolean = false,
     val copy: SignInCopy? = null,
+    val browserOpen: AppBrowserOpen? = null,
   )
 
   init {
@@ -159,6 +172,8 @@ class SetupViewModel(
               steps.any { it.kind == SetupStepKind.EXTENSION && it.state == SetupStepState.DONE },
           copyingSignIns = here.copying,
           signInCopy = here.copy,
+          appBrowser = desktop?.appBrowserName,
+          appBrowserOpen = here.browserOpen,
         )
       }
       .stateIn(
@@ -184,10 +199,19 @@ class SetupViewModel(
         assistant.check()
       }
       SetupUiEvent.CopySignIns -> copySignIns()
+      SetupUiEvent.OpenAppBrowser -> openAppBrowser()
       SetupUiEvent.Cancel -> confirming.value = false
       is SetupUiEvent.Act -> assistant.act(event.kind)
       SetupUiEvent.CheckAgain -> assistant.check()
       SetupUiEvent.Close -> assistant.show(false)
+    }
+  }
+
+  private fun openAppBrowser() {
+    val desktop = desktop ?: return
+    viewModelScope.launch {
+      val page = desktop.openAppBrowserForExtension()
+      local.update { it.copy(browserOpen = AppBrowserOpen(page)) }
     }
   }
 

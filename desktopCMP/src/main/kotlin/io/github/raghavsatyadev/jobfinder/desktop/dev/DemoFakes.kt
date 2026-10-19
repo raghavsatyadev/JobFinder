@@ -100,6 +100,10 @@ private object DemoDesktopFeatures : DesktopFeatures {
 
   override fun openLoginBrowser(url: String?) = Unit
 
+  override val appBrowserName = "Chrome"
+
+  override suspend fun openAppBrowserForExtension() = "chrome://extensions"
+
   override suspend fun copyBrowserSignIns(): SignInCopy = SignInCopy.Copied(12, emptyList())
 
   @Composable

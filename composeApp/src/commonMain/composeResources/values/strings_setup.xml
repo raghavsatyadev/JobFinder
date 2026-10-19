@@ -52,7 +52,7 @@
     <string name="setup_text_sign_in">Opens the sites your searches use in Chrome or Edge, one tab each, so searches see every job. Sign in, then close that browser.</string>
     <string name="setup_text_signing_in">Sign in on every tab, then close the browser. JobFinder keeps the sign-ins when it closes.</string>
     <string name="setup_text_searches">Search on any job board (LinkedIn, Indeed, Naukri or another), copy the link of the results page and add it in Searches. JobFinder checks it for new jobs.</string>
-    <string name="setup_text_extension">Optional, for Chrome or Edge: shows the ATS score on saved jobs, fills application forms, reads pages the app can’t open and shares your sign-ins. Open chrome://extensions (or edge://extensions), turn on Developer mode, choose Load unpacked and pick the folder this button opens.</string>
+    <string name="setup_text_extension">Optional, for Chrome or Edge: shows the ATS score on saved jobs, fills application forms, reads pages the app can’t open and shares your sign-ins. Add it to JobFinder’s own browser, where you signed in to the job sites, or to your everyday one: open its extensions page, turn on Developer mode, choose Load unpacked and pick the extension folder.</string>
     <string name="setup_text_phone">On the phone, open JobFinder and pick %1$s.</string>
     <string name="setup_text_phone_qr">On the phone, open JobFinder and pick %1$s, or scan this code.</string>
     <string name="setup_text_model">About %1$s to download, once. It runs on this computer; nothing you send it leaves it.</string>
@@ -63,6 +63,9 @@
     <string name="setup_action_sign_in">Open sign-in</string>
     <string name="setup_action_searches">Add a search</string>
     <string name="setup_action_extension">Open the extension folder</string>
+    <string name="setup_action_app_browser">Open JobFinder’s browser</string>
+    <string name="setup_text_app_browser_opened">%1$s opened with JobFinder’s profile. %2$s is copied: paste it into the address bar to open the extensions page.</string>
+    <string name="setup_text_app_browser_failed">JobFinder’s browser did not open. Install Chrome or Edge, or add the extension to your own browser.</string>
     <string name="setup_qr_description">Pairing code for this computer</string>
     <string name="setup_confirm_title">Set up everything?</string>
     <string name="setup_confirm_intro">JobFinder will:</string>

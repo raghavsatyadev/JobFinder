@@ -11,6 +11,8 @@ import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsReposit
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,6 +93,27 @@ class DesktopAppFeatures(
         login.open(target)
       }
     }
+  }
+
+  override val appBrowserName: String?
+    get() = signIn?.takeIf { it.isAvailable }?.browserName
+
+  override suspend fun openAppBrowserForExtension(): String? {
+    val browser = signIn?.takeIf { it.isAvailable } ?: return null
+    val page = browser.extensionsPage ?: return null
+    try {
+      browser.open(BLANK_PAGE)
+    } catch (e: Exception) {
+      if (e is CancellationException) throw e
+      log.warn("Could not open {} for the extension", browser.browserName, e)
+      return null
+    }
+    try {
+      Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(page), null)
+    } catch (e: IllegalStateException) {
+      log.warn("Could not copy {} to the clipboard", page, e)
+    }
+    return page
   }
 
   override suspend fun copyBrowserSignIns(): SignInCopy =

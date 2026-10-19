@@ -66,7 +66,7 @@
 
     <!-- Settings: sign-in browser (desktop only) -->
     <string name="settings_section_login">Job site sign-in</string>
-    <string name="settings_login_hint">Sign in to LinkedIn and other job sites in the scanner’s browser, so scans see the same results as you.</string>
+    <string name="settings_login_hint">Sign in to LinkedIn and other job sites in the scanner’s browser, so scans see the same results as you. You can add the browser extension to this browser too.</string>
     <string name="settings_login_button">Open sign-in browser</string>
     <string name="settings_login_copy_hint">Already signed in to these sites in Chrome or Edge? With the JobFinder Helper extension, copy those sign-ins instead. Google sign-in works this way too.</string>
     <string name="settings_login_copy">Copy sign-ins from my browser</string>

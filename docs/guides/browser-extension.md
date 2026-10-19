@@ -15,8 +15,11 @@ See and edit the answers it keeps in **Settings → Form answers**, and choose t
 ## Install
 
 1. In the app's setup, press **Open the extension folder**.
-2. In Chrome open `chrome://extensions` (in Edge, `edge://extensions`).
-3. Turn on **Developer mode**, choose **Load unpacked** and pick that folder.
+2. To add it to JobFinder's own browser (the Chrome or Edge profile you sign in to job sites
+   with), press **Open JobFinder's browser**. It copies `chrome://extensions` (in Edge,
+   `edge://extensions`): paste it into the address bar. For your everyday browser, open that
+   page there yourself.
+3. Turn on **Developer mode**, choose **Load unpacked** and pick the extension folder.
 
 The extension talks only to the desktop app on the same computer, through the browser's native
 messaging. It opens no ports and sends page data nowhere else. More in

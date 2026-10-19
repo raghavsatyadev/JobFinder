@@ -27,7 +27,15 @@ import org.slf4j.LoggerFactory
 
 /** A Chrome or Edge installed on this PC. */
 data class InstalledBrowser(val name: String, val exe: File) {
+  /**
+   * The browser's extensions page, for the user to type: it does not open from the command line.
+   */
+  val extensionsPage: String
+    get() = if (name == EDGE) "edge://extensions" else "chrome://extensions"
+
   companion object {
+    private const val EDGE = "Edge"
+
     /** Chrome, else Edge, from their usual install folders; `null` when neither is installed. */
     fun find(
       env: Map<String, String> = System.getenv(),
@@ -39,7 +47,7 @@ data class InstalledBrowser(val name: String, val exe: File) {
         listOfNotNull(vars["ProgramFiles"], vars["ProgramFiles(x86)"], vars["LOCALAPPDATA"])
       val candidates =
         roots.map { InstalledBrowser("Chrome", File(it, "Google/Chrome/Application/chrome.exe")) } +
-          roots.map { InstalledBrowser("Edge", File(it, "Microsoft/Edge/Application/msedge.exe")) }
+          roots.map { InstalledBrowser(EDGE, File(it, "Microsoft/Edge/Application/msedge.exe")) }
       return candidates.firstOrNull { exists(it.exe) }
     }
   }
@@ -114,6 +122,10 @@ class SystemBrowserSignIn(
   /** The browser's name, for messages. */
   val browserName: String?
     get() = browser?.name
+
+  /** The browser's extensions page, as `chrome://extensions`. */
+  val extensionsPage: String?
+    get() = browser?.extensionsPage
 
   private class Session(val process: Process) {
     lateinit var copy: Job
