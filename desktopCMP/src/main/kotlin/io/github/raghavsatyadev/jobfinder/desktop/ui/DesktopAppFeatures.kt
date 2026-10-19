@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 /**
@@ -98,7 +99,11 @@ class DesktopAppFeatures(
   override val appBrowserName: String?
     get() = signIn?.takeIf { it.isAvailable }?.browserName
 
-  override suspend fun openAppBrowserForExtension(): String? {
+  override suspend fun openAppBrowserForExtension(): String? =
+    withContext(Dispatchers.IO) { openAppBrowser() }
+
+  /** Starts the browser process and copies the address; blocks, so it runs off the UI thread. */
+  private suspend fun openAppBrowser(): String? {
     val browser = signIn?.takeIf { it.isAvailable } ?: return null
     val page = browser.extensionsPage ?: return null
     try {
