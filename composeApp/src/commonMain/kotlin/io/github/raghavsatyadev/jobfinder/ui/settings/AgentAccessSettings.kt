@@ -167,7 +167,12 @@ fun AgentAccessContent(
         )
       null -> Unit
     }
-    TextButton(onClick = { confirmRotate = true }, shapes = ButtonDefaults.shapes()) {
+    // Off (no protected store, port taken): there is no token to replace.
+    TextButton(
+      onClick = { confirmRotate = true },
+      enabled = endpoint.url != null,
+      shapes = ButtonDefaults.shapes(),
+    ) {
       Icon(
         Icons.Rounded.LockReset,
         contentDescription = null,
