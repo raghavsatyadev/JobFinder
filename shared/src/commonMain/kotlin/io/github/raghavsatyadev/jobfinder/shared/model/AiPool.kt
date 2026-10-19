@@ -232,7 +232,7 @@ object FreeAiCatalog {
       FreeTier(
         AiProvider.OPENROUTER,
         "https://openrouter.ai/settings/keys",
-        "deepseek/deepseek-v4-flash:free",
+        "nvidia/nemotron-3-super-120b-a12b:free",
         requestsPerMinute = 20,
         requestsPerDay = 50,
         tokensPerDay = null,
