@@ -65,17 +65,32 @@ fun main(args: Array<String>) {
   val steps = script.readLines().map { it.substringBefore('#').trim() }.filter { it.isNotEmpty() }
   val size = steps.first().split(Regex("\\s+"))
   require(size[0] == "size") { "The first step must be size" }
-  // All on the UI thread, which the screens' lifecycle expects.
-  runBlocking(Dispatchers.Main) {
-    val tour =
-      Tour(size[1].toInt(), size[2].toInt(), size[3].toFloat(), out, size.getOrNull(4) == "phone")
+  // All on the UI thread, which the screens' lifecycle expects. The UI thread keeps the JVM alive,
+  // so a failure must exit too.
+  val ok =
     try {
-      tour.run(steps.drop(1))
-    } finally {
-      tour.close()
+      runBlocking(Dispatchers.Main) {
+        val tour =
+          Tour(
+            size[1].toInt(),
+            size[2].toInt(),
+            size[3].toFloat(),
+            out,
+            size.getOrNull(4) == "phone",
+          )
+        try {
+          tour.run(steps.drop(1))
+        } catch (e: Exception) {
+          tour.close()
+          throw e
+        }
+        tour.close()
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+      false
     }
-  }
-  exitProcess(0)
+  exitProcess(if (ok) 0 else 1)
 }
 
 private class Tour(
@@ -206,51 +221,54 @@ private class Tour(
   private suspend fun frames(seconds: Double, pressed: Boolean = false) {
     repeat((seconds * FPS).toInt().coerceAtLeast(1)) {
       delay(4)
-      val image = scene.render(frame * 1_000_000_000L / FPS)
+      scene.render(frame * 1_000_000_000L / FPS).use { image ->
+        withPointer(image, pressed).use { ffmpeg.outputStream.write(pixels(it)) }
+      }
       frame++
-      ffmpeg.outputStream.write(pixels(withPointer(image, pressed)))
     }
   }
 
   private fun snap(name: String) {
-    val image = scene.render(frame * 1_000_000_000L / FPS)
-    File(out, "$name.png").writeBytes(image.encodeToData(EncodedImageFormat.PNG)!!.bytes)
+    scene.render(frame * 1_000_000_000L / FPS).use { image ->
+      File(out, "$name.png").writeBytes(image.encodeToData(EncodedImageFormat.PNG)!!.bytes)
+    }
   }
 
   /** The frame with a mouse pointer drawn where the pointer is. */
   private fun withPointer(image: Image, pressed: Boolean): Image {
-    val surface = Surface.makeRasterN32Premul(width, height)
-    val canvas = surface.canvas
-    canvas.drawImage(image, 0f, 0f)
-    val r = if (pressed) 11f else 9f
-    canvas.drawCircle(
-      pointer.x,
-      pointer.y,
-      r,
-      Paint().apply { color = Color.makeARGB(90, 40, 40, 40) },
-    )
-    canvas.drawCircle(
-      pointer.x,
-      pointer.y,
-      r,
-      Paint().apply {
-        color = Color.WHITE
-        mode = PaintMode.STROKE
-        strokeWidth = 2f
-      },
-    )
-    return surface.makeImageSnapshot()
+    Surface.makeRasterN32Premul(width, height).use { surface ->
+      val canvas = surface.canvas
+      canvas.drawImage(image, 0f, 0f)
+      val r = if (pressed) 11f else 9f
+      canvas.drawCircle(
+        pointer.x,
+        pointer.y,
+        r,
+        Paint().apply { color = Color.makeARGB(90, 40, 40, 40) },
+      )
+      canvas.drawCircle(
+        pointer.x,
+        pointer.y,
+        r,
+        Paint().apply {
+          color = Color.WHITE
+          mode = PaintMode.STROKE
+          strokeWidth = 2f
+        },
+      )
+      return surface.makeImageSnapshot()
+    }
   }
 
   private fun pixels(image: Image): ByteArray {
-    val bitmap = Bitmap.makeFromImage(image)
-    return bitmap.readPixels() ?: error("No pixels")
+    return Bitmap.makeFromImage(image).use { it.readPixels() } ?: error("No pixels")
   }
 
-  fun close() {
+  /** Ends the video; true when ffmpeg wrote it. */
+  fun close(): Boolean {
     scene.close()
     ffmpeg.outputStream.close()
-    ffmpeg.waitFor()
+    return ffmpeg.waitFor() == 0
   }
 
   companion object {
