@@ -1,0 +1,22 @@
+# The phone screenshots in the dark theme.
+size 540 1200 1.3125 phone
+theme dark
+wait 1.5
+snap jobs
+click 270 300 0.1
+wait 1.5
+snap job
+scroll 270 700 8 0.5
+wait 1.5
+snap ats
+click 36 36 0.1
+wait 1
+click 255 1142 0.1
+wait 2
+snap searches
+click 334 1142 0.1
+wait 2
+snap ai-filters
+click 413 1142 0.1
+wait 2
+snap settings

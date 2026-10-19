@@ -1,0 +1,40 @@
+# The desktop screenshots in the dark theme.
+size 1680 1050 1.3125
+theme dark
+wait 1.5
+snap jobs
+click 340 280 0.1
+wait 1.5
+snap job
+scroll 1100 600 10 0.5
+wait 1.5
+snap ats
+scroll 1100 600 10 0.5
+wait 1
+click 762 606 0.1
+wait 2
+snap improve
+click 982 980 0.1
+wait 1
+click 52 120 0.1
+wait 2
+snap searches
+click 52 200 0.1
+wait 2
+snap ai-filters
+click 52 280 0.1
+wait 1.5
+snap settings
+click 890 410 0.1
+wait 2
+snap free-ai
+click 890 410 0.1
+wait 1
+click 890 770 0.1
+wait 2
+snap agents
+click 890 770 0.1
+wait 1
+click 1643 42 0.1
+wait 2
+snap help

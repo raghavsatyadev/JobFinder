@@ -14,6 +14,8 @@ dependencies {
   // Material 3 and resources for the desktop-only composables (the add-search browser).
   implementation(libs.bundles.compose.mp)
   implementation(projects.server)
+  // The demo tour (dev) hosts the screens without a window.
+  implementation(libs.bundles.lifecycle.mp)
   implementation(libs.kotlinx.coroutines.swing)
   implementation(libs.koin.core)
   implementation(libs.logback.classic)
@@ -136,3 +138,17 @@ val extensionResources by
   }
 
 tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(extensionResources) }
+
+// Dev tool: records the app on sample data for the README (DemoTour). `-PtourScript=<file>
+// -PtourOut=<dir>`; needs ffmpeg on the PATH.
+tasks.register<JavaExec>("demoTour") {
+  group = "documentation"
+  mainClass = "io.github.raghavsatyadev.jobfinder.desktop.dev.DemoTourKt"
+  classpath = sourceSets["main"].runtimeClasspath
+  workingDir = gradle.startParameter.currentDir
+  jvmArgs("--enable-native-access=ALL-UNNAMED", "-Xmx2g")
+  args(
+    providers.gradleProperty("tourScript").orNull ?: "tour.txt",
+    providers.gradleProperty("tourOut").orNull ?: "tour",
+  )
+}

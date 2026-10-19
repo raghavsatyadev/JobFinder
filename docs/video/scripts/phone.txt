@@ -1,0 +1,32 @@
+# The phone tour for the README (light), with its screenshots.
+size 540 1200 1.3125 phone
+wait 1.5
+snap jobs
+move 270 700 0.6
+scroll 270 700 8 2
+wait 0.6
+scroll 270 700 -8 1.2
+wait 0.5
+click 270 300                # the first job
+wait 2
+snap job
+scroll 270 700 8 2           # its ATS review
+wait 2.5
+snap ats
+scroll 270 700 8 1.5
+wait 1.5
+snap fixes
+click 36 36                  # back
+wait 1.5
+click 255 1142               # Searches
+wait 3
+snap searches
+click 334 1142               # AI filters
+wait 3
+snap ai-filters
+click 413 1142               # Settings
+wait 3
+snap settings
+theme dark
+click 150 1142               # Jobs, in the dark theme
+wait 3

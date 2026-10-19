@@ -1,0 +1,53 @@
+# The desktop tour for the README (light), with its screenshots.
+size 1680 1050 1.3125
+wait 1.5
+snap jobs
+move 340 500 0.8
+scroll 340 600 8 2
+wait 0.6
+scroll 340 600 -8 1.2
+wait 0.5
+click 340 280                # the first job
+wait 2
+snap job
+scroll 1100 600 10 2         # its ATS review
+wait 2.5
+snap ats
+scroll 1100 600 10 1.5
+wait 1.5
+click 762 606                # Improve my resume for this job
+wait 3
+snap improve
+click 548 692                # tick the GraphQL edit
+wait 2
+click 982 980                # Close
+wait 1
+click 472 49                 # sort
+wait 1.2
+click 580 250                # Highest ATS score
+wait 2
+click 52 120                 # Searches
+wait 3
+snap searches
+click 52 200                 # AI filters
+wait 3
+snap ai-filters
+click 52 280                 # Settings
+wait 2
+snap settings
+click 890 410                # Free online AI
+wait 3.5
+snap free-ai
+click 890 410
+wait 1
+click 890 770                # AI agents (MCP)
+wait 3.5
+snap agents
+click 890 770
+wait 1
+click 1643 42                # Help
+wait 3
+snap help
+theme dark
+click 52 40                  # Jobs, in the dark theme
+wait 3
