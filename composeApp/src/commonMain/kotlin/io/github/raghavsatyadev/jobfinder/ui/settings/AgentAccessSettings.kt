@@ -103,7 +103,11 @@ fun AgentAccessContent(
   onRotate: () -> Unit,
 ) {
   var confirmRotate by remember { mutableStateOf(false) }
-  Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+  // Inset like the other sections, so the body lines up with the section title.
+  Column(
+    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+  ) {
     Text(
       stringResource(Res.string.agents_hint),
       style = MaterialTheme.typography.bodyMedium,
