@@ -8,12 +8,14 @@ well your resume matches the rest.
 
 There is no account and no server. Your searches, jobs, resume and notes stay on your computer.
 
-▶ [Watch a two-minute tour of the phone app](docs/video/tour.mp4): jobs, a job’s details, sorting, searches, AI filters and settings.
-
 <p align="center">
-  <img src="docs/screenshots/desktop/jobs-dark.png" width="72%" alt="Jobs on the desktop app">
-  <img src="docs/screenshots/phone/jobs-dark.png" width="22%" alt="Jobs on the phone app">
+  <a href="docs/video/desktop.mp4"><img src="docs/video/desktop.gif" width="72%" alt="The desktop app: a job, its ATS review and resume edits"></a>
+  <a href="docs/video/phone.mp4"><img src="docs/video/phone.gif" width="22%" alt="The phone app: jobs and a job's ATS review"></a>
 </p>
+
+▶ Watch the tours: [desktop app](docs/video/desktop.mp4) (one minute: jobs, a job's ATS review,
+resume edits for the job, sorting, searches, AI filters, settings and help) and
+[phone app](docs/video/phone.mp4) (35 seconds). They run on sample data.
 
 ## What it does
 
@@ -26,7 +28,8 @@ There is no account and no server. Your searches, jobs, resume and notes stay on
   sign-ins, so you see the same jobs you see when you search yourself.
 - **Filters out what you do not want.** Describe the jobs to skip in plain words ("no Java, remote
   only, at least $60K") and list companies to skip. The AI moves jobs that do not match to
-  Filtered out and says why.
+  Filtered out and says why. When you change the filter, the jobs in New are checked again; a job
+  that slipped through goes back to the AI with "Shouldn't be in New" and your note.
 - **Scores your resume against each job.** An ATS review gives a match score, the keywords you
   have and miss, what would get you screened out, and the top fixes.
 - **Improves your resume for a job.** "Improve my resume for this job" writes exact before and
@@ -40,8 +43,12 @@ There is no account and no server. Your searches, jobs, resume and notes stay on
 - **Lets your AI agent set it up.** Claude Code, Gemini CLI, Codex, Cursor and other MCP agents on
   your computer can craft your searches, AI filter and AI instructions, set up free AI keys and
   read the app's help (Settings → AI agents (MCP)).
-- **Keeps your jobs tidy.** Sort by date or ATS score; filter by board, search, label
-  and work mode; archive or delete with one click or a keyboard shortcut. Jobs whose posting was
+- **Runs on free AI only.** A local model by default; free online keys (NVIDIA, Groq, OpenRouter,
+  Hugging Face, Google Gemini) and the free OpenCode and Antigravity command-line tools can take
+  work off your computer. None needs a payment card. Pause all AI work with one switch.
+- **Keeps your jobs tidy.** Sort by date or ATS score (highest or lowest first); filter by board,
+  search, label and work mode; star the jobs you like into a Starred tab; archive or delete with
+  one click or a keyboard shortcut. Jobs whose posting was
   removed are deleted, and filtered-out jobs are deleted after 30 days (you choose the days, or
   keep them).
 - **Backs up everything.** One file with your searches, jobs, notes, ATS reviews and settings,
@@ -69,9 +76,10 @@ network only, with a key made when you paired.
 By default all AI runs on your computer with [Ollama](https://ollama.com) and a small open model
 that the setup downloads for you. Nothing you send to it leaves the computer.
 
-If your computer is slow, you can add free API keys from NVIDIA, Groq, OpenRouter or Google Gemini
-(no payment card needed). Job pages then go to the online keys first and your computer takes over
-when they run out for the day. Work that reads your resume stays on your computer unless you choose
+If your computer is slow, you can add free API keys from NVIDIA, Groq, OpenRouter, Hugging Face or
+Google Gemini (no payment card needed), or turn on the free OpenCode or Antigravity command-line
+tools. Job pages then go to them first, in the order you set, and your computer takes over when
+they run out for the day. Work that reads your resume stays on your computer unless you choose
 otherwise. Keys are kept with Windows data protection and never go into logs, the database or the
 phone; only locked backups made on the computer carry them.
 
@@ -139,6 +147,18 @@ desktop app's Settings) and click Allow on the computer.
 
 Help in the app (the question mark) has step-by-step guides and answers to common questions.
 
+## Guides
+
+- [Get started](docs/guides/getting-started.md): install, the setup and everyday use.
+- [Job searches](docs/guides/job-searches.md): which pages to add and how to build their addresses.
+- [AI filter](docs/guides/ai-filter.md): write a filter that keeps the right jobs.
+- [Resume and ATS](docs/guides/resume-and-ats.md): ATS reviews and per-job resume edits.
+- [Free AI](docs/guides/free-ai.md): free keys and tools, and which AI does which work.
+- [AI agents (MCP)](docs/guides/ai-agents.md): connect Claude Code, Gemini CLI, Codex or Cursor.
+- [Phone](docs/guides/phone.md): pair the Android app.
+- [Browser extension](docs/guides/browser-extension.md): install JobFinder Helper.
+- [Backups](docs/guides/backups.md): back up and move to a new computer.
+
 ## What you can customise
 
 - **Searches:** any number, on any board; name each one; edit, pause by deleting, or check one now.
@@ -157,7 +177,7 @@ Help in the app (the question mark) has step-by-step guides and answers to commo
   are kept between app starts.
 - **Clean-up:** how many days to keep filtered-out jobs, or keep them forever.
 - **Notifications:** on or off, and the sound.
-- **Look:** light, dark or system theme.
+- **Look:** follows your system's light or dark theme.
 - **In-app browser:** open jobs in the app or in your default browser.
 - **Phone:** pair more phones, reset the pairing code, and the port the phone connects on.
 - **Backups:** export everything, locked with a password or with this device's own key, import
@@ -172,21 +192,26 @@ Help in the app (the question mark) has step-by-step guides and answers to commo
 | | Light | Dark |
 |---|---|---|
 | Jobs | ![](docs/screenshots/desktop/jobs-light.png) | ![](docs/screenshots/desktop/jobs-dark.png) |
-| Job details and ATS review | ![](docs/screenshots/desktop/job-light.png) | ![](docs/screenshots/desktop/job-dark.png) |
-| Filter jobs | ![](docs/screenshots/desktop/filters-light.png) | ![](docs/screenshots/desktop/filters-dark.png) |
+| Job details | ![](docs/screenshots/desktop/job-light.png) | ![](docs/screenshots/desktop/job-dark.png) |
+| ATS review | ![](docs/screenshots/desktop/ats-light.png) | ![](docs/screenshots/desktop/ats-dark.png) |
+| Improve the resume for a job | ![](docs/screenshots/desktop/improve-light.png) | ![](docs/screenshots/desktop/improve-dark.png) |
 | Searches | ![](docs/screenshots/desktop/searches-light.png) | ![](docs/screenshots/desktop/searches-dark.png) |
 | AI filters | ![](docs/screenshots/desktop/ai-filters-light.png) | ![](docs/screenshots/desktop/ai-filters-dark.png) |
 | Settings | ![](docs/screenshots/desktop/settings-light.png) | ![](docs/screenshots/desktop/settings-dark.png) |
+| Free online AI | ![](docs/screenshots/desktop/free-ai-light.png) | ![](docs/screenshots/desktop/free-ai-dark.png) |
+| AI agents (MCP) | ![](docs/screenshots/desktop/agents-light.png) | ![](docs/screenshots/desktop/agents-dark.png) |
+| Help | ![](docs/screenshots/desktop/help-light.png) | ![](docs/screenshots/desktop/help-dark.png) |
+| Filter jobs | ![](docs/screenshots/desktop/filters-light.png) | ![](docs/screenshots/desktop/filters-dark.png) |
 | Form answers | ![](docs/screenshots/desktop/form-answers-light.png) | ![](docs/screenshots/desktop/form-answers-dark.png) |
 | Setup | ![](docs/screenshots/desktop/setup-light.png) | ![](docs/screenshots/desktop/setup-dark.png) |
 | Allow a phone | ![](docs/screenshots/desktop/pairing-light.png) | ![](docs/screenshots/desktop/pairing-dark.png) |
 
 ### Phone
 
-| Jobs | Job details | Searches | AI filters | Settings | Pairing |
-|---|---|---|---|---|---|
-| ![](docs/screenshots/phone/jobs-light.png) | ![](docs/screenshots/phone/job-light.png) | ![](docs/screenshots/phone/searches-light.png) | ![](docs/screenshots/phone/ai-filters-light.png) | ![](docs/screenshots/phone/settings-light.png) | ![](docs/screenshots/phone/pairing-light.png) |
-| ![](docs/screenshots/phone/jobs-dark.png) | ![](docs/screenshots/phone/job-dark.png) | ![](docs/screenshots/phone/searches-dark.png) | ![](docs/screenshots/phone/ai-filters-dark.png) | ![](docs/screenshots/phone/settings-dark.png) | ![](docs/screenshots/phone/pairing-dark.png) |
+| Jobs | Job details | ATS review | Searches | AI filters | Settings | Pairing |
+|---|---|---|---|---|---|---|
+| ![](docs/screenshots/phone/jobs-light.png) | ![](docs/screenshots/phone/job-light.png) | ![](docs/screenshots/phone/ats-light.png) | ![](docs/screenshots/phone/searches-light.png) | ![](docs/screenshots/phone/ai-filters-light.png) | ![](docs/screenshots/phone/settings-light.png) | ![](docs/screenshots/phone/pairing-light.png) |
+| ![](docs/screenshots/phone/jobs-dark.png) | ![](docs/screenshots/phone/job-dark.png) | ![](docs/screenshots/phone/ats-dark.png) | ![](docs/screenshots/phone/searches-dark.png) | ![](docs/screenshots/phone/ai-filters-dark.png) | ![](docs/screenshots/phone/settings-dark.png) | ![](docs/screenshots/phone/pairing-dark.png) |
 
 ## Build from source
 
@@ -211,11 +236,15 @@ The code is Kotlin with Compose Multiplatform. One shared UI serves both apps:
 | `androidCMP` | The Android app |
 | `browser-extension` | JobFinder Helper for Chrome and Edge (TypeScript) |
 
+The README's videos and screenshots are made off screen on sample data, with no window and none of
+your data: `./gradlew :desktopCMP:demoTour -PtourScript=docs/video/scripts/desktop.txt
+-PtourOut=<folder>` (it needs `ffmpeg`; the script format is in `DemoTour.kt`).
+
 Before pushing, run `scripts/ci-local.sh` (formatting and a compile). Contributor notes are in
 [AGENTS.md](AGENTS.md).
 
-Linux and macOS desktop apps and an iOS app are planned; the code is shared so that they need only
-small platform parts.
+A macOS desktop app and an iOS app are planned; the code is shared so that they need only small
+platform parts.
 
 ## Credits
 
