@@ -162,7 +162,9 @@ class ResumePdfWriter(private val pageSize: PdfPageSize) {
   private fun wrap(text: String, font: PDFont, size: Float, max: Float): List<String> {
     val lines = mutableListOf<String>()
     var line = ""
-    for (word in text.split(Regex("\\s+")).filter { it.isNotEmpty() }) {
+    val words =
+      text.split(Regex("\\s+")).filter { it.isNotEmpty() }.flatMap { pieces(it, font, size, max) }
+    for (word in words) {
       val next = if (line.isEmpty()) word else "$line $word"
       if (line.isNotEmpty() && measure(next, font, size) > max) {
         lines += line
@@ -171,6 +173,22 @@ class ResumePdfWriter(private val pageSize: PdfPageSize) {
     }
     if (line.isNotEmpty()) lines += line
     return lines
+  }
+
+  /** [word] cut into parts no wider than [max], for a long link that fits no line. */
+  private fun pieces(word: String, font: PDFont, size: Float, max: Float): List<String> {
+    if (measure(word, font, size) <= max) return listOf(word)
+    val parts = mutableListOf<String>()
+    var part = ""
+    for (c in word) {
+      if (part.isNotEmpty() && measure(part + c, font, size) > max) {
+        parts += part
+        part = ""
+      }
+      part += c
+    }
+    if (part.isNotEmpty()) parts += part
+    return parts
   }
 
   /** [line] with what the font can't show replaced (₹ as "INR ") or left out. */

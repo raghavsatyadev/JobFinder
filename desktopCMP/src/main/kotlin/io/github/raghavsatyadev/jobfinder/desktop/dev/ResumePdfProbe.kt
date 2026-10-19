@@ -92,6 +92,7 @@ Contoso Ltd, Pune
 • Shipped a Kotlin rewrite of the consumer app with 4.6 rating and 5M installs.
 • Added Firebase Crashlytics and Remote Config; crash-free sessions rose to 99.7%.
 • Wrote the app's modular Gradle build, halving clean build time.
+• Write-up: https://example.com/engineering/blog/2021/modular-gradle-builds-for-large-android-apps-with-convention-plugins-and-version-catalogs
 
 SKILLS
 Languages: Kotlin, Java, SQL
