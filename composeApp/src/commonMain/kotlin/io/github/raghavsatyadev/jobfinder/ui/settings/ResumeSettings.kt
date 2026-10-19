@@ -51,6 +51,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsClock
 import io.github.raghavsatyadev.jobfinder.ui.jobs.relativeTime
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
+import io.github.raghavsatyadev.jobfinder.ui.resume.ResumePdfSettings
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -161,7 +162,10 @@ fun ResumeSettings() {
   val viewModel = koinViewModel<ResumeViewModel>()
   val state by viewModel.state.collectAsStateWithLifecycle()
   val clock = koinInject<JobsClock>()
-  ResumeContent(state, clock.now(), viewModel::onEvent)
+  Column {
+    ResumeContent(state, clock.now(), viewModel::onEvent)
+    ResumePdfSettings(clock.now())
+  }
 }
 
 @Composable

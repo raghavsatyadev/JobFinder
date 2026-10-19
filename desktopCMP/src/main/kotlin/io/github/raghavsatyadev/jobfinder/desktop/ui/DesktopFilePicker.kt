@@ -3,9 +3,11 @@ package io.github.raghavsatyadev.jobfinder.desktop.ui
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.backup_dialog_open
 import io.github.raghavsatyadev.jobfinder.resources.backup_dialog_save
+import io.github.raghavsatyadev.jobfinder.resources.linkedin_import
 import io.github.raghavsatyadev.jobfinder.resources.settings_resume_dialog_title
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFiles
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import io.github.raghavsatyadev.jobfinder.ui.platform.PickedFile
 import java.awt.FileDialog
@@ -39,6 +41,18 @@ class DesktopFilePicker : FilePicker {
     return withContext(Dispatchers.IO) {
       if (file.length() > BackupFiles.MAX_UNPACKED_BYTES) null
       else PickedFile(file.name, file.readBytes())
+    }
+  }
+
+  override suspend fun pickLinkedInExport(): PickedFile? {
+    val file =
+      choose(getString(Res.string.linkedin_import), FileDialog.LOAD, "*.zip") {
+        it.substringAfterLast('.').lowercase() == "zip"
+      } ?: return null
+    return withContext(Dispatchers.IO) {
+      // A file too large is still sent, so the computer says why it is refused.
+      val bytes = file.inputStream().use { it.readNBytes(ResumePdfRepository.MAX_EXPORT_BYTES + 1) }
+      PickedFile(file.name, bytes)
     }
   }
 

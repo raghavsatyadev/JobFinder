@@ -54,6 +54,8 @@ class ResumeImproveService(
   private val events: ServerEvents,
   private val usage: AiUsageRecorder = AiUsageRecorder.NONE,
   private val instructions: suspend () -> String = { INSTRUCTIONS },
+  /** The user's own text beyond the resume (the LinkedIn data): its skills are not new. */
+  private val knownElsewhere: suspend () -> String = { "" },
   private val clock: () -> Long = System::currentTimeMillis,
 ) : ResumeImproveRepository {
   private val queue = Channel<Long>(Channel.UNLIMITED)
@@ -128,12 +130,19 @@ class ResumeImproveService(
       }
     // The resume changed while the model worked: this plan is for the old one.
     if (resumes.get()?.hash != resume.hash) return
+    val known = KeywordMatcher.normalize(knownElsewhere())
+    val checked = edits.map { edit ->
+      edit.copy(
+        newSkills =
+          edit.newSkills.filter { KeywordMatcher.count(known, KeywordMatcher.normalize(it)) == 0 }
+      )
+    }
     plans[jobId] =
       resume.hash to
         ResumeImprovement(
           jobId = jobId,
           keywords = review.keywords,
-          edits = edits,
+          edits = checked,
           createdAt = clock(),
         )
   }

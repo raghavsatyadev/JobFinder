@@ -202,6 +202,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
+import io.github.raghavsatyadev.jobfinder.ui.resume.ResumePdfViewModel
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -220,6 +221,7 @@ import org.koin.dsl.module
 val settingsUiModule = module {
   viewModel { SettingsViewModel(get(), getOrNull(), getOrNull(), getOrNull()) }
   viewModel { ResumeViewModel(get(), getOrNull()) }
+  viewModel { ResumePdfViewModel(get(), get()) }
   viewModel { AiModelViewModel(get()) }
   viewModel { OnlineKeysViewModel(get()) }
   viewModel { LocalModelsViewModel(get()) }

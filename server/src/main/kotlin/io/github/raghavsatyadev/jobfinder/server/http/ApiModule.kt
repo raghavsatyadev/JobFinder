@@ -22,6 +22,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
 import io.ktor.http.HttpStatusCode
@@ -70,6 +71,8 @@ class ApiDependencies(
   val ghost: GhostRepository? = null,
   val tips: TipsRepository? = null,
   val improve: ResumeImproveRepository? = null,
+  /** `null` answers the resume PDF routes with "unavailable". */
+  val resumePdf: ResumePdfRepository? = null,
   /** `null` answers the backup routes with "unavailable". */
   val backup: BackupRepository? = null,
   /** `null` answers job reports with "unavailable". */
@@ -148,6 +151,7 @@ fun Application.jobFinderApi(deps: ApiDependencies) {
         ghostRoutes(deps)
         tipsRoutes(deps)
         improveRoutes(deps)
+        resumePdfRoutes(deps)
         settingsRoutes(deps)
         scanRoutes(deps)
         eventsRoutes(deps)

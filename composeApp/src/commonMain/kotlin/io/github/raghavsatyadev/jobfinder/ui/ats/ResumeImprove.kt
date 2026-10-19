@@ -21,8 +21,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -57,15 +59,21 @@ import io.github.raghavsatyadev.jobfinder.resources.improve_section_skills
 import io.github.raghavsatyadev.jobfinder.resources.improve_section_summary
 import io.github.raghavsatyadev.jobfinder.resources.improve_title
 import io.github.raghavsatyadev.jobfinder.resources.improve_write_again
+import io.github.raghavsatyadev.jobfinder.resources.pdf_save_job
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementState
 import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.MakeResumePdf
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeEdit
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeSection
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
+import io.github.raghavsatyadev.jobfinder.ui.resume.PdfOutcome
+import io.github.raghavsatyadev.jobfinder.ui.resume.PdfOutcomeText
+import io.github.raghavsatyadev.jobfinder.ui.resume.makeAndSavePdf
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -184,6 +192,9 @@ fun ResumeImproveDialog(jobId: Long, onDismiss: () -> Unit) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val koin = getKoin()
   val picker = remember(koin) { koin.getOrNull<FilePicker>() }
+  val pdfs = remember(koin) { koin.getOrNull<ResumePdfRepository>() }
+  var pdfBusy by remember { mutableStateOf(false) }
+  var pdfOutcome by remember { mutableStateOf<PdfOutcome?>(null) }
   @Suppress("DEPRECATION") val clipboard = LocalClipboardManager.current
   val scope = rememberCoroutineScope()
   ResumeImproveContent(
@@ -215,6 +226,20 @@ fun ResumeImproveDialog(jobId: Long, onDismiss: () -> Unit) {
         )
       }
     },
+    onSavePdf =
+      if (pdfs != null && picker != null) {
+        {
+          scope.launch {
+            pdfBusy = true
+            pdfOutcome = null
+            val edits = viewModel.state.value.taken.sorted()
+            pdfOutcome = makeAndSavePdf(pdfs, picker, MakeResumePdf(jobId, edits))
+            pdfBusy = false
+          }
+        }
+      } else null,
+    pdfBusy = pdfBusy,
+    pdfOutcome = pdfOutcome,
     onDismiss = onDismiss,
   )
 }
@@ -226,6 +251,10 @@ fun ResumeImproveContent(
   onCopy: () -> Unit,
   onSave: () -> Unit,
   onDismiss: () -> Unit,
+  /** Saves the resume as a PDF fitted to the job; `null` hides the button. */
+  onSavePdf: (() -> Unit)? = null,
+  pdfBusy: Boolean = false,
+  pdfOutcome: PdfOutcome? = null,
 ) {
   val plan = state.status?.improvement?.takeIf { state.status.state == ImprovementState.READY }
   AlertDialog(
@@ -274,6 +303,15 @@ fun ResumeImproveContent(
               ) {
                 Text(stringResource(Res.string.improve_save))
               }
+              if (onSavePdf != null) {
+                OutlinedButton(
+                  onClick = onSavePdf,
+                  enabled = !state.working && !pdfBusy,
+                  shapes = ButtonDefaults.shapes(),
+                ) {
+                  Text(stringResource(Res.string.pdf_save_job))
+                }
+              }
               OutlinedButton(
                 onClick = { onEvent(ResumeImproveEvent.Write) },
                 enabled = !state.working,
@@ -282,7 +320,8 @@ fun ResumeImproveContent(
                 Text(stringResource(Res.string.improve_write_again))
               }
             }
-            if (state.working) WavyProgress()
+            if (state.working || pdfBusy) WavyProgress()
+            pdfOutcome?.let { PdfOutcomeText(it) }
             when (state.done) {
               ImproveDone.COPIED -> Muted(stringResource(Res.string.improve_copied))
               ImproveDone.SAVED -> Muted(stringResource(Res.string.improve_saved))

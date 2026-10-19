@@ -14,6 +14,8 @@ import io.github.raghavsatyadev.jobfinder.server.db.ResumeEntity
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabase
 import io.github.raghavsatyadev.jobfinder.server.db.SettingsDefaults
 import io.github.raghavsatyadev.jobfinder.server.db.toAiSettings
+import io.github.raghavsatyadev.jobfinder.server.db.toBackup
+import io.github.raghavsatyadev.jobfinder.server.db.toEntity
 import io.github.raghavsatyadev.jobfinder.server.db.withAi
 import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
@@ -172,6 +174,7 @@ class BackupService(
           db.resumeDao().get()?.let {
             BackupResume(it.fileName, it.text, it.pages, it.words, it.flags, it.uploadedAt)
           },
+        resumeProfile = db.resumeProfileDao().get()?.toBackup(),
         server = settings().getServerSettings(),
         ai = db.settingsDao().get()?.toAiSettings(),
         prompts = PromptBook(db.aiPromptsDao()).edits(),
@@ -279,6 +282,10 @@ class BackupService(
           uploadedAt = resume.uploadedAt,
         )
       )
+      add(SettingsPart.RESUME)
+    }
+    backup.resumeProfile?.let {
+      db.resumeProfileDao().upsert(it.toEntity())
       add(SettingsPart.RESUME)
     }
     backup.server?.let {

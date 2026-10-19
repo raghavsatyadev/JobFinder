@@ -20,10 +20,14 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
 import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
+import io.github.raghavsatyadev.jobfinder.shared.model.MakeResumePdf
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdf
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdfPrefs
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdfStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.ScanState
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.ServerSettings
@@ -144,6 +148,28 @@ interface ResumeImproveRepository {
 
   /** The resume's text with [edits] (ids from the plan) applied. */
   suspend fun improvedResume(jobId: Long, edits: List<Int>): ImprovedResume
+}
+
+/**
+ * Resume PDFs made on the computer from the uploaded resume and, when imported, the LinkedIn data
+ * export: a general one, and one per job that brings in the job's words from true content.
+ */
+interface ResumePdfRepository {
+  suspend fun status(): ResumePdfStatus
+
+  suspend fun savePrefs(prefs: ResumePdfPrefs): ResumePdfStatus
+
+  /** Reads the LinkedIn data export ZIP; only its resume files are read, and it is not kept. */
+  suspend fun importLinkedIn(fileName: String, bytes: ByteArray): ResumePdfStatus
+
+  suspend fun deleteLinkedIn(): ResumePdfStatus
+
+  suspend fun makePdf(request: MakeResumePdf): ResumePdf
+
+  companion object {
+    /** The "particular data" export is a few hundred KB; the full archive needs no more. */
+    const val MAX_EXPORT_BYTES = 64 * 1024 * 1024
+  }
 }
 
 interface GhostRepository {

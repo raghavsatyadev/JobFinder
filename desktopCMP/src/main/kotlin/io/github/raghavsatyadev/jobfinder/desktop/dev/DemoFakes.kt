@@ -12,11 +12,17 @@ import io.github.raghavsatyadev.jobfinder.shared.model.FormAnswer
 import io.github.raghavsatyadev.jobfinder.shared.model.ImprovedResume
 import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementState
 import io.github.raghavsatyadev.jobfinder.shared.model.ImprovementStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.LinkedInSummary
+import io.github.raghavsatyadev.jobfinder.shared.model.MakeResumePdf
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptTrial
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdf
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdfPrefs
+import io.github.raghavsatyadev.jobfinder.shared.model.ResumePdfStatus
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.ui.fake.FakeSetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.fake.SampleData
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobFilterStore
@@ -30,8 +36,10 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AgyStatus
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeysState
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
+import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import io.github.raghavsatyadev.jobfinder.ui.platform.OpenCodeStatus
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
+import io.github.raghavsatyadev.jobfinder.ui.platform.PickedFile
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +61,35 @@ fun demoDesktopModule(setup: FakeSetupAssistant): Module = module {
   single<FormAnswersRepository> { DemoFormAnswers }
   single<ResumeImproveRepository> { DemoImprove }
   single<SetupAssistant> { setup }
+  single<ResumePdfRepository> { DemoPdfs }
+  single<FilePicker> { DemoPicker }
+}
+
+private object DemoPdfs : ResumePdfRepository {
+  private var status =
+    ResumePdfStatus(
+      linkedIn = LinkedInSummary(SampleData.NOW - 26 * 3_600_000, "Sam Sample", 4, 38, 3, 1, 2),
+      hasResume = true,
+    )
+
+  override suspend fun status() = status
+
+  override suspend fun savePrefs(prefs: ResumePdfPrefs) =
+    status.copy(prefs = prefs).also { status = it }
+
+  override suspend fun importLinkedIn(fileName: String, bytes: ByteArray) = status
+
+  override suspend fun deleteLinkedIn() = status
+
+  override suspend fun makePdf(request: MakeResumePdf) =
+    ResumePdf("Sam Sample Resume.pdf", "", pages = 1, match = 91, baseMatch = 69)
+}
+
+/** Opens nothing and saves nothing. */
+private object DemoPicker : FilePicker {
+  override suspend fun pickResume(): PickedFile? = null
+
+  override suspend fun save(fileName: String, mimeType: String, bytes: ByteArray) = true
 }
 
 private object DemoDesktopFeatures : DesktopFeatures {

@@ -68,6 +68,7 @@ import io.github.raghavsatyadev.jobfinder.resources.help_a_key_groq
 import io.github.raghavsatyadev.jobfinder.resources.help_a_key_nvidia
 import io.github.raghavsatyadev.jobfinder.resources.help_a_key_openrouter
 import io.github.raghavsatyadev.jobfinder.resources.help_a_keyboard
+import io.github.raghavsatyadev.jobfinder.resources.help_a_resume_pdf
 import io.github.raghavsatyadev.jobfinder.resources.help_a_sleep
 import io.github.raghavsatyadev.jobfinder.resources.help_collapse
 import io.github.raghavsatyadev.jobfinder.resources.help_expand
@@ -86,6 +87,7 @@ import io.github.raghavsatyadev.jobfinder.resources.help_q_key_groq
 import io.github.raghavsatyadev.jobfinder.resources.help_q_key_nvidia
 import io.github.raghavsatyadev.jobfinder.resources.help_q_key_openrouter
 import io.github.raghavsatyadev.jobfinder.resources.help_q_keyboard
+import io.github.raghavsatyadev.jobfinder.resources.help_q_resume_pdf
 import io.github.raghavsatyadev.jobfinder.resources.help_q_sleep
 import io.github.raghavsatyadev.jobfinder.resources.help_search
 import io.github.raghavsatyadev.jobfinder.resources.help_search_clear
@@ -126,6 +128,7 @@ private val FAQS: ImmutableList<Faq> =
     Faq(Res.string.help_q_away, Res.string.help_a_away),
     Faq(Res.string.help_q_keyboard, Res.string.help_a_keyboard),
     Faq(Res.string.help_q_free_ai, Res.string.help_a_free_ai),
+    Faq(Res.string.help_q_resume_pdf, Res.string.help_a_resume_pdf),
     Faq(Res.string.help_q_key_nvidia, Res.string.help_a_key_nvidia),
     Faq(Res.string.help_q_key_groq, Res.string.help_a_key_groq),
     Faq(Res.string.help_q_key_openrouter, Res.string.help_a_key_openrouter),

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Resume: resume PDFs and the LinkedIn data -->
+    <string name="pdf_title">Resume PDF</string>
+    <string name="pdf_hint">Make a one-column PDF that ATS software reads well, from your resume. A PDF for a job puts the job’s words first and can bring in your own LinkedIn skills, bullets and projects that the job asks for. Nothing is made up.</string>
+    <string name="pdf_page_size">Page size</string>
+    <string name="pdf_page_a4">A4</string>
+    <string name="pdf_page_letter">Letter</string>
+    <string name="pdf_pages">Length</string>
+    <string name="pdf_pages_one">1 page</string>
+    <string name="pdf_pages_two">2 pages</string>
+    <string name="pdf_pages_hint">Bullets least related to the job are left out until it fits.</string>
+    <string name="pdf_use_linkedin">Bring in LinkedIn content for a job</string>
+    <string name="pdf_sections">Sections, in order</string>
+    <string name="pdf_section_up">Move %1$s up</string>
+    <string name="pdf_section_down">Move %1$s down</string>
+    <string name="pdf_section_summary">Summary</string>
+    <string name="pdf_section_experience">Experience</string>
+    <string name="pdf_section_skills">Skills</string>
+    <string name="pdf_section_projects">Projects</string>
+    <string name="pdf_section_education">Education</string>
+    <string name="pdf_section_certifications">Certifications</string>
+    <string name="pdf_section_languages">Languages</string>
+    <string name="pdf_section_honors">Honors and awards</string>
+    <string name="pdf_section_courses">Courses</string>
+    <string name="pdf_section_other">Other sections</string>
+    <string name="pdf_save">Save resume PDF</string>
+    <string name="pdf_save_job">Save as PDF</string>
+    <string name="pdf_making">Making the PDF…</string>
+    <string name="pdf_saved">Saved: %1$d page(s).</string>
+    <string name="pdf_saved_match">Saved: %1$d page(s). The PDF matches %2$d% of the job’s keywords (your resume: %3$d%).</string>
+    <string name="pdf_from_linkedin">From your LinkedIn data: %1$s</string>
+    <string name="pdf_flags">An ATS may trip on: %1$s</string>
+    <string name="pdf_need_source">Upload your resume or import your LinkedIn data first.</string>
+    <string name="linkedin_title">LinkedIn data</string>
+    <string name="linkedin_none">Not imported. With it, a job’s PDF can bring in the skills, bullets and projects from your LinkedIn profile that the job asks for.</string>
+    <string name="linkedin_info">Imported %1$s. Roles: %2$d, skills: %3$d, projects: %4$d, schools: %5$d.</string>
+    <string name="linkedin_import">Import LinkedIn data</string>
+    <string name="linkedin_import_again">Import again</string>
+    <string name="linkedin_remove">Remove</string>
+    <string name="linkedin_importing">Reading the ZIP…</string>
+    <string name="linkedin_how">How to get it</string>
+    <string name="linkedin_steps">1. On a computer, open LinkedIn → Me → Settings &amp; Privacy → Data privacy → Get a copy of your data (linkedin.com/mypreferences/d/download-my-data).\n2. Choose “Want something in particular?” and tick Profile, Positions, Education, Skills, Certifications, Projects, Languages, Honors and Courses.\n3. Request archive. LinkedIn emails a link in about 10 minutes; it works for 72 hours.\n4. Download the ZIP and import it here as it is; don’t unzip it.</string>
+    <string name="linkedin_privacy">Only the profile, roles, education, skills, certifications, projects, languages, honors, courses, email and phone are read. Messages, connections and everything else are never read, and the ZIP is not kept.</string>
+</resources>

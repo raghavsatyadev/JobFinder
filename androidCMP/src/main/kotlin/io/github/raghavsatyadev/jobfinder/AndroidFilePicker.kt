@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import io.github.raghavsatyadev.jobfinder.pairing.CurrentActivity
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFiles
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import io.github.raghavsatyadev.jobfinder.ui.platform.PickedFile
 import java.util.UUID
@@ -24,6 +25,9 @@ class AndroidFilePicker(private val activities: CurrentActivity) : FilePicker {
 
   override suspend fun pickBackup(): PickedFile? =
     pick(BACKUP_TYPES, "backup", BackupFiles.MAX_UNPACKED_BYTES.toInt())
+
+  override suspend fun pickLinkedInExport(): PickedFile? =
+    pick(ZIP_TYPES, "linkedin.zip", ResumePdfRepository.MAX_EXPORT_BYTES + 1)
 
   override suspend fun save(fileName: String, mimeType: String, bytes: ByteArray): Boolean {
     val activity = activities.current as? ComponentActivity ?: return false
@@ -72,6 +76,9 @@ class AndroidFilePicker(private val activities: CurrentActivity) : FilePicker {
         "text/plain",
         "text/markdown",
       )
+
+    val ZIP_TYPES =
+      arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")
 
     /** Files shared through Drive or mail often come as octet-stream. */
     val BACKUP_TYPES = arrayOf("application/json", "application/zip", "application/octet-stream")

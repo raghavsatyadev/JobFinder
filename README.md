@@ -35,6 +35,10 @@ resume edits for the job, sorting, searches, AI filters, settings and help) and
 - **Improves your resume for a job.** "Improve my resume for this job" writes exact before and
   after changes that bring in the job's words without inventing skills or numbers. Tick the ones
   that are true, see the new match, then copy or save the new text.
+- **Makes resume PDFs.** A one-column PDF that ATS software reads well, in your page size, length
+  and section order. A PDF for a job puts the job's words first and can bring in your own skills,
+  bullets and projects from your LinkedIn data export where the job asks for them. Each PDF is read
+  back like an ATS reads it and shows its new match.
 - **Tells you more about a job.** Company ratings and pay, a ghost-job check (how long the job has
   been up and other warning signs) and negotiation tips.
 - **Helps you fill in applications.** With the browser extension, JobFinder keeps what you type in
@@ -152,7 +156,7 @@ Help in the app (the question mark) has step-by-step guides and answers to commo
 - [Get started](docs/guides/getting-started.md): install, the setup and everyday use.
 - [Job searches](docs/guides/job-searches.md): which pages to add and how to build their addresses.
 - [AI filter](docs/guides/ai-filter.md): write a filter that keeps the right jobs.
-- [Resume and ATS](docs/guides/resume-and-ats.md): ATS reviews and per-job resume edits.
+- [Resume and ATS](docs/guides/resume-and-ats.md): ATS reviews, per-job resume edits, resume PDFs and LinkedIn data.
 - [Free AI](docs/guides/free-ai.md): free keys and tools, and which AI does which work.
 - [AI agents (MCP)](docs/guides/ai-agents.md): connect Claude Code, Gemini CLI, Codex or Cursor.
 - [Phone](docs/guides/phone.md): pair the Android app.
@@ -170,7 +174,9 @@ Help in the app (the question mark) has step-by-step guides and answers to commo
   tips, form answers), with a reset to the default.
 - **AI model:** which local model to use, more local models to download, and free online keys
   with the order they are used in and which work each may do.
-- **Resume:** the file used for ATS reviews, tips and form answers.
+- **Resume:** the file used for ATS reviews, tips and form answers; your LinkedIn data; the
+  resume PDF's page size (A4 or Letter), length (1 or 2 pages) and which sections show in what
+  order.
 - **Job details:** which sections show in a job (ATS review, company, ghost-job check, tips) and
   in what order.
 - **Jobs list:** sort order, filters (board, search, label, work mode) and labels on each job; these

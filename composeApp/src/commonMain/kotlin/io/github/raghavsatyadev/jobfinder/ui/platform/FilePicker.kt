@@ -17,10 +17,13 @@ interface FilePicker {
    */
   suspend fun pickBackup(): PickedFile? = null
 
+  /** Asks for the LinkedIn data export ZIP; `null` when cancelled or not supported. */
+  suspend fun pickLinkedInExport(): PickedFile? = null
+
   /**
    * Asks where to save [bytes], suggesting [fileName]; `false` when cancelled or not supported.
-   * [mimeType] is `application/octet-stream` (a locked backup), `application/json` or
-   * `application/zip`.
+   * [mimeType] is `application/octet-stream` (a locked backup), `application/json`,
+   * `application/zip` or `application/pdf`.
    */
   suspend fun save(fileName: String, mimeType: String, bytes: ByteArray): Boolean = false
 }

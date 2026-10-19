@@ -72,6 +72,7 @@ import io.github.raghavsatyadev.jobfinder.server.service.ghost.CareersReader
 import io.github.raghavsatyadev.jobfinder.server.service.ghost.GhostService
 import io.github.raghavsatyadev.jobfinder.server.service.insights.InsightsService
 import io.github.raghavsatyadev.jobfinder.server.service.insights.ScraperInsightPages
+import io.github.raghavsatyadev.jobfinder.server.service.resume.ResumePdfService
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsFacts
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsService
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
@@ -89,6 +90,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.MatchingRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.NotesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
@@ -371,9 +373,20 @@ fun serverModule(dataDir: File) = module {
         events = get(),
         usage = get(),
         instructions = { get<PromptBook>().instructions(PromptId.RESUME_IMPROVE) },
+        knownElsewhere = { get<ResumePdfService>().linkedInText() },
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind ResumeImproveRepository::class
+  // Resume PDFs, general and per job, from the resume and the LinkedIn data; no AI.
+  single {
+    ResumePdfService(
+      get<ServerDatabase>().resumeProfileDao(),
+      get<ServerDatabase>().resumeDao(),
+      get<ServerDatabase>().jobsDao(),
+      review = { get<AtsService>().storedReview(it) },
+      improve = get(),
+    )
+  } bind ResumePdfRepository::class
   single { JobsCsvExporter(get(), get()) }
   single { NoteFiles(dataDir.resolve(NOTES_DIR).toPath()) }
   single {
@@ -417,6 +430,7 @@ fun serverModule(dataDir: File) = module {
       ghost = get(),
       tips = get(),
       improve = get(),
+      resumePdf = get(),
       backup = get(),
       restoreRequests = get(),
       reports = get(),

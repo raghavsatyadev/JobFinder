@@ -44,6 +44,17 @@ data class BackupResume(
 )
 
 /**
+ * What the resume PDFs are made from besides the resume: the LinkedIn data as read (JSON) and the
+ * PDF preferences. Part of [SettingsPart.RESUME].
+ */
+@Serializable
+data class BackupResumeProfile(
+  val linkedIn: String? = null,
+  val linkedInImportedAt: Long? = null,
+  val pdfPrefs: ResumePdfPrefs? = null,
+)
+
+/**
  * A settings backup: only settings, never jobs. A part left out is `null`. Written as
  * `jobfinder-settings-<date>.json`, and inside every full backup.
  */
@@ -58,6 +69,7 @@ data class SettingsBackup(
   val matching: AdvancedMatchingConfig? = null,
   val scanner: ScannerSettings? = null,
   val resume: BackupResume? = null,
+  val resumeProfile: BackupResumeProfile? = null,
   val server: ServerSettings? = null,
   val ai: AiSettings? = null,
   /** The edited AI instructions; a prompt not listed uses the app's own text. */
@@ -70,7 +82,7 @@ data class SettingsBackup(
       if (searches != null) add(SettingsPart.SEARCHES)
       if (matching != null) add(SettingsPart.MATCHING)
       if (scanner != null) add(SettingsPart.SCANNER)
-      if (resume != null) add(SettingsPart.RESUME)
+      if (resume != null || resumeProfile != null) add(SettingsPart.RESUME)
       if (server != null) add(SettingsPart.SERVER)
       if (ai != null) add(SettingsPart.AI)
       if (prompts != null) add(SettingsPart.PROMPTS)
@@ -84,6 +96,7 @@ data class SettingsBackup(
       matching = matching.takeIf { SettingsPart.MATCHING in keep },
       scanner = scanner.takeIf { SettingsPart.SCANNER in keep },
       resume = resume.takeIf { SettingsPart.RESUME in keep },
+      resumeProfile = resumeProfile.takeIf { SettingsPart.RESUME in keep },
       server = server.takeIf { SettingsPart.SERVER in keep },
       ai = ai.takeIf { SettingsPart.AI in keep },
       prompts = prompts.takeIf { SettingsPart.PROMPTS in keep },
