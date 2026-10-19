@@ -8,7 +8,7 @@
     <string name="settings_section_open">Open</string>
     <string name="settings_section_close">Close</string>
     <!-- Words each section is found by in the settings search, besides its title. Comma separated. -->
-    <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days, pause, ai work, background, ats, ratings, careers, cpu, gpu</string>
+    <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days, pause, ai work, background, ats, ratings, careers, cpu, gpu, translate, translation, language, german, french, dutch</string>
     <string name="settings_keywords_layout">job details, order, sections, hide, show, description, notes, labels, insights, ghost, ATS, tips, layout</string>
     <string name="settings_keywords_ai">AI model, Ollama, local model, provider, key, address, OpenAI, Anthropic, Gemini, Groq, download, Hugging Face, test, memory, graphics card</string>
     <string name="settings_keywords_keys">free, online, API key, NVIDIA, Groq, OpenRouter, Gemini, quota, expiry, limit, routing, which model</string>

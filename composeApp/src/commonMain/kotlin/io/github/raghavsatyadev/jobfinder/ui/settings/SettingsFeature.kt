@@ -204,6 +204,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import io.github.raghavsatyadev.jobfinder.ui.resume.ResumePdfViewModel
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
+import io.github.raghavsatyadev.jobfinder.ui.translate.TranslateToPicker
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
@@ -546,6 +547,7 @@ private fun ScanningSection(scanner: ScannerSettings?, onEvent: (SettingsUiEvent
   ) {
     onEvent(SettingsUiEvent.SetAiPaused(it))
   }
+  TranslateToPicker(scanner.translateTo, enabled) { onEvent(SettingsUiEvent.SetTranslateTo(it)) }
   SwitchRow(
     Res.string.settings_prevent_sleep_title,
     Res.string.settings_prevent_sleep_hint,

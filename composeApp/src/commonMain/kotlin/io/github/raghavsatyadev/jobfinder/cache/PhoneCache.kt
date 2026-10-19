@@ -134,6 +134,7 @@ class PhoneCache(
       is ServerEvent.InsightsReady -> event.jobIds.forEach { drop("$INSIGHTS$it") }
       is ServerEvent.GhostChecked -> event.jobIds.forEach { drop("$GHOST$it") }
       is ServerEvent.TipsReady -> drop("$TIPS${event.jobId}")
+      is ServerEvent.TranslationReady -> drop("$TRANSLATION${event.jobId}")
       is ServerEvent.BrokenLinks -> drop(LINKS)
       ServerEvent.DetailLayoutChanged -> drop(DETAIL_LAYOUT)
       else -> Unit
@@ -447,6 +448,7 @@ class PhoneCache(
     const val INSIGHTS = "insights:"
     const val GHOST = "ghost:"
     const val TIPS = "tips:"
+    const val TRANSLATION = "translation:"
     const val NOTES = "notes:"
     private const val SYNCED = "synced"
 

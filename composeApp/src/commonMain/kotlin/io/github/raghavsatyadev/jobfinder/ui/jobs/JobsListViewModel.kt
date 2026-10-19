@@ -166,21 +166,21 @@ class JobsListViewModel(
           is ServerEvent.NewJobs,
           ServerEvent.CopyRefreshed,
           ServerEvent.ResumeChanged -> load()
-          // A score arrived: show it on its card without reloading the page.
-          is ServerEvent.AtsScored ->
-            _state.update { s ->
-              s.copy(
-                jobs =
-                  s.jobs
-                    ?.map { if (it.id == event.jobId) it.copy(ats = event.summary) else it }
-                    ?.toImmutableList()
-              )
-            }
+          // A score or a translation arrived: show it on its card without reloading the page.
+          is ServerEvent.AtsScored -> patchCard(event.jobId) { it.copy(ats = event.summary) }
+          is ServerEvent.TranslationReady ->
+            patchCard(event.jobId) { it.copy(translation = event.translation) }
           else -> Unit
         }
       }
     }
     viewModelScope.launch { changes.flow.collect(::onJobChange) }
+  }
+
+  private fun patchCard(jobId: Long, change: (Job) -> Job) {
+    _state.update { s ->
+      s.copy(jobs = s.jobs?.map { if (it.id == jobId) change(it) else it }?.toImmutableList())
+    }
   }
 
   fun onEvent(event: JobsListEvent) {

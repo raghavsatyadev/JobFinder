@@ -91,7 +91,13 @@ object JobQueries {
     "j.id, j.external_id, j.external_url, j.site_id, j.link_id, j.title, j.company_name, " +
       "j.company_logo, j.location, j.salary, j.job_type, j.tags, j.status, j.labels, " +
       "j.exclude_reason, j.created_at, j.updated_at, a.overall AS ats_overall, " +
-      "a.ats_match AS ats_match, a.shortlisted AS ats_shortlisted"
+      "a.ats_match AS ats_match, a.shortlisted AS ats_shortlisted, " +
+      "t.from_lang AS tr_from, t.to_lang AS tr_to, t.title AS tr_title"
+
+  /** The translated title, when one is ready in the language translation is set to. */
+  private const val TRANSLATION_JOIN =
+    "LEFT JOIN job_translations t ON t.job_id = j.id AND t.state = 'ready' " +
+      "AND t.to_lang = (SELECT translate_to FROM settings WHERE id = $SINGLETON_ID)"
 
   /** The job's review against the current resume; failed reviews have no score to show. */
   private const val ATS_JOIN =
@@ -141,7 +147,7 @@ object JobQueries {
     where.addFilter(filter)
     val order = listOfNotNull(key?.let { "$it DESC" }, "j.updated_at DESC", "j.id DESC")
     val sql =
-      "SELECT $LIST_COLUMNS FROM jobs j $ATS_JOIN WHERE ${where.sql()} " +
+      "SELECT $LIST_COLUMNS FROM jobs j $ATS_JOIN $TRANSLATION_JOIN WHERE ${where.sql()} " +
         "ORDER BY ${order.joinToString(", ")} LIMIT ?"
     return where.build(sql, limit.toLong())
   }

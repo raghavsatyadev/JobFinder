@@ -66,6 +66,15 @@ fun Route.tipsRoutes(deps: ApiDependencies) {
   }
 }
 
+/** `POST /jobs/{id}/translation[?retry=true]`: the job's translation, or one queued. */
+fun Route.translationRoutes(deps: ApiDependencies) {
+  post("/jobs/{id}/translation") {
+    val translation = deps.translation ?: throw ApiException(ApiErrorCode.UNAVAILABLE)
+    val retry = call.request.queryParameters["retry"] == "true"
+    call.respondOk(translation.requestTranslation(call.idParam(), retry))
+  }
+}
+
 /**
  * `POST /jobs/{id}/improve[?write=true]`: the resume fix plan, or a new one queued; `POST
  * /jobs/{id}/improve/text` with [ApplyEdits]: the resume's text with those edits applied.

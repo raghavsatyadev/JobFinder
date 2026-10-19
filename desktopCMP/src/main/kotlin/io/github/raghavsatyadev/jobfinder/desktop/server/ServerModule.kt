@@ -75,6 +75,8 @@ import io.github.raghavsatyadev.jobfinder.server.service.insights.ScraperInsight
 import io.github.raghavsatyadev.jobfinder.server.service.resume.ResumePdfService
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsFacts
 import io.github.raghavsatyadev.jobfinder.server.service.tips.TipsService
+import io.github.raghavsatyadev.jobfinder.server.service.translate.AiJobTranslator
+import io.github.raghavsatyadev.jobfinder.server.service.translate.TranslationService
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
@@ -94,6 +96,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import io.github.raghavsatyadev.jobfinder.ui.help.helpMarkdown
 import io.github.raghavsatyadev.jobfinder.ui.platform.LocalModels
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
@@ -102,6 +105,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Semaphore
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -124,6 +129,7 @@ fun serverModule(dataDir: File) = module {
     LocalJobsRepository(
       get<ServerDatabase>().jobsDao(),
       atsSummary = { get<AtsService>().summary(it) },
+      translation = { get<TranslationService>().translation(it) },
     )
   } bind JobsRepository::class
   single { LocalLinksRepository(get<ServerDatabase>().linksDao()) } bind LinksRepository::class
@@ -362,6 +368,20 @@ fun serverModule(dataDir: File) = module {
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind TipsRepository::class
+  // Jobs in another language, translated into the user's language.
+  single {
+    val settings = get<LocalSettingsRepository>()
+    TranslationService(
+        get<ServerDatabase>().translationsDao(),
+        get<ServerDatabase>().jobsDao(),
+        AiJobTranslator(get(), get()),
+        get(),
+        target = { settings.getScannerSettings().translateTo },
+        targetChanges = settings.scannerSettings.map { it.translateTo }.distinctUntilChanged(),
+        pause = get(),
+      )
+      .also { it.start(get(ATS_SCOPE)) }
+  } bind TranslationRepository::class
   // Resume fix plans for one job, written by the AI when the user asks; the resume goes where
   // ATS work is routed.
   single {
@@ -429,6 +449,7 @@ fun serverModule(dataDir: File) = module {
       prompts = get(),
       ghost = get(),
       tips = get(),
+      translation = get(),
       improve = get(),
       resumePdf = get(),
       backup = get(),

@@ -13,6 +13,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobPage
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.JobTranslation
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobsRepository
 
 /** [JobsRepository] over the local Room database. */
@@ -21,6 +22,8 @@ class LocalJobsRepository(
   private val clock: () -> Long = System::currentTimeMillis,
   /** The job's ATS score against the current resume; none when `null`. */
   private val atsSummary: suspend (Long) -> AtsSummary? = { null },
+  /** The job's translation in the user's language; none when `null`. */
+  private val translation: suspend (Long) -> JobTranslation? = { null },
 ) : JobsRepository {
   override suspend fun listJobs(
     status: JobStatus,
@@ -54,7 +57,7 @@ class LocalJobsRepository(
   }
 
   override suspend fun getJob(id: Long): Job? =
-    dao.get(id)?.toModel()?.let { it.copy(ats = atsSummary(id)) }
+    dao.get(id)?.toModel()?.let { it.copy(ats = atsSummary(id), translation = translation(id)) }
 
   override suspend fun updateStatus(id: Long, status: JobStatus) {
     dao.updateStatus(id, status.wire, clock())

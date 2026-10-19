@@ -35,6 +35,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.SettingsBackup
 import io.github.raghavsatyadev.jobfinder.shared.model.SettingsPart
 import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.TranslationStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -139,6 +140,15 @@ interface InsightsRepository {
 interface TipsRepository {
   /** [jobId]'s negotiation tips; [write] asks the AI for new ones (first time or again). */
   suspend fun requestTips(jobId: Long, write: Boolean = false): TipsStatus
+}
+
+/** Job titles and descriptions in the user's language, translated on the computer. */
+interface TranslationRepository {
+  /**
+   * Where [jobId]'s translation stands. Queues it, ahead of the background work, when the job is in
+   * another language and has none yet; [retry] tries again after a failure.
+   */
+  suspend fun requestTranslation(jobId: Long, retry: Boolean = false): TranslationStatus
 }
 
 /** A fix plan for the resume against one job's ATS review, written on the computer when asked. */

@@ -74,6 +74,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.label
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContent
 import io.github.raghavsatyadev.jobfinder.ui.components.tone
+import io.github.raghavsatyadev.jobfinder.ui.translate.TranslatedMark
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -127,14 +128,16 @@ internal fun JobCard(
         )
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f).padding(end = 8.dp)) {
+          val translation = job.translation
           Text(
-            job.title,
+            translation?.title ?: job.title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.sharedContent(jobTitleKey(job.id), titleRatio(detail = true)),
           )
+          if (translation != null) TranslatedMark(translation.from)
           Text(
             job.companyName,
             style = MaterialTheme.typography.bodyMedium,

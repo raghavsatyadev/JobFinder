@@ -27,6 +27,8 @@ import io.github.raghavsatyadev.jobfinder.shared.model.ServerSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsState
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.TranslationState
+import io.github.raghavsatyadev.jobfinder.shared.model.TranslationStatus
 import io.github.raghavsatyadev.jobfinder.shared.remote.DesktopUnreachableException
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
@@ -40,6 +42,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -387,6 +390,27 @@ class OfflineTipsRepository(private val remote: TipsRepository, private val cach
       remote.requestTips(jobId, write)
     }
   }
+}
+
+class OfflineTranslationRepository(
+  private val remote: TranslationRepository,
+  private val cache: PhoneCache,
+) : TranslationRepository {
+  override suspend fun requestTranslation(jobId: Long, retry: Boolean): TranslationStatus {
+    val key = "${PhoneCache.TRANSLATION}$jobId"
+    if (jobId < 0) {
+      return cache.kept(key, TranslationStatus.serializer())
+        ?: TranslationStatus(TranslationState.UNAVAILABLE)
+    }
+    if (retry) cache.drop(key)
+    return cache.answerIf(key, TranslationStatus.serializer(), { it.state.kept }) {
+      remote.requestTranslation(jobId, retry)
+    }
+  }
+
+  /** A translation, or knowing none is needed, holds until the job changes. */
+  private val TranslationState.kept: Boolean
+    get() = this == TranslationState.READY || this == TranslationState.SAME
 }
 
 class OfflineGhostRepository(private val remote: GhostRepository, private val cache: PhoneCache) :

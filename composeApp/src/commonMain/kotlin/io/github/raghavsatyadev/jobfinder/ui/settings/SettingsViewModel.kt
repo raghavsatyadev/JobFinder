@@ -74,6 +74,9 @@ sealed interface SettingsUiEvent {
 
   data class SetAiPaused(val paused: Boolean) : SettingsUiEvent
 
+  /** A `JobLanguages` code; `null` turns translation off. */
+  data class SetTranslateTo(val language: String?) : SettingsUiEvent
+
   data class SetInAppBrowser(val enabled: Boolean) : SettingsUiEvent
 
   /** `null` keeps filtered-out jobs forever. */
@@ -168,6 +171,7 @@ class SettingsViewModel(
       is SettingsUiEvent.SetPreventSleep -> changeScanner { it.copy(preventSleep = event.enabled) }
       is SettingsUiEvent.SetSound -> changeScanner { it.copy(useSound = event.enabled) }
       is SettingsUiEvent.SetAiPaused -> changeScanner { it.copy(aiPaused = event.paused) }
+      is SettingsUiEvent.SetTranslateTo -> changeScanner { it.copy(translateTo = event.language) }
       is SettingsUiEvent.SetExcludedKeepDays ->
         changeScanner { it.copy(excludedKeepDays = event.days) }
       is SettingsUiEvent.SetInAppBrowser ->

@@ -120,6 +120,8 @@ import io.github.raghavsatyadev.jobfinder.ui.components.tone
 import io.github.raghavsatyadev.jobfinder.ui.ghost.GhostSection
 import io.github.raghavsatyadev.jobfinder.ui.insights.InsightsSection
 import io.github.raghavsatyadev.jobfinder.ui.tips.TipsSection
+import io.github.raghavsatyadev.jobfinder.ui.translate.TranslationBar
+import io.github.raghavsatyadev.jobfinder.ui.translate.shownTranslation
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -244,6 +246,7 @@ private fun DetailBody(
       verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
       Header(state, job, now)
+      TranslationBar(state, onEvent)
       job.excludeReason
         ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
         ?.let { ExcludedReason(it) }
@@ -358,7 +361,7 @@ private fun Header(state: JobDetailUiState, job: Job, now: Long) {
       Spacer(Modifier.width(16.dp))
       Column(Modifier.weight(1f)) {
         Text(
-          job.title,
+          state.shownTranslation()?.title ?: job.title,
           style = MaterialTheme.typography.headlineSmall,
           fontWeight = FontWeight.SemiBold,
           modifier =
@@ -537,7 +540,7 @@ private fun LabelChip(text: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun Description(state: JobDetailUiState, job: Job) {
-  val description = job.description
+  val description = state.shownTranslation()?.description ?: job.description
   when {
     !description.isNullOrBlank() ->
       DescriptionText(

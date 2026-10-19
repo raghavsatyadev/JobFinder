@@ -7,6 +7,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.AtsSummary
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.JobTranslation
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
@@ -61,6 +62,10 @@ fun JobListRow.toModel(): Job =
       if (atsOverall != null && atsMatch != null)
         AtsSummary(atsOverall, atsMatch, atsShortlisted == true)
       else null,
+    translation =
+      if (translatedFrom != null && translatedTo != null && translatedTitle != null)
+        JobTranslation(translatedFrom, translatedTo, translatedTitle)
+      else null,
     createdAt = createdAt,
     updatedAt = updatedAt,
   )
@@ -105,6 +110,7 @@ fun SettingsEntity.toScannerSettings(): ScannerSettings =
     scraperConcurrency = scraperConcurrency,
     excludedKeepDays = excludedKeepDays,
     aiPaused = aiPaused,
+    translateTo = translateTo,
   )
 
 fun SettingsEntity.toAiSettings(): AiSettings =

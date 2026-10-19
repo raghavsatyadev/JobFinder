@@ -100,6 +100,7 @@ import io.github.raghavsatyadev.jobfinder.resources.task_insights
 import io.github.raghavsatyadev.jobfinder.resources.task_matching
 import io.github.raghavsatyadev.jobfinder.resources.task_parsing
 import io.github.raghavsatyadev.jobfinder.resources.task_tips
+import io.github.raghavsatyadev.jobfinder.resources.task_translate
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
 import io.github.raghavsatyadev.jobfinder.shared.model.AiProvider
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRoute
@@ -492,6 +493,7 @@ private val TASKS: List<Pair<AiTask, StringResource>> =
     AiTask.ATS to Res.string.task_ats,
     AiTask.TIPS to Res.string.task_tips,
     AiTask.ANSWERS to Res.string.task_answers,
+    AiTask.TRANSLATE to Res.string.task_translate,
   )
 
 @Composable

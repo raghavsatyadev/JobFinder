@@ -21,6 +21,8 @@ enum class AiTask(
   @SerialName("tips") TIPS(true),
   /** Drafting answers to application forms. */
   @SerialName("answers") ANSWERS(true),
+  /** Translating job titles and descriptions posted in another language. */
+  @SerialName("translate") TRANSLATE(false),
 }
 
 /**
@@ -205,7 +207,8 @@ data class FreeTier(
  * "Add a key" suggestions and the default routing all read this order.
  */
 object FreeAiCatalog {
-  private val PUBLIC_TEXT = listOf(AiTask.MATCHING, AiTask.PARSING, AiTask.INSIGHTS, AiTask.GHOST)
+  private val PUBLIC_TEXT =
+    listOf(AiTask.MATCHING, AiTask.PARSING, AiTask.INSIGHTS, AiTask.GHOST, AiTask.TRANSLATE)
 
   val TIERS: List<FreeTier> =
     listOf(

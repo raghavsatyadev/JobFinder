@@ -11,10 +11,10 @@ import io.github.raghavsatyadev.jobfinder.shared.model.InsightsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobReport
-import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.TipsStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.TranslationStatus
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.GhostRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.InsightsRepository
@@ -26,6 +26,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -69,6 +70,10 @@ data class JobDetailUiState(
   /** Negotiation tips; `null` until asked or without a computer to write them. */
   val tips: TipsStatus? = null,
   val tipsFailed: Boolean = false,
+  /** The translation into the user's language, or why there is none; `null` until asked. */
+  val translation: TranslationStatus? = null,
+  /** The user chose to see the job as posted. */
+  val showOriginal: Boolean = false,
   /** The user's section order; the app's own until read. */
   val layout: DetailLayout = DetailLayout.DEFAULT,
   /** "Shouldn't be in New" can be asked (a computer that runs the AI is there). */
@@ -76,66 +81,6 @@ data class JobDetailUiState(
   /** The report dialog; `null` while closed. */
   val report: ReportUi? = null,
 )
-
-/** The "Shouldn't be in New" dialog: the note, then the AI's answer. */
-@Immutable
-data class ReportUi(
-  val note: String = "",
-  val checking: Boolean = false,
-  val result: JobReportResult? = null,
-  val failed: Boolean = false,
-)
-
-sealed interface JobDetailEvent {
-  data object Retry : JobDetailEvent
-
-  data class ChangeStatus(val to: JobStatus) : JobDetailEvent
-
-  /** The old app allows one label per job; `null` clears it. */
-  data class SetLabel(val label: JobLabel?) : JobDetailEvent
-
-  data object ToggleStar : JobDetailEvent
-
-  data object RefreshDescription : JobDetailEvent
-
-  /** Ask for the ATS review again (after a failure). */
-  data object RetryAts : JobDetailEvent
-
-  /** Read the company's ratings and salary again (after a failure). */
-  data object RetryInsights : JobDetailEvent
-
-  /** Read the company's careers site again (after a failure). */
-  data object RetryGhost : JobDetailEvent
-
-  /** Ask the AI for negotiation tips (first time, or new ones). */
-  data object WriteTips : JobDetailEvent
-
-  data class AddNote(val text: String) : JobDetailEvent
-
-  data class EditNote(val id: Long, val text: String) : JobDetailEvent
-
-  data class DeleteNote(val id: Long) : JobDetailEvent
-
-  /** Opens "Shouldn't be in New". */
-  data object OpenReport : JobDetailEvent
-
-  data class SetReportNote(val note: String) : JobDetailEvent
-
-  /** Asks the AI to check the job again. */
-  data object SendReport : JobDetailEvent
-
-  data object CloseReport : JobDetailEvent
-
-  /** The AI thinks the job fits; the user moves it to Filtered out anyway. */
-  data object MoveAnyway : JobDetailEvent
-}
-
-sealed interface JobDetailEffect {
-  data class Message(val message: JobsMessage) : JobDetailEffect
-
-  /** The job was deleted: leave the detail. */
-  data object Close : JobDetailEffect
-}
 
 class JobDetailViewModel(
   private val jobId: Long,
@@ -152,6 +97,7 @@ class JobDetailViewModel(
   private val tips: TipsRepository? = null,
   private val settings: SettingsRepository? = null,
   private val reports: JobReportRepository? = null,
+  private val translations: TranslationRepository? = null,
 ) : ViewModel() {
   private val _state =
     MutableStateFlow(JobDetailUiState(jobId = jobId, job = preview, canReport = reports != null))
@@ -171,6 +117,7 @@ class JobDetailViewModel(
           is ServerEvent.InsightsReady -> if (jobId in event.jobIds) loadInsights()
           is ServerEvent.GhostChecked -> if (jobId in event.jobIds) loadGhost()
           is ServerEvent.TipsReady -> if (event.jobId == jobId) loadTips()
+          is ServerEvent.TranslationReady -> if (event.jobId == jobId) loadTranslation()
           ServerEvent.DetailLayoutChanged -> loadLayout()
           // The phone showed its copy and the computer had something newer.
           ServerEvent.CopyRefreshed -> readAgain()
@@ -209,6 +156,8 @@ class JobDetailViewModel(
       JobDetailEvent.RetryInsights -> viewModelScope.launch { loadInsights(retry = true) }
       JobDetailEvent.RetryGhost -> viewModelScope.launch { loadGhost(retry = true) }
       JobDetailEvent.WriteTips -> viewModelScope.launch { loadTips(write = true) }
+      JobDetailEvent.ToggleOriginal -> _state.update { it.copy(showOriginal = !it.showOriginal) }
+      JobDetailEvent.RetryTranslation -> viewModelScope.launch { loadTranslation(retry = true) }
       is JobDetailEvent.AddNote -> addNote(event.text)
       is JobDetailEvent.EditNote -> editNote(event.id, event.text)
       is JobDetailEvent.DeleteNote -> deleteNote(event.id)
@@ -241,6 +190,7 @@ class JobDetailViewModel(
         launch { loadInsights() }
         launch { loadGhost() }
         launch { loadTips() }
+        launch { loadTranslation() }
         // Like the old app: a job without a description is read again from its board.
         if (job.description.isNullOrBlank()) refreshDescription() else launch { loadAts() }
       } catch (e: CancellationException) {
@@ -267,6 +217,7 @@ class JobDetailViewModel(
     loadInsights()
     loadGhost()
     loadTips()
+    loadTranslation()
   }
 
   private suspend fun loadNotes() {
@@ -337,6 +288,19 @@ class JobDetailViewModel(
     }
   }
 
+  /** Asks for the translation; a queued one arrives later as a `TranslationReady` event. */
+  private suspend fun loadTranslation(retry: Boolean = false) {
+    val repository = translations ?: return
+    try {
+      val status = repository.requestTranslation(jobId, retry)
+      _state.update { it.copy(translation = status) }
+    } catch (e: CancellationException) {
+      throw e
+    } catch (_: Exception) {
+      // The original stays on show.
+    }
+  }
+
   /** A layout that can't be read leaves the one shown. */
   private suspend fun loadLayout() {
     val repository = settings ?: return
@@ -375,6 +339,7 @@ class JobDetailViewModel(
           )
         }
         if (!job.description.isNullOrBlank()) loadAts()
+        loadTranslation()
       } catch (e: CancellationException) {
         throw e
       } catch (_: Exception) {

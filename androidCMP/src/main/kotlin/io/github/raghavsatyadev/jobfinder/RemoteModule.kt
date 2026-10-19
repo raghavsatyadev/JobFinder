@@ -19,6 +19,7 @@ import io.github.raghavsatyadev.jobfinder.cache.OfflineNotesRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineSettingsRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineSitesRepository
 import io.github.raghavsatyadev.jobfinder.cache.OfflineTipsRepository
+import io.github.raghavsatyadev.jobfinder.cache.OfflineTranslationRepository
 import io.github.raghavsatyadev.jobfinder.cache.PhoneCache
 import io.github.raghavsatyadev.jobfinder.cache.PhoneCacheDatabase
 import io.github.raghavsatyadev.jobfinder.cache.PhoneSync
@@ -57,6 +58,7 @@ import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteSettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteSitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteTipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.remote.RemoteTranslationRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
@@ -73,6 +75,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import io.github.raghavsatyadev.jobfinder.ui.platform.ConnectionDoctor
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhoneCopy
@@ -216,6 +219,9 @@ fun remoteModule(): Module = module {
   }
   single<AtsRepository> { OfflineAtsRepository(RemoteAtsRepository(get()), get()) }
   single<TipsRepository> { OfflineTipsRepository(RemoteTipsRepository(get()), get()) }
+  single<TranslationRepository> {
+    OfflineTranslationRepository(RemoteTranslationRepository(get()), get())
+  }
   single<ResumeImproveRepository> { RemoteResumeImproveRepository(get()) }
   single<ResumePdfRepository> { RemoteResumePdfRepository(get()) }
   single<GhostRepository> { OfflineGhostRepository(RemoteGhostRepository(get()), get()) }

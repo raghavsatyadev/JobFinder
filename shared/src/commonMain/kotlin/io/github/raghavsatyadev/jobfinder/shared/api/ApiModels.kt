@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder.shared.api
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsSummary
 import io.github.raghavsatyadev.jobfinder.shared.model.JobLabel
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
+import io.github.raghavsatyadev.jobfinder.shared.model.JobTranslation
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.ScanState
 import kotlinx.serialization.SerialName
@@ -195,6 +196,18 @@ sealed interface ServerEvent {
       get() = NAME_TIPS_READY
   }
 
+  /**
+   * This job's translation was written, or could not be ([translation] `null`); [translation]
+   * carries the title only, for the job lists.
+   */
+  @Serializable
+  @SerialName("translation_ready")
+  data class TranslationReady(val jobId: Long, val translation: JobTranslation? = null) :
+    ServerEvent {
+    override val eventName: String
+      get() = NAME_TRANSLATION_READY
+  }
+
   /** A resume fix plan for this job was written, or could not be. */
   @Serializable
   @SerialName("improvement_ready")
@@ -231,6 +244,7 @@ sealed interface ServerEvent {
     const val NAME_RESUME_CHANGED = "resume_changed"
     const val NAME_INSIGHTS_READY = "insights_ready"
     const val NAME_GHOST_CHECKED = "ghost_checked"
+    const val NAME_TRANSLATION_READY = "translation_ready"
     const val NAME_TIPS_READY = "tips_ready"
     const val NAME_IMPROVEMENT_READY = "improvement_ready"
     const val NAME_DETAIL_LAYOUT_CHANGED = "detail_layout_changed"

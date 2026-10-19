@@ -28,6 +28,8 @@ data class Job(
   val excludeReason: String? = null,
   /** The ATS score against the current resume, or `null` when not scored yet. */
   val ats: AtsSummary? = null,
+  /** The title (and, from the single-job call, the description) in the user's language. */
+  val translation: JobTranslation? = null,
   val createdAt: Long,
   val updatedAt: Long,
 ) {

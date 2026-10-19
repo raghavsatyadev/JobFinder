@@ -1,0 +1,26 @@
+<resources>
+    <string name="translate_from">Translated from %1$s</string>
+    <string name="translate_show_original">Show original</string>
+    <string name="translate_show_translation">Show translation</string>
+    <string name="translate_showing_original">Shown as posted, in %1$s</string>
+    <string name="translate_queued">Translating from %1$s. This can take a minute.</string>
+    <string name="translate_failed">The AI could not translate this job from %1$s.</string>
+    <string name="translate_retry">Try again</string>
+    <string name="translate_card_hint">Title translated from %1$s</string>
+    <string name="translate_setting_title">Translate jobs into</string>
+    <string name="translate_setting_hint">Jobs posted in another language get their title and description translated by the AI. The original is one tap away.</string>
+    <string name="translate_setting_off">Don’t translate</string>
+    <string name="task_translate">Translating jobs</string>
+    <string name="language_en">English</string>
+    <string name="language_de">German</string>
+    <string name="language_fr">French</string>
+    <string name="language_nl">Dutch</string>
+    <string name="language_es">Spanish</string>
+    <string name="language_it">Italian</string>
+    <string name="language_pt">Portuguese</string>
+    <string name="language_sv">Swedish</string>
+    <string name="language_da">Danish</string>
+    <string name="language_nb">Norwegian</string>
+    <string name="language_pl">Polish</string>
+    <string name="language_unknown">another language</string>
+</resources>

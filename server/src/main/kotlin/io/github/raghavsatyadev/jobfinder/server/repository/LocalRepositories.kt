@@ -18,6 +18,7 @@ import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
 import io.github.raghavsatyadev.jobfinder.shared.model.AiSettings
 import io.github.raghavsatyadev.jobfinder.shared.model.DetailLayout
+import io.github.raghavsatyadev.jobfinder.shared.model.JobLanguages
 import io.github.raghavsatyadev.jobfinder.shared.model.Link
 import io.github.raghavsatyadev.jobfinder.shared.model.Note
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
@@ -150,6 +151,7 @@ class LocalSettingsRepository(
         excludedKeepDays =
           settings.excludedKeepDays?.coerceIn(ScannerSettings.EXCLUDED_KEEP_DAYS_RANGE),
         aiPaused = settings.aiPaused,
+        translateTo = settings.translateTo?.takeIf { it in JobLanguages.ALL },
       )
     }
       .toScannerSettings()

@@ -202,6 +202,8 @@ data class SettingsEntity(
   @ColumnInfo(name = "excluded_keep_days", defaultValue = "30")
   val excludedKeepDays: Int? = ScannerSettings.DEFAULT_EXCLUDED_KEEP_DAYS,
   @ColumnInfo(name = "ai_paused", defaultValue = "0") val aiPaused: Boolean = false,
+  /** `JobLanguages` code jobs are translated into; `null` is off. */
+  @ColumnInfo(name = "translate_to", defaultValue = "'en'") val translateTo: String? = "en",
 )
 
 /** Debug copies of pages that failed to parse. */

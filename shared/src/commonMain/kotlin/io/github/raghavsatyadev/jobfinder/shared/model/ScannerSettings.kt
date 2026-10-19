@@ -19,6 +19,11 @@ data class ScannerSettings(
    * jobs nobody opened. A job the user opens still gets them.
    */
   val aiPaused: Boolean = false,
+  /**
+   * The language jobs posted in another language are translated into (a [JobLanguages] code);
+   * `null` turns translation off.
+   */
+  val translateTo: String? = JobLanguages.ENGLISH,
 ) {
   companion object {
     /**

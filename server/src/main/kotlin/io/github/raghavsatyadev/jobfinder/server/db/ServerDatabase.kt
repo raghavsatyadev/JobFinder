@@ -38,8 +38,9 @@ import kotlinx.coroutines.Dispatchers
       AiKeyUsageEntity::class,
       FormAnswerEntity::class,
       ResumeProfileEntity::class,
+      JobTranslationEntity::class,
     ],
-  version = 16,
+  version = 17,
   autoMigrations =
     [
       AutoMigration(from = 1, to = 2),
@@ -57,6 +58,7 @@ import kotlinx.coroutines.Dispatchers
       AutoMigration(from = 13, to = 14),
       AutoMigration(from = 14, to = 15),
       AutoMigration(from = 15, to = 16),
+      AutoMigration(from = 16, to = 17),
     ],
 )
 @ColumnTypeConverters(JsonColumnConverters::class)
@@ -94,6 +96,8 @@ abstract class ServerDatabase : RoomDatabase() {
   abstract fun formAnswersDao(): FormAnswersDao
 
   abstract fun resumeProfileDao(): ResumeProfileDao
+
+  abstract fun translationsDao(): TranslationsDao
 }
 
 /** v13: the app's local model is `jobfinder-qwen`, renamed from `first2apply-qwen`. */

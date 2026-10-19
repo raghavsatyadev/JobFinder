@@ -25,6 +25,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveReposit
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -70,6 +71,7 @@ class ApiDependencies(
   val prompts: AiPromptsRepository? = null,
   val ghost: GhostRepository? = null,
   val tips: TipsRepository? = null,
+  val translation: TranslationRepository? = null,
   val improve: ResumeImproveRepository? = null,
   /** `null` answers the resume PDF routes with "unavailable". */
   val resumePdf: ResumePdfRepository? = null,
@@ -150,6 +152,7 @@ fun Application.jobFinderApi(deps: ApiDependencies) {
         reportRoutes(deps)
         ghostRoutes(deps)
         tipsRoutes(deps)
+        translationRoutes(deps)
         improveRoutes(deps)
         resumePdfRoutes(deps)
         settingsRoutes(deps)

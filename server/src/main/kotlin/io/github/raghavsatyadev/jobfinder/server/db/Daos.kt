@@ -87,6 +87,10 @@ data class JobListRow(
   @ColumnInfo(name = "ats_overall") val atsOverall: Double? = null,
   @ColumnInfo(name = "ats_match") val atsMatch: Int? = null,
   @ColumnInfo(name = "ats_shortlisted") val atsShortlisted: Boolean? = null,
+  /** The translated title, when one is ready. */
+  @ColumnInfo(name = "tr_from") val translatedFrom: String? = null,
+  @ColumnInfo(name = "tr_to") val translatedTo: String? = null,
+  @ColumnInfo(name = "tr_title") val translatedTitle: String? = null,
 )
 
 /** One row of a count grouped by status. */
