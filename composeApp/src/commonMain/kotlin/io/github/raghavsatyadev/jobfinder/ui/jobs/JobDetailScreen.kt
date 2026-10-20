@@ -25,24 +25,19 @@ import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Unarchive
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,9 +56,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownTypography
-import com.mikepenz.markdown.model.markdownPadding
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.ats_section_title
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
@@ -79,15 +71,10 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_delete_text
 import io.github.raghavsatyadev.jobfinder.resources.jobs_delete_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_close
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description
-import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_empty
-import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_failed
-import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_loading
-import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_excluded_reason
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_found_via
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_labels
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_not_found
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_refresh_description
-import io.github.raghavsatyadev.jobfinder.resources.jobs_label_none
 import io.github.raghavsatyadev.jobfinder.resources.jobs_notes
 import io.github.raghavsatyadev.jobfinder.resources.tips_section_title
 import io.github.raghavsatyadev.jobfinder.shared.model.DetailSection
@@ -406,25 +393,6 @@ private fun Header(state: JobDetailUiState, job: Job, now: Long) {
   }
 }
 
-@Composable
-private fun ExcludedReason(reason: String) {
-  Surface(
-    shape = MaterialTheme.shapes.large,
-    color = MaterialTheme.colorScheme.errorContainer,
-    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-    modifier = Modifier.fillMaxWidth(),
-  ) {
-    Column(Modifier.padding(16.dp)) {
-      Text(
-        stringResource(Res.string.jobs_detail_excluded_reason),
-        style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.SemiBold,
-      )
-      Text(reason, style = MaterialTheme.typography.bodyMedium)
-    }
-  }
-}
-
 /**
  * View is the main action; status moves sit beside it and delete sits last, in the error colour.
  */
@@ -494,122 +462,3 @@ private fun Actions(
     }
   }
 }
-
-@Composable
-private fun Section(
-  title: String,
-  action: (@Composable () -> Unit)? = null,
-  content: @Composable () -> Unit,
-) {
-  Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-      Text(
-        title,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.weight(1f).semantics { heading() },
-      )
-      action?.invoke()
-    }
-    content()
-  }
-}
-
-/** One label per job, as in the old app; "None" clears it. */
-@Composable
-private fun LabelPicker(current: JobLabel?, onPick: (JobLabel?) -> Unit) {
-  FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-    LabelChip(stringResource(Res.string.jobs_label_none), current == null) { onPick(null) }
-    JobLabel.CHOICES.forEach { label ->
-      LabelChip(stringResource(label.label), current == label) { onPick(label) }
-    }
-  }
-}
-
-@Composable
-private fun LabelChip(text: String, selected: Boolean, onClick: () -> Unit) {
-  FilterChip(
-    selected = selected,
-    onClick = onClick,
-    label = { Text(text) },
-    leadingIcon =
-      if (selected) {
-        { Icon(Icons.Rounded.Check, null, Modifier.size(FilterChipDefaults.IconSize)) }
-      } else null,
-  )
-}
-
-@Composable
-private fun Description(state: JobDetailUiState, job: Job) {
-  val description = state.shownTranslation()?.description ?: job.description
-  when {
-    !description.isNullOrBlank() ->
-      DescriptionText(
-        description,
-        Modifier.stale(
-          state.descriptionLoading,
-          stringResource(Res.string.jobs_detail_description_loading),
-        ),
-      )
-    state.descriptionLoading -> {
-      val text = stringResource(Res.string.jobs_detail_description_loading)
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        LoadingIndicator(Modifier.size(40.dp))
-        Spacer(Modifier.width(12.dp))
-        Text(text, style = MaterialTheme.typography.bodyMedium)
-      }
-    }
-    state.descriptionFailed ->
-      Text(
-        stringResource(Res.string.jobs_detail_description_failed),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.error,
-      )
-    else ->
-      Text(
-        stringResource(Res.string.jobs_detail_description_empty),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-  }
-}
-
-/** A job description's Markdown, tidied by [DescriptionFormat]. */
-@Composable
-fun DescriptionText(markdown: String, modifier: Modifier = Modifier) {
-  Markdown(
-    content = remember(markdown) { DescriptionFormat.tidy(markdown) },
-    typography = descriptionTypography(),
-    padding = descriptionPadding(),
-    modifier = modifier.fillMaxWidth(),
-  )
-}
-
-/** Room between paragraphs and around lists, tight between a list's items. */
-@Composable
-private fun descriptionPadding() =
-  markdownPadding(
-    block = 6.dp,
-    list = 4.dp,
-    listItemTop = 2.dp,
-    listItemBottom = 2.dp,
-    listIndent = 12.dp,
-  )
-
-/** Headings sized for a pane, not a page: a job description's `##` must not out-shout the title. */
-@Composable
-private fun descriptionTypography() =
-  MaterialTheme.typography.let { type ->
-    // Bold and a step above the text, so sections stand out without out-shouting the job title.
-    val section = type.titleLarge.copy(fontWeight = FontWeight.Bold)
-    val subsection = type.titleMedium.copy(fontWeight = FontWeight.Bold)
-    markdownTypography(
-      h1 = section,
-      h2 = section,
-      h3 = section,
-      h4 = subsection,
-      h5 = subsection,
-      h6 = subsection,
-      text = type.bodyLarge,
-      paragraph = type.bodyLarge,
-    )
-  }
