@@ -8,6 +8,7 @@ import io.github.raghavsatyadev.jobfinder.desktop.setup.SetupMemory
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
 import io.github.raghavsatyadev.jobfinder.server.http.PairedPhones
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsRepository
+import io.github.raghavsatyadev.jobfinder.ui.platform.AppBrowserOpened
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
@@ -99,11 +100,11 @@ class DesktopAppFeatures(
   override val appBrowserName: String?
     get() = signIn?.takeIf { it.isAvailable }?.browserName
 
-  override suspend fun openAppBrowserForExtension(): String? =
+  override suspend fun openAppBrowserForExtension(): AppBrowserOpened? =
     withContext(Dispatchers.IO) { openAppBrowser() }
 
   /** Starts the browser process and copies the address; blocks, so it runs off the UI thread. */
-  private suspend fun openAppBrowser(): String? {
+  private suspend fun openAppBrowser(): AppBrowserOpened? {
     val browser = signIn?.takeIf { it.isAvailable } ?: return null
     val page = browser.extensionsPage ?: return null
     try {
@@ -113,12 +114,15 @@ class DesktopAppFeatures(
       log.warn("Could not open {} for the extension", browser.browserName, e)
       return null
     }
-    try {
-      Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(page), null)
-    } catch (e: IllegalStateException) {
-      log.warn("Could not copy {} to the clipboard", page, e)
-    }
-    return page
+    val copied =
+      try {
+        Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(page), null)
+        true
+      } catch (e: IllegalStateException) {
+        log.warn("Could not copy {} to the clipboard", page, e)
+        false
+      }
+    return AppBrowserOpened(page, copied)
   }
 
   override suspend fun copyBrowserSignIns(): SignInCopy =

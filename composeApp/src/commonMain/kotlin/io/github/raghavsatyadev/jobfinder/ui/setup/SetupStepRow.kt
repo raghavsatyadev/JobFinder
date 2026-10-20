@@ -80,6 +80,7 @@ import io.github.raghavsatyadev.jobfinder.resources.setup_step_server
 import io.github.raghavsatyadev.jobfinder.resources.setup_step_sign_in
 import io.github.raghavsatyadev.jobfinder.resources.setup_text_app_browser_failed
 import io.github.raghavsatyadev.jobfinder.resources.setup_text_app_browser_opened
+import io.github.raghavsatyadev.jobfinder.resources.setup_text_app_browser_opened_type
 import io.github.raghavsatyadev.jobfinder.resources.setup_text_extension
 import io.github.raghavsatyadev.jobfinder.resources.setup_text_model
 import io.github.raghavsatyadev.jobfinder.resources.setup_text_phone
@@ -236,10 +237,20 @@ private fun ExtensionActions(
     state.appBrowserOpen?.let { opened ->
       val page = opened.page
       Text(
-        if (page != null) {
-          stringResource(Res.string.setup_text_app_browser_opened, state.appBrowser.orEmpty(), page)
-        } else {
-          stringResource(Res.string.setup_text_app_browser_failed)
+        when {
+          page == null -> stringResource(Res.string.setup_text_app_browser_failed)
+          opened.copied ->
+            stringResource(
+              Res.string.setup_text_app_browser_opened,
+              state.appBrowser.orEmpty(),
+              page,
+            )
+          else ->
+            stringResource(
+              Res.string.setup_text_app_browser_opened_type,
+              state.appBrowser.orEmpty(),
+              page,
+            )
         },
         style = MaterialTheme.typography.bodyMedium,
         color =

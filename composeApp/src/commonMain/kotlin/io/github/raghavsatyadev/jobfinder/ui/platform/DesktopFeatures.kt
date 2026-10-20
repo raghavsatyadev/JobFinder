@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.StateFlow
 /** The address phones pair with, and the text of the pairing QR code. */
 data class PairingInfo(val baseUrl: String, val pairingCode: String)
 
+/** The app's browser opened: [page] is its extensions address, [copied] if on the clipboard. */
+data class AppBrowserOpened(val page: String, val copied: Boolean)
+
 /** How copying the browser's sign-ins went. */
 sealed interface SignInCopy {
   /** [cookies] copied; [missing] boards the extension may not read. */
@@ -41,9 +44,9 @@ interface DesktopFeatures {
   /**
    * Opens that browser on the app's own profile, so the extension can be added there. Browsers do
    * not open their extensions page from the command line, so its address goes to the clipboard.
-   * Returns that address, or `null` when the browser did not open.
+   * Returns `null` when the browser did not open.
    */
-  suspend fun openAppBrowserForExtension(): String? = null
+  suspend fun openAppBrowserForExtension(): AppBrowserOpened? = null
 
   /** Copies the job board sign-ins from the user's own browser through the extension. */
   suspend fun copyBrowserSignIns(): SignInCopy

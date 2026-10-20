@@ -93,9 +93,10 @@ data class SetupUiState(
 }
 
 /**
- * How opening the app's browser went: [page] is the copied extensions address, `null` if failed.
+ * How opening the app's browser went: [page] is the extensions address, `null` if it failed;
+ * [copied] if that address is on the clipboard.
  */
-@Immutable data class AppBrowserOpen(val page: String?)
+@Immutable data class AppBrowserOpen(val page: String?, val copied: Boolean = false)
 
 sealed interface SetupUiEvent {
   /** Opens the confirm dialog for the page's automatic steps. */
@@ -210,8 +211,8 @@ class SetupViewModel(
   private fun openAppBrowser() {
     val desktop = desktop ?: return
     viewModelScope.launch {
-      val page = desktop.openAppBrowserForExtension()
-      local.update { it.copy(browserOpen = AppBrowserOpen(page)) }
+      val opened = desktop.openAppBrowserForExtension()
+      local.update { it.copy(browserOpen = AppBrowserOpen(opened?.page, opened?.copied == true)) }
     }
   }
 

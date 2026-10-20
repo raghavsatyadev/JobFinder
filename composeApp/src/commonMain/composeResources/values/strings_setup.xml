@@ -65,6 +65,7 @@
     <string name="setup_action_extension">Open the extension folder</string>
     <string name="setup_action_app_browser">Open JobFinder’s browser</string>
     <string name="setup_text_app_browser_opened">%1$s opened with JobFinder’s profile. %2$s is copied: paste it into the address bar to open the extensions page.</string>
+    <string name="setup_text_app_browser_opened_type">%1$s opened with JobFinder’s profile. Type %2$s into its address bar to open the extensions page.</string>
     <string name="setup_text_app_browser_failed">JobFinder’s browser did not open. Install Chrome or Edge, or add the extension to your own browser.</string>
     <string name="setup_qr_description">Pairing code for this computer</string>
     <string name="setup_confirm_title">Set up everything?</string>

@@ -35,6 +35,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AgentEndpoint
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgyStatus
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeysState
+import io.github.raghavsatyadev.jobfinder.ui.platform.AppBrowserOpened
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import io.github.raghavsatyadev.jobfinder.ui.platform.OpenCodeStatus
@@ -102,7 +103,7 @@ private object DemoDesktopFeatures : DesktopFeatures {
 
   override val appBrowserName = "Chrome"
 
-  override suspend fun openAppBrowserForExtension() = "chrome://extensions"
+  override suspend fun openAppBrowserForExtension() = AppBrowserOpened("chrome://extensions", true)
 
   override suspend fun copyBrowserSignIns(): SignInCopy = SignInCopy.Copied(12, emptyList())
 
