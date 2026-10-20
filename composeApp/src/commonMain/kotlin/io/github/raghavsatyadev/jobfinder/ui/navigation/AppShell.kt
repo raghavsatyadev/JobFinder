@@ -2,6 +2,7 @@
 
 package io.github.raghavsatyadev.jobfinder.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -9,6 +10,8 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,10 +66,9 @@ import io.github.raghavsatyadev.jobfinder.resources.nav_links
 import io.github.raghavsatyadev.jobfinder.resources.nav_settings
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalEntryVisibilityScope
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalFloatingBarSpace
+import io.github.raghavsatyadev.jobfinder.ui.components.LocalScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalSharedTransitionScope
-import io.github.raghavsatyadev.jobfinder.ui.components.LocalWindowFab
-import io.github.raghavsatyadev.jobfinder.ui.components.WindowFab
-import io.github.raghavsatyadev.jobfinder.ui.components.WindowFabSlot
+import io.github.raghavsatyadev.jobfinder.ui.components.ScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.filters.AiFiltersScreen
 import io.github.raghavsatyadev.jobfinder.ui.help.HelpScreen
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailPane
@@ -76,6 +78,7 @@ import io.github.raghavsatyadev.jobfinder.ui.links.AddLinkScreen
 import io.github.raghavsatyadev.jobfinder.ui.links.LinksScreen
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsScreen
+import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -118,6 +121,9 @@ private val TABS = TopLevel.entries.toImmutableList()
 fun AppShell(initial: TopLevel = TopLevel.Jobs, navigation: Flow<TopLevel> = emptyFlow()) {
   var current by rememberSaveable { mutableStateOf(initial) }
   LaunchedEffect(navigation) { navigation.collect { current = it } }
+  val bars = remember { ScrollBars() }
+  // A list scrolled down hides the bars; another destination starts with them back.
+  LaunchedEffect(current) { bars.visible = true }
   val stacks: Map<TopLevel, NavBackStack<NavKey>> =
     TopLevel.entries.associateWith { rememberNavBackStack(NavSavedStateConfiguration, it.root) }
 
@@ -133,40 +139,42 @@ fun AppShell(initial: TopLevel = TopLevel.Jobs, navigation: Flow<TopLevel> = emp
   val floating =
     NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo()) ==
       NavigationSuiteType.NavigationBar
-  NavigationSuiteScaffold(
-    layoutType = if (floating) NavigationSuiteType.None else NavigationSuiteType.NavigationRail,
-    navigationSuiteItems = {
-      TopLevel.entries.forEach { destination ->
-        val selected = destination == current
-        item(
-          selected = selected,
-          onClick = { select(destination) },
-          icon = {
-            Icon(
-              if (selected) destination.selectedIcon else destination.icon,
-              contentDescription = null,
-            )
-          },
-          label = {
-            // One line at any font scale: shrink the label rather than break a word.
-            Text(
-              stringResource(destination.label),
-              maxLines = 1,
-              autoSize =
-                TextAutoSize.StepBased(
-                  minFontSize = 8.sp,
-                  maxFontSize = LocalTextStyle.current.fontSize,
-                ),
-            )
-          },
-        )
+  CompositionLocalProvider(LocalScrollBars provides bars) {
+    NavigationSuiteScaffold(
+      layoutType = if (floating) NavigationSuiteType.None else NavigationSuiteType.NavigationRail,
+      navigationSuiteItems = {
+        TopLevel.entries.forEach { destination ->
+          val selected = destination == current
+          item(
+            selected = selected,
+            onClick = { select(destination) },
+            icon = {
+              Icon(
+                if (selected) destination.selectedIcon else destination.icon,
+                contentDescription = null,
+              )
+            },
+            label = {
+              // One line at any font scale: shrink the label rather than break a word.
+              Text(
+                stringResource(destination.label),
+                maxLines = 1,
+                autoSize =
+                  TextAutoSize.StepBased(
+                    minFontSize = 8.sp,
+                    maxFontSize = LocalTextStyle.current.fontSize,
+                  ),
+              )
+            },
+          )
+        }
+      },
+    ) {
+      if (floating) {
+        FloatingFrame(current, select) { Destinations(stacks.getValue(current)) }
+      } else {
+        Destinations(stacks.getValue(current))
       }
-    },
-  ) {
-    if (floating) {
-      FloatingFrame(current, select) { Destinations(stacks.getValue(current)) }
-    } else {
-      Destinations(stacks.getValue(current))
     }
   }
 }
@@ -186,14 +194,19 @@ private fun FloatingFrame(
       LocalFloatingBarSpace provides FloatingTabBarHeight + FLOATING_BAR_GAP * 2,
       content = content,
     )
-    FloatingTabBar(
-      TABS,
-      current,
-      onSelect,
-      Modifier.align(Alignment.BottomCenter)
-        .navigationBarsPadding()
-        .padding(bottom = FLOATING_BAR_GAP),
-    )
+    // Slides away while a list scrolls down, and back up when it scrolls up.
+    val animate = animationsEnabled()
+    AnimatedVisibility(
+      visible = LocalScrollBars.current?.visible != false,
+      enter = if (animate) slideInVertically { it } + fadeIn() else EnterTransition.None,
+      exit = if (animate) slideOutVertically { it } + fadeOut() else ExitTransition.None,
+      modifier =
+        Modifier.align(Alignment.BottomCenter)
+          .navigationBarsPadding()
+          .padding(bottom = FLOATING_BAR_GAP),
+    ) {
+      FloatingTabBar(TABS, current, onSelect)
+    }
   }
 }
 
@@ -213,79 +226,71 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
   val desktop = remember { koin.getOrNull<DesktopFeatures>() != null }
   val instant = desktop || directive.maxHorizontalPartitions > 1
 
-  val windowFab = if (directive.maxHorizontalPartitions > 1) remember { WindowFab() } else null
-
   SharedTransitionLayout {
-    CompositionLocalProvider(
-      LocalSharedTransitionScope provides this.takeUnless { instant },
-      LocalWindowFab provides windowFab,
-    ) {
-      Box(Modifier.fillMaxSize()) {
-        NavDisplay(
-          backStack = backStack,
-          onBack = { backStack.removeLastOrNull() },
-          sceneStrategies = listOf(listDetail),
-          sharedTransitionScope = this@SharedTransitionLayout.takeUnless { instant },
-          entryDecorators =
-            listOf(
-              rememberSaveableStateHolderNavEntryDecorator(),
-              rememberViewModelStoreNavEntryDecorator(),
-            ),
-          // Keep the list behind a card that grows into its detail: the arriving screen fades in
-          // over the transform and the leaving one only fades at the end.
-          transitionSpec = {
-            if (instant) EnterTransition.None togetherWith ExitTransition.None
-            else
-              fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
-                fadeOut(tween(120, delayMillis = 380))
+    CompositionLocalProvider(LocalSharedTransitionScope provides this.takeUnless { instant }) {
+      NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        sceneStrategies = listOf(listDetail),
+        sharedTransitionScope = this@SharedTransitionLayout.takeUnless { instant },
+        entryDecorators =
+          listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator(),
+          ),
+        // Keep the list behind a card that grows into its detail: the arriving screen fades in
+        // over the transform and the leaving one only fades at the end.
+        transitionSpec = {
+          if (instant) EnterTransition.None togetherWith ExitTransition.None
+          else
+            fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
+              fadeOut(tween(120, delayMillis = 380))
+        },
+        popTransitionSpec = {
+          if (instant) EnterTransition.None togetherWith ExitTransition.None
+          else
+            fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
+              fadeOut(tween(120, delayMillis = 380))
+        },
+        entryProvider =
+          entryProvider {
+            entry<JobsRoute>(
+              metadata =
+                ListDetailSceneStrategy.listPane(detailPlaceholder = { JobDetailPlaceholder() })
+            ) {
+              Entry {
+                // Only side by side does the open job show as selected: on a phone the card
+                // would flash its selection border while it grows into the detail.
+                val selected =
+                  (backStack.lastOrNull() as? JobDetailRoute)?.jobId?.takeIf {
+                    directive.maxHorizontalPartitions > 1
+                  }
+                JobsListPane(
+                  selectedJobId = selected,
+                  onOpenJob = { job ->
+                    // One detail at a time: replace the open job instead of stacking details.
+                    if (backStack.lastOrNull() is JobDetailRoute) backStack.removeLastOrNull()
+                    backStack.add(JobDetailRoute(job.id, preview = job))
+                  },
+                )
+              }
+            }
+            entry<JobDetailRoute>(metadata = ListDetailSceneStrategy.detailPane()) { route ->
+              Entry { JobDetailPane(route, onClose = { backStack.removeLastOrNull() }) }
+            }
+            entry<LinksRoute> {
+              Entry { LinksScreen(onAddLink = { backStack.add(AddLinkRoute) }) }
+            }
+            entry<AddLinkRoute> {
+              Entry { AddLinkScreen(onDone = { backStack.removeLastOrNull() }) }
+            }
+            entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
+            entry<SettingsRoute> {
+              Entry { SettingsScreen(onOpenHelp = { backStack.add(HelpRoute) }) }
+            }
+            entry<HelpRoute> { Entry { HelpScreen(onBack = { backStack.removeLastOrNull() }) } }
           },
-          popTransitionSpec = {
-            if (instant) EnterTransition.None togetherWith ExitTransition.None
-            else
-              fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
-                fadeOut(tween(120, delayMillis = 380))
-          },
-          entryProvider =
-            entryProvider {
-              entry<JobsRoute>(
-                metadata =
-                  ListDetailSceneStrategy.listPane(detailPlaceholder = { JobDetailPlaceholder() })
-              ) {
-                Entry {
-                  // Only side by side does the open job show as selected: on a phone the card
-                  // would flash its selection border while it grows into the detail.
-                  val selected =
-                    (backStack.lastOrNull() as? JobDetailRoute)?.jobId?.takeIf {
-                      directive.maxHorizontalPartitions > 1
-                    }
-                  JobsListPane(
-                    selectedJobId = selected,
-                    onOpenJob = { job ->
-                      // One detail at a time: replace the open job instead of stacking details.
-                      if (backStack.lastOrNull() is JobDetailRoute) backStack.removeLastOrNull()
-                      backStack.add(JobDetailRoute(job.id, preview = job))
-                    },
-                  )
-                }
-              }
-              entry<JobDetailRoute>(metadata = ListDetailSceneStrategy.detailPane()) { route ->
-                Entry { JobDetailPane(route, onClose = { backStack.removeLastOrNull() }) }
-              }
-              entry<LinksRoute> {
-                Entry { LinksScreen(onAddLink = { backStack.add(AddLinkRoute) }) }
-              }
-              entry<AddLinkRoute> {
-                Entry { AddLinkScreen(onDone = { backStack.removeLastOrNull() }) }
-              }
-              entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
-              entry<SettingsRoute> {
-                Entry { SettingsScreen(onOpenHelp = { backStack.add(HelpRoute) }) }
-              }
-              entry<HelpRoute> { Entry { HelpScreen(onBack = { backStack.removeLastOrNull() }) } }
-            },
-        )
-        WindowFabSlot(windowFab)
-      }
+      )
     }
   }
 }

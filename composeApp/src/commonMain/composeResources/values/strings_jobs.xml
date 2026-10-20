@@ -29,7 +29,6 @@
 
     <!-- Overflow -->
     <string name="jobs_action_refresh">Refresh</string>
-    <string name="jobs_action_scan">Scan now</string>
     <string name="jobs_action_archive_all">Archive all</string>
     <string name="jobs_action_delete_all">Delete all</string>
     <string name="jobs_archive_all_title">Archive all %1$s jobs?</string>
@@ -142,7 +141,5 @@
     <string name="jobs_msg_restored">Moved back to New</string>
     <string name="jobs_msg_archived_all">%1$d jobs archived</string>
     <string name="jobs_msg_deleted_all">%1$d jobs deleted</string>
-    <string name="jobs_msg_scan_started">Scan started</string>
-    <string name="jobs_msg_scan_running">A scan is already running</string>
     <string name="jobs_msg_failed">That did not work. Try again.</string>
 </resources>

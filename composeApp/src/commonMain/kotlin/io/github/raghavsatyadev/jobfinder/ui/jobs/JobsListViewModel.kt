@@ -133,7 +133,6 @@ class JobsListViewModel(
         load()
         loadFilterOptions()
       }
-      JobsListEvent.ScanAll -> scanAll()
       JobsListEvent.ArchiveAll -> changeAll(JobStatus.ARCHIVED)
       JobsListEvent.DeleteAll -> changeAll(JobStatus.DELETED)
       is JobsListEvent.ChangeStatus -> changeStatus(event.jobId, event.to)
@@ -377,19 +376,6 @@ class JobsListViewModel(
         }
       }
       is JobChange.BulkChanged -> load()
-    }
-  }
-
-  private fun scanAll() {
-    viewModelScope.launch {
-      try {
-        val started = scan.startScanAll()
-        _messages.trySend(if (started) JobsMessage.ScanStarted else JobsMessage.ScanAlreadyRunning)
-      } catch (e: CancellationException) {
-        throw e
-      } catch (_: Exception) {
-        _messages.trySend(JobsMessage.Failed)
-      }
     }
   }
 

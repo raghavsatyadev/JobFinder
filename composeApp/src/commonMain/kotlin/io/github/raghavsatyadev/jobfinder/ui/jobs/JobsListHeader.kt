@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Badge
@@ -64,7 +63,6 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_refresh
-import io.github.raghavsatyadev.jobfinder.resources.jobs_action_scan
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filters
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filters_active
 import io.github.raghavsatyadev.jobfinder.resources.jobs_more_actions
@@ -143,7 +141,7 @@ private fun OverflowMenu(
   onConfirmBulk: (JobStatus) -> Unit,
 ) {
   var open by remember { mutableStateOf(false) }
-  // Scans and changes to every job at once need the computer.
+  // Changes to every job at once need the computer.
   val online = !LocalComputerOffline.current
   Box {
     IconButton(onClick = { open = true }, shapes = IconButtonDefaults.shapes()) {
@@ -156,15 +154,6 @@ private fun OverflowMenu(
         onClick = {
           open = false
           onEvent(JobsListEvent.Refresh)
-        },
-      )
-      DropdownMenuItem(
-        text = { Text(stringResource(Res.string.jobs_action_scan)) },
-        leadingIcon = { Icon(Icons.Rounded.Radar, null) },
-        enabled = !state.scan.scanning && online,
-        onClick = {
-          open = false
-          onEvent(JobsListEvent.ScanAll)
         },
       )
       // The Starred tab mixes every status: no bulk moves there.

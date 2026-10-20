@@ -2,6 +2,13 @@
 
 package io.github.raghavsatyadev.jobfinder.ui.jobs
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,20 +20,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,14 +50,13 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete_all
-import io.github.raghavsatyadev.jobfinder.resources.jobs_action_scan
 import io.github.raghavsatyadev.jobfinder.resources.jobs_archive_all_text
 import io.github.raghavsatyadev.jobfinder.resources.jobs_archive_all_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_delete_all_text
@@ -66,21 +70,19 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_deleted
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_deleted_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_failed
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_restored
-import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_scan_running
-import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_scan_started
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
 import io.github.raghavsatyadev.jobfinder.ui.components.ErrorState
 import io.github.raghavsatyadev.jobfinder.ui.components.LoadingState
-import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
-import io.github.raghavsatyadev.jobfinder.ui.components.LocalWindowFab
-import io.github.raghavsatyadev.jobfinder.ui.components.Show
+import io.github.raghavsatyadev.jobfinder.ui.components.LocalScrollBars
+import io.github.raghavsatyadev.jobfinder.ui.components.ScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.icon
 import io.github.raghavsatyadev.jobfinder.ui.components.label
 import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
+import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -124,8 +126,6 @@ internal suspend fun JobsMessage.text(): String? =
       }
     is JobsMessage.ArchivedAll -> getString(Res.string.jobs_msg_archived_all, count)
     is JobsMessage.DeletedAll -> getString(Res.string.jobs_msg_deleted_all, count)
-    JobsMessage.ScanStarted -> getString(Res.string.jobs_msg_scan_started)
-    JobsMessage.ScanAlreadyRunning -> getString(Res.string.jobs_msg_scan_running)
     JobsMessage.Failed -> getString(Res.string.jobs_msg_failed)
   }
 
@@ -196,39 +196,44 @@ fun JobsListContent(
 
   LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 
-  val offline = LocalComputerOffline.current
-  val scanFab: @Composable () -> Unit = {
-    // Scans run on the computer.
-    if (!state.scan.scanning && !offline) {
-      SmallExtendedFloatingActionButton(
-        text = { Text(stringResource(Res.string.jobs_action_scan)) },
-        icon = { Icon(Icons.Rounded.Radar, contentDescription = null) },
-        onClick = { onEvent(JobsListEvent.ScanAll) },
-      )
+  // Scrolling down hides the search, the tabs and the floating tab bar; scrolling up shows them.
+  val bars = LocalScrollBars.current ?: remember { ScrollBars() }
+  DisposableEffect(bars) { onDispose { bars.visible = true } }
+  val atTop by remember {
+    derivedStateOf {
+      listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
     }
   }
-  // Side by side, Scan now sits in the window's corner, not the narrow list's.
-  val windowFab = LocalWindowFab.current
-  windowFab?.Show(scanFab)
+  // Kept while typing a search, and at the top of the list, where there is nothing to make room
+  // for.
+  val showHeader = bars.visible || searchFocused || atTop
+  val animate = animationsEnabled()
   Scaffold(
     contentWindowInsets = screenInsets(),
     snackbarHost = { SnackbarHost(snackbar) },
-    floatingActionButton = { if (windowFab == null) scanFab() },
     modifier = Modifier.onPreviewKeyEvent(::onKey).focusRequester(focus).focusable(),
   ) { padding ->
-    Column(Modifier.fillMaxSize().paddingAbove(padding)) {
-      ListHeader(
-        state = state,
-        onEvent = onEvent,
-        onOpenFilters = { showFilters = true },
-        onConfirmBulk = { confirmBulk = it },
-        onSearchFocus = { searchFocused = it },
-      )
-      StatusTabs(state, onSelect = { onEvent(it.select()) })
+    Column(Modifier.fillMaxSize().paddingAbove(padding).nestedScroll(bars.connection)) {
+      AnimatedVisibility(
+        visible = showHeader,
+        enter = if (animate) expandVertically() + fadeIn() else EnterTransition.None,
+        exit = if (animate) shrinkVertically() + fadeOut() else ExitTransition.None,
+      ) {
+        Column {
+          ListHeader(
+            state = state,
+            onEvent = onEvent,
+            onOpenFilters = { showFilters = true },
+            onConfirmBulk = { confirmBulk = it },
+            onSearchFocus = { searchFocused = it },
+          )
+          StatusTabs(state, onSelect = { onEvent(it.select()) })
+        }
+      }
       ScanProgress(state)
       val pull = rememberPullToRefreshState()
       // A mouse wheel past the top starts a pull it never lets go of: the computer has no pull to
-      // refresh (it lists new jobs itself, and has Scan now).
+      // refresh (it lists new jobs itself).
       val koin = getKoin()
       val canPull = remember { koin.getOrNull<DesktopFeatures>() == null }
       PullToRefreshBox(

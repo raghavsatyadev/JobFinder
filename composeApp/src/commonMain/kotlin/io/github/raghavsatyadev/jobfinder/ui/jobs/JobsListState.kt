@@ -81,9 +81,6 @@ sealed interface JobsListEvent {
   /** Reloads the tab and its counts (the old "Refresh"). */
   data object Refresh : JobsListEvent
 
-  /** Starts a scan of every search. */
-  data object ScanAll : JobsListEvent
-
   data object ArchiveAll : JobsListEvent
 
   data object DeleteAll : JobsListEvent
@@ -98,10 +95,6 @@ sealed interface JobsMessage {
   data class ArchivedAll(val count: Int) : JobsMessage
 
   data class DeletedAll(val count: Int) : JobsMessage
-
-  data object ScanStarted : JobsMessage
-
-  data object ScanAlreadyRunning : JobsMessage
 
   data object Failed : JobsMessage
 }

@@ -166,7 +166,7 @@ internal fun JobList(
   LazyColumn(
     state = listState,
     contentPadding =
-      PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + scrollBottom()),
+      PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp + scrollBottom()),
     verticalArrangement = Arrangement.spacedBy(12.dp),
     modifier = Modifier.fillMaxSize().stale(state.isStale, staleReason),
   ) {
