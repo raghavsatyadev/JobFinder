@@ -45,6 +45,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.sse.SSE
+import io.ktor.util.cio.ChannelWriteException
+import io.ktor.utils.io.ClosedWriteChannelException
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
@@ -87,6 +89,10 @@ private const val TEST_ID = "00000000-0000-0000-0000-000000000000"
 
 private val log = LoggerFactory.getLogger("jobfinder.api")
 
+private fun clientGone(call: ApplicationCall) {
+  log.debug("Client closed {} {}", call.request.httpMethod.value, call.request.path())
+}
+
 /**
  * The embedded API: `/health` and pairing requests are open, everything under `/v1` needs the
  * pairing token. Errors are answered with [BaseResponse]; only [ApiException] messages reach the
@@ -126,6 +132,9 @@ fun Application.jobFinderApi(deps: ApiDependencies) {
       call.respondError(ApiErrorCode.BAD_REQUEST)
     }
     exception<NotFoundException> { call, _ -> call.respondError(ApiErrorCode.NOT_FOUND) }
+    // The client went away mid-response (a phone closing its event stream): nothing to answer.
+    exception<ChannelWriteException> { call, _ -> clientGone(call) }
+    exception<ClosedWriteChannelException> { call, _ -> clientGone(call) }
     exception<Throwable> { call, e ->
       log.error("Request failed: {} {}", call.request.httpMethod.value, call.request.path(), e)
       call.respondError(ApiErrorCode.INTERNAL)

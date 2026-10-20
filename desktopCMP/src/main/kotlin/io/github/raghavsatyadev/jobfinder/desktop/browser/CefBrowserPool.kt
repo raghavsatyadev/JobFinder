@@ -4,6 +4,8 @@ import io.github.raghavsatyadev.jobfinder.server.scan.BrowserPool
 import io.github.raghavsatyadev.jobfinder.server.scan.BrowserTab
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 
 /**
@@ -44,7 +46,12 @@ class CefBrowserPool(
   /** A [HiddenBrowser] as the scraper sees it. */
   private class HiddenBrowserTab(private val browser: HiddenBrowser) : BrowserTab {
     override suspend fun load(url: String): Int? {
-      val result = browser.load(url)
+      var result = browser.load(url)
+      // The PC switched networks (Wi-Fi reconnect, VPN): the page loads once the link settles.
+      if (result.error?.contains(NETWORK_CHANGED) == true) {
+        delay(NETWORK_SETTLE)
+        result = browser.load(url)
+      }
       result.error?.let { log.warn("Load error on {}: {}", url, it) }
       return result.httpStatus
     }
@@ -72,5 +79,8 @@ class CefBrowserPool(
 
     /** Long enough to keep the browsers through one scan, short enough to free them right after. */
     const val IDLE_CLOSE_MS = 60_000L
+
+    private const val NETWORK_CHANGED = "ERR_NETWORK_CHANGED"
+    private val NETWORK_SETTLE = 3.seconds
   }
 }

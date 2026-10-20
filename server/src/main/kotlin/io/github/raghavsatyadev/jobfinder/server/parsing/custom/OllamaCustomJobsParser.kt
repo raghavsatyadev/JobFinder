@@ -133,7 +133,9 @@ class OllamaCustomJobsParser(
 
     // The old code kept the original description and added the AI text around it; the dispatcher
     // has no stored job here, so only the AI parts are returned.
-    if (!parsed.errorMessage.isNullOrBlank()) {
+    // Models sometimes refuse a job that misses the preferences; a description they still sent is
+    // kept, and matching decides on the job.
+    if (!parsed.errorMessage.isNullOrBlank() && parsed.description.isNullOrBlank()) {
       log.warn("LLM could not read the job description: {}", parsed.errorMessage)
       return JobDescriptionUpdates.NONE
     }

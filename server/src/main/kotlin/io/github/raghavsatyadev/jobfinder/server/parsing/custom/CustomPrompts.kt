@@ -106,6 +106,7 @@ $markdown
 ${"\"\"\""}
 
 Here are my job search preferences: ${preferences ?: "nothing specific for the moment"}.
+Use them only for the summary. Extract the description even when the job does not match them: never leave it empty or set errorMessage for that.
 """
 
   val LIST_SYSTEM_PROMPT =
@@ -145,6 +146,7 @@ Here are some other site specific notes:
 You must return two things: an interpretive "summary", and a faithful, verbatim "description". Interpretation belongs ONLY in the summary.
 
 If you cannot extract the information because the HTML is a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
+Use errorMessage ONLY for that. A job that does not match the user's preferences is still extracted in full; say how it differs in the summary.
 
 ## summary field
 - Write a concise summary (maximum 1000 characters) so a user can quickly understand the role. This is the ONLY place where you may rephrase things in your own words.
