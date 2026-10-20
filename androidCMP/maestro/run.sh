@@ -3,6 +3,8 @@
 # The pairing code is read from the desktop database and passed to Maestro in memory. Maestro's
 # debug output (which records the resolved code) goes to a temp folder that is deleted after.
 # Usage: androidCMP/maestro/run.sh [--device <serial>] [--release] [flow.yaml ...]
+# Without --device it runs on the first emulator adb lists (device tests run on the emulator).
+# JOBFINDER_DB points at another desktop database, such as a scratch copy.
 # --release pairs by pasting the code (pair-manual.yaml): release builds have no debug deep link.
 set -euo pipefail
 
@@ -12,6 +14,13 @@ device=()
 if [ "${1:-}" = "--device" ]; then
   device=(--device "$2")
   shift 2
+else
+  emulator="$(adb devices | awk '$1 ~ /^emulator-/ && $2 == "device" { print $1; exit }')"
+  if [ -z "$emulator" ]; then
+    echo "No emulator is running. Start one, or pass --device <serial>." >&2
+    exit 1
+  fi
+  device=(--device "$emulator")
 fi
 pair=pair.yaml
 if [ "${1:-}" = "--release" ]; then
@@ -23,7 +32,7 @@ if [ ${#flows[@]} -eq 0 ]; then
   flows=("$pair" feed.yaml status.yaml refresh.yaml "$kit/.agents/skills/android-device-test/flows/tabs.yaml")
 fi
 
-db="${LOCALAPPDATA:-$HOME/AppData/Local}/jobfinder/jobfinder.db"
+db="${JOBFINDER_DB:-${LOCALAPPDATA:-$HOME/AppData/Local}/jobfinder-data/jobfinder.db}"
 code="$(python - "$db" <<'PY'
 import json, socket, sqlite3, sys
 db = sqlite3.connect(f"file:{sys.argv[1]}?mode=ro", uri=True)
@@ -44,5 +53,7 @@ trap 'rm -rf "$out"' EXIT
 cd "$here"
 for flow in "${flows[@]}"; do
   echo "== $flow"
-  maestro "${device[@]}" test --debug-output "$out" -e PAIR_LINK="$link" -e PAIR_CODE="$code" "$flow"
+  # Without --platform, Maestro 2.11 often reports a running emulator as "not connected".
+  MAESTRO_CLI_NO_ANALYTICS=1 maestro --platform android "${device[@]}" test --debug-output "$out" \
+    -e PAIR_LINK="$link" -e PAIR_CODE="$code" "$flow"
 done

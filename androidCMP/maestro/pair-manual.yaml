@@ -6,7 +6,7 @@ name: Pair by pasting the code
 - launchApp:
     clearState: true
     permissions:
-      notifications: allow
+      all: allow # notifications, and nearby devices for finding computers on the Wi-Fi
 - assertVisible: "Pair with your computer"
 - tapOn: "Pairing code"
 - inputText: ${PAIR_CODE}

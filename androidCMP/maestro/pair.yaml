@@ -7,7 +7,7 @@ name: Pair
 - launchApp:
     clearState: true
     permissions:
-      notifications: allow
+      all: allow # notifications, and nearby devices for finding computers on the Wi-Fi
 - assertVisible: "Pair with your computer"
 - openLink: ${PAIR_LINK}
 - extendedWaitUntil:

@@ -26,7 +26,7 @@ Keep flows in [flows/](flows/) (start from [flows/tabs.yaml](flows/tabs.yaml)). 
 about a minute, so run them before and after a change:
 
 ```bash
-~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows
+~/.maestro/maestro/bin/maestro --platform android --device <serial> test .agents/skills/android-device-test/flows
 ```
 
 | Flow | Checks |

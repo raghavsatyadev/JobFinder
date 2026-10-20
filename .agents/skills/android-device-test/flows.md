@@ -19,7 +19,7 @@ adb shell am start -n "$(adb shell cmd package resolve-activity --brief -c andro
 
 * **Primary (Maestro):**
   ```bash
-  ~/.maestro/maestro/bin/maestro --device <serial> test .agents/skills/android-device-test/flows/tabs.yaml
+  ~/.maestro/maestro/bin/maestro --platform android --device <serial> test .agents/skills/android-device-test/flows/tabs.yaml
   ```
 * **ARTEMIS (only if the flow file is out of date):**
   ```text

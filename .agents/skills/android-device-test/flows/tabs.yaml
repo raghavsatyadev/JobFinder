@@ -7,14 +7,20 @@ name: Tabs
     stopApp: false
 - assertVisible: "Search jobs"
 - tapOn: "Applied.*"
+# The tab row scrolls to the open tab, which can push New past the left edge.
+- swipe:
+    from: "Applied.*"
+    direction: RIGHT
 - tapOn: "New.*"
 - tapOn: "Searches"
 - assertVisible: "Job searches"
 - tapOn: "AI filters"
 - assertVisible: "What to filter out"
 - tapOn: "Settings"
-- assertVisible: "Search frequency"
+# Settings opens with its sections folded; Help is the button in its top bar.
+- assertVisible: "Scanning"
 - tapOn: "Help"
 - assertVisible: "Questions and answers"
+- back
 - tapOn: "Jobs"
 - assertVisible: "Search jobs"

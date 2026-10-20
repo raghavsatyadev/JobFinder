@@ -26,6 +26,10 @@ name: Status change
       notVisible: "Search jobs"
     commands:
       - back
+# The tab row scrolls: Archived sits past the right edge on a phone.
+- swipe:
+    from: "Starred.*"
+    direction: LEFT
 - tapOn: "Archived.*"
 - extendedWaitUntil:
     visible:
@@ -46,4 +50,7 @@ name: Status change
       notVisible: "Search jobs"
     commands:
       - back
+- swipe:
+    from: "Archived.*"
+    direction: RIGHT
 - tapOn: "New.*"
