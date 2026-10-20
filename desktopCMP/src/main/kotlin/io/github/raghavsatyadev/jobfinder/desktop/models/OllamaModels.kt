@@ -38,7 +38,7 @@ data class OllamaModel(val name: String, val sizeBytes: Long)
 /** Ollama could not do what was asked; [message] is Ollama's own error when it gave one. */
 class OllamaException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
-/** Ollama's model API: list, pull, push a GGUF file, create and delete. */
+/** Ollama's model API: list, pull, push a GGUF file, create, delete and unload. */
 interface OllamaModels {
   /** `null` when Ollama does not answer. */
   suspend fun list(): List<OllamaModel>?
@@ -61,6 +61,12 @@ interface OllamaModels {
   )
 
   suspend fun delete(model: String)
+
+  /** The models Ollama has in memory now; `null` when Ollama does not answer. */
+  suspend fun loaded(): List<String>?
+
+  /** Frees the memory [model] holds, at once. */
+  suspend fun unload(model: String)
 }
 
 /** [OllamaModels] on Ollama's HTTP API at [baseUrl]. */
@@ -145,6 +151,29 @@ class HttpOllamaModels(
     if (!response.status.isSuccess()) throw OllamaException(error(response.bodyAsText()))
   }
 
+  override suspend fun loaded(): List<String>? =
+    try {
+      val response = http.get("$baseUrl/api/ps") { timeout { requestTimeoutMillis = QUICK_MS } }
+      if (response.status.isSuccess()) parseList(response.bodyAsText())?.map { it.name } else null
+    } catch (e: Exception) {
+      if (e is CancellationException) throw e
+      null
+    }
+
+  override suspend fun unload(model: String) {
+    val body = buildJsonObject {
+      put("model", model)
+      put("keep_alive", 0)
+    }
+    val response =
+      http.post("$baseUrl/api/generate") {
+        timeout { requestTimeoutMillis = QUICK_MS }
+        contentType(ContentType.Application.Json)
+        setBody(body.toString())
+      }
+    if (!response.status.isSuccess()) throw OllamaException(error(response.bodyAsText()))
+  }
+
   private fun HttpRequestBuilder.longRunning() = timeout {
     requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
     socketTimeoutMillis = QUIET_LIMIT_MS
@@ -155,7 +184,7 @@ class HttpOllamaModels(
     /** Ollama checks a big download's digest before it says anything more. */
     private const val QUIET_LIMIT_MS = 10 * 60_000L
 
-    /** The models in an `/api/tags` answer. */
+    /** The models in an `/api/tags` or `/api/ps` answer. */
     fun parseList(body: String): List<OllamaModel>? = runCatching {
       (Json.parseToJsonElement(body) as JsonObject)["models"]
         ?.let { it as JsonArray }
