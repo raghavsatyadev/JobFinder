@@ -200,7 +200,8 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
   devScope.launch { runCatching { koin.get<CustomBoards>().splitCatchAll() } }
   if (DevApprovals.enabled()) DevApprovals.start(devScope, pairing, restores)
   try {
-    application {
+    // Compose would end the process here, before the clean-up below runs; main() ends it instead.
+    application(exitProcessOnExit = false) {
       var visible by remember { mutableStateOf(!startHidden || !tray.available) }
       var toldAboutTray by remember { mutableStateOf(false) }
       // Fades the main window to and from the tray; a new request cancels the running one.
