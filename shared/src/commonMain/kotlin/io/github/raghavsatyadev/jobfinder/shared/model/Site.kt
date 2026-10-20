@@ -16,7 +16,7 @@ data class Site(
   val blacklistedPaths: List<String> = emptyList(),
   /**
    * Bundled logo in `composeApp` resources, without the `site_` prefix and the extension:
-   * `linkedin` is `drawable/site_linkedin.png`.
+   * `linkedin` is `drawable/site_linkedin.webp`.
    */
   val logoKey: String,
   /** The scanner skips deprecated boards. */

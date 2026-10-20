@@ -8,6 +8,11 @@ plugins {
 
 kotlin { jvmToolchain(21) }
 
+/** ProGuard for `packageRelease*`; the plugin's default (7.8) is older. */
+val PROGUARD_VERSION = "7.10.0"
+
+val isLinux = System.getProperty("os.name").startsWith("Linux")
+
 dependencies {
   implementation(compose.desktop.currentOs)
   implementation(projects.composeApp)
@@ -26,16 +31,27 @@ dependencies {
   implementation(libs.jmdns)
   // Bundled CEF natives for the OS that builds the package: jcefmaven extracts them from the
   // classpath, so there is no download. jpackage builds only for its own OS anyway.
-  if (System.getProperty("os.name").startsWith("Linux")) {
+  if (isLinux) {
     runtimeOnly(libs.jcef.natives.linux.amd64)
   } else {
     runtimeOnly(libs.jcef.natives.windows.amd64)
   }
 }
 
+configurations.runtimeClasspath {
+  // JOGL only draws JCEF's off-screen browsers; EmbeddedBrowser and HiddenBrowser are windowed.
+  exclude(group = "me.friwi", module = "jogl-all")
+  exclude(group = "me.friwi", module = "gluegen-rt")
+  // The API server speaks HTTP/1.1 on Netty: no HTTP/3 (QUIC). The kqueue and epoll jars stay:
+  // Ktor checks `KQueue`/`Epoll.isAvailable()` on start.
+  exclude(group = "io.netty", module = "netty-codec-http3")
+  exclude(group = "io.netty", module = "netty-codec-classes-quic")
+  exclude(group = "io.netty", module = "netty-codec-native-quic")
+}
+
 /**
- * JCEF (and JOGL, which jcefmaven pulls in) reach into JDK internals. Applied through
- * `application.jvmArgs`, which both `run` and the packaged app's launcher config use.
+ * JCEF reaches into JDK internals. Applied through `application.jvmArgs`, which both `run` and the
+ * packaged app's launcher config use.
  */
 val jcefJvmArgs =
   listOf(
@@ -55,6 +71,14 @@ compose.desktop {
     jvmArgs += jcefJvmArgs
     // Without a cap the JVM may grow its heap to a quarter of the PC's memory.
     jvmArgs += "-Xmx1g"
+    // `packageReleaseMsi`: ProGuard drops unused classes (most of the extended icons). Shrink
+    // only: obfuscation and optimization break the libraries that load classes by name.
+    buildTypes.release.proguard {
+      version.set(PROGUARD_VERSION)
+      configurationFiles.from(project.file("proguard-rules.pro"))
+      obfuscate.set(false)
+      optimize.set(false)
+    }
     nativeDistributions {
       targetFormats(TargetFormat.Msi, TargetFormat.Deb)
       // `common/browser-extension`: the built extension, for "Load unpacked" (BundledExtension).
@@ -165,4 +189,41 @@ tasks.register<JavaExec>("resumePdfProbe") {
       providers.gradleProperty("linkedInZip").orNull,
     )
   )
+}
+
+/**
+ * ProGuard cannot read the Kotlin 2.5 stdlib's metadata yet (proguard-core 9.4 fails on a new
+ * contract effect). It only reads metadata when `kotlin.Metadata` is kept, and Compose's default
+ * rules keep all of `kotlin.**`, so the release build uses a copy of those rules without it. The
+ * app does no full Kotlin reflection, so the stripped metadata is not missed.
+ */
+val composeRulesWithoutMetadata by tasks.registering {
+  val unpacked =
+    tasks.named("unpackDefaultComposeDesktopJvmApplicationResources").map {
+      it.outputs.files.asFileTree.matching { include("**/default-compose-desktop-rules.pro") }
+    }
+  val out = layout.buildDirectory.file("compose/proguard/compose-rules.pro")
+  inputs.files(unpacked)
+  outputs.file(out)
+  doLast {
+    val original = unpacked.get().singleFile
+    val text = original.readText()
+    val keepKotlin = "-keep class kotlin.** { *; }"
+    check(keepKotlin in text) { "Compose's ProGuard rules changed: recheck $original" }
+    out
+      .get()
+      .asFile
+      .writeText(text.replace(keepKotlin, "-keep class !kotlin.Metadata,kotlin.** { *; }"))
+  }
+}
+
+// After the Compose plugin, which sets its own rules file in afterEvaluate.
+afterEvaluate {
+  tasks
+    .withType<org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask>()
+    .configureEach {
+      defaultComposeRulesFile.set(
+        composeRulesWithoutMetadata.map { RegularFile { it.outputs.files.singleFile } }
+      )
+    }
 }

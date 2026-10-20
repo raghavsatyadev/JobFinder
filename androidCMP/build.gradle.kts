@@ -38,6 +38,8 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     resValue("string", "app_name", libs.versions.releaseAppName.get())
+    // No phones run 32-bit x86; x86_64 stays for the emulator.
+    ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
   }
   buildFeatures { resValues = true }
   signingConfigs {
@@ -58,7 +60,10 @@ android {
       }
     }
   }
-  packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+  packaging {
+    // DebugProbesKt.bin is only read by the coroutines debug agent, which the app never attaches.
+    resources { excludes += listOf("/META-INF/{AL2.0,LGPL2.1}", "DebugProbesKt.bin") }
+  }
   testOptions { unitTests { isIncludeAndroidResources = true } }
 }
 
