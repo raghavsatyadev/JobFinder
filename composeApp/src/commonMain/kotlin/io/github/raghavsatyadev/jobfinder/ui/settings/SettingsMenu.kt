@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -220,7 +219,6 @@ internal fun SettingsMenu(
       onChange = { query = it },
       modifier =
         Modifier.align(Alignment.CenterHorizontally)
-          .widthIn(max = MAX_WIDTH)
           .fillMaxWidth()
           .padding(horizontal = 16.dp, vertical = 8.dp),
     )
@@ -306,13 +304,12 @@ private fun MenuRow(section: SettingsSection, chosen: Boolean, onOpen: (Settings
   }
 }
 
-/** The scrolling column every settings page sits in, centred and at most [MAX_WIDTH] wide. */
+/** The scrolling column every settings page sits in, as wide as its pane. */
 @Composable
 private fun PageColumn(spacing: Dp, content: @Composable () -> Unit) {
   Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
     Column(
       Modifier.align(Alignment.TopCenter)
-        .widthIn(max = MAX_WIDTH)
         .fillMaxWidth()
         .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp + scrollBottom()),
       verticalArrangement = Arrangement.spacedBy(spacing),
@@ -347,5 +344,3 @@ private fun SearchField(query: String, onChange: (String) -> Unit, modifier: Mod
     modifier = modifier,
   )
 }
-
-private val MAX_WIDTH = 760.dp
