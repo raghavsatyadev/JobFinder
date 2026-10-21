@@ -66,11 +66,15 @@ import io.github.raghavsatyadev.jobfinder.resources.nav_ai_filters
 import io.github.raghavsatyadev.jobfinder.resources.nav_jobs
 import io.github.raghavsatyadev.jobfinder.resources.nav_links
 import io.github.raghavsatyadev.jobfinder.resources.nav_settings
+import io.github.raghavsatyadev.jobfinder.ui.components.HELP_KEY
+import io.github.raghavsatyadev.jobfinder.ui.components.HelpButtonCorner
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalEntryVisibilityScope
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalFloatingBarSpace
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalSharedTransitionScope
 import io.github.raghavsatyadev.jobfinder.ui.components.ScrollBars
+import io.github.raghavsatyadev.jobfinder.ui.components.settingsSectionKey
+import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.filters.AiFiltersScreen
 import io.github.raghavsatyadev.jobfinder.ui.help.HelpScreen
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailPane
@@ -270,14 +274,14 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
               }
             }
             entry<JobDetailRoute>(
-              metadata = ListDetailSceneStrategy.detailPane() + CARD_TRANSFORM
+              metadata = ListDetailSceneStrategy.detailPane() + CONTAINER_TRANSFORM
             ) { route ->
               Entry { JobDetailPane(route, onClose = { backStack.removeLastOrNull() }) }
             }
             entry<LinksRoute> {
               Entry { LinksScreen(onAddLink = { backStack.add(AddLinkRoute) }) }
             }
-            entry<AddLinkRoute> {
+            entry<AddLinkRoute>(metadata = CONTAINER_TRANSFORM) {
               Entry { AddLinkScreen(onDone = { backStack.removeLastOrNull() }) }
             }
             entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
@@ -301,34 +305,53 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
                 )
               }
             }
-            entry<SettingsSectionRoute>(metadata = ListDetailSceneStrategy.detailPane()) { route ->
+            entry<SettingsSectionRoute>(
+              metadata = ListDetailSceneStrategy.detailPane() + CONTAINER_TRANSFORM
+            ) { route ->
               val section = SettingsSection.entries.firstOrNull { it.name == route.section }
               Entry {
-                SettingsScreen(
-                  section = section,
-                  onBack = { backStack.removeLastOrNull() },
-                  backArrow = directive.maxHorizontalPartitions <= 1,
-                )
+                // The page grows out of its row in the menu, and shrinks back into it.
+                Box(
+                  Modifier.sharedContainer(settingsSectionKey(route.section), fullScreen = true)
+                ) {
+                  SettingsScreen(
+                    section = section,
+                    onBack = { backStack.removeLastOrNull() },
+                    backArrow = directive.maxHorizontalPartitions <= 1,
+                  )
+                }
               }
             }
-            entry<HelpRoute> { Entry { HelpScreen(onBack = { backStack.removeLastOrNull() }) } }
+            entry<HelpRoute>(metadata = CONTAINER_TRANSFORM) {
+              Entry {
+                Box(
+                  Modifier.sharedContainer(HELP_KEY, fullScreen = true, corner = HelpButtonCorner)
+                ) {
+                  HelpScreen(onBack = { backStack.removeLastOrNull() })
+                }
+              }
+            }
           },
       )
     }
   }
 }
 
-/** Marks the entry a job card grows into, whose screen change waits for that transform. */
-private val CARD_TRANSFORM = mapOf("jobfinder.cardTransform" to true)
+/**
+ * Marks an inner screen that grows out of what opened it (a job card, a settings row, a button) and
+ * shrinks back into it; its screen change waits for that container transform.
+ */
+private val CONTAINER_TRANSFORM = mapOf("jobfinder.containerTransform" to true)
 
-private fun Scene<NavKey>.growsFromCard() = entries.any {
-  it.metadata["jobfinder.cardTransform"] == true
+private fun Scene<NavKey>.growsFromContainer() = entries.any {
+  it.metadata["jobfinder.containerTransform"] == true
 }
 
 /**
- * Between a job card and its detail the list stays behind the card that grows into the detail: the
- * arriving screen fades in over the transform and the leaving one only fades at the end. Any other
- * change (a settings page, Help) is a quick fade, so back feels immediate.
+ * Into and out of an inner screen the outer one stays behind the container that grows into it or
+ * shrinks back: the arriving screen fades in over the transform and the leaving one only fades at
+ * the end, so closing reverses opening. Any other change is a quick fade. Side by side (and on the
+ * computer) [instant] drops both: the panes just swap.
  */
 private fun sceneTransition(
   instant: Boolean,
@@ -337,7 +360,7 @@ private fun sceneTransition(
 ): ContentTransform =
   when {
     instant -> EnterTransition.None togetherWith ExitTransition.None
-    from.growsFromCard() || to.growsFromCard() ->
+    from.growsFromContainer() || to.growsFromContainer() ->
       fadeIn(tween(500), initialAlpha = 0.99f) togetherWith fadeOut(tween(120, delayMillis = 380))
     else -> fadeIn(tween(150)) togetherWith fadeOut(tween(90))
   }

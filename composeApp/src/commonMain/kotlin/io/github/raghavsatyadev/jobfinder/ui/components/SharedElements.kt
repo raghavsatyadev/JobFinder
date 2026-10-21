@@ -6,6 +6,7 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,8 +43,17 @@ val CardCorner: Dp = 24.dp
 /** The corner radius of a FAB, which the screen it opens grows from. */
 val FabCorner: Dp = 16.dp
 
+/** The corner radius of a round icon button, which the Help screen grows from. */
+val HelpButtonCorner: Dp = 24.dp
+
 /** The shared key of the add-search screen opened from the Searches FAB. */
 const val ADD_LINK_KEY = "add-link"
+
+/** The Help screen, opened from the Help button in Settings. */
+const val HELP_KEY = "help"
+
+/** A settings section: its row in the menu and its own page. */
+fun settingsSectionKey(name: String): String = "settings-$name"
 
 /** The container of job [jobId]: its card in the list and its detail pane. */
 fun jobContainerKey(jobId: Long): String = "job-$jobId"
@@ -83,10 +93,15 @@ fun Modifier.sharedContainer(
   if (!animationsEnabled()) return this
   val spec = AppMotion.screenTransformSpec<Rect>()
   val cornerSpec = AppMotion.screenTransformSpec<Dp>()
-  // The side that leaves fades out fast and the side that arrives fades in on the default effects
-  // spring, so the two are never both clearly visible at once.
-  val fadeInSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
-  val fadeOutSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+  // Closing mirrors opening: the screen stays opaque while it shrinks and fades only at the end,
+  // where the small side fades back in. On open the small side fades out fast and the screen fades
+  // in, so the two are never both clearly visible at once.
+  val enter =
+    if (fullScreen) fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec())
+    else fadeIn(tween(LATE_FADE_MILLIS, delayMillis = LATE_FADE_DELAY_MILLIS))
+  val exit =
+    if (fullScreen) fadeOut(tween(LATE_FADE_MILLIS, delayMillis = LATE_FADE_DELAY_MILLIS))
+    else fadeOut(MaterialTheme.motionScheme.fastEffectsSpec())
   val animatedCorner by
     visibility.transition.animateDp(transitionSpec = { cornerSpec }, label = "container corner") {
       if (fullScreen && it == EnterExitState.Visible) 0.dp else corner
@@ -95,8 +110,8 @@ fun Modifier.sharedContainer(
     this@sharedContainer.sharedBounds(
         sharedContentState = rememberSharedContentState(key = key),
         animatedVisibilityScope = visibility,
-        enter = fadeIn(fadeInSpec),
-        exit = fadeOut(fadeOutSpec),
+        enter = enter,
+        exit = exit,
         boundsTransform = BoundsTransform { _, _ -> spec },
         resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
         clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(animatedCorner)),
@@ -151,6 +166,10 @@ fun Modifier.sharedContent(key: String, scaleFrom: Float = 1f): Modifier {
       }
   }
 }
+
+/** How long the closing screen holds before it fades, and how long the fade takes. */
+private const val LATE_FADE_DELAY_MILLIS = 200
+private const val LATE_FADE_MILLIS = 120
 
 /** No clip in the overlay: a flying piece is drawn whole. */
 private object NoClip : SharedTransitionScope.OverlayClip {

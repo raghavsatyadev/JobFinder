@@ -56,9 +56,12 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_unpair_title
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
+import io.github.raghavsatyadev.jobfinder.ui.components.HELP_KEY
+import io.github.raghavsatyadev.jobfinder.ui.components.HelpButtonCorner
 import io.github.raghavsatyadev.jobfinder.ui.components.LoadingState
 import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
+import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgentAccess
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiChoice
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
@@ -225,7 +228,11 @@ fun SettingsContent(
         },
         actions = {
           if (section == null && onOpenHelp != null) {
-            IconButton(onClick = onOpenHelp, shapes = IconButtonDefaults.shapes()) {
+            IconButton(
+              onClick = onOpenHelp,
+              shapes = IconButtonDefaults.shapes(),
+              modifier = Modifier.sharedContainer(HELP_KEY, corner = HelpButtonCorner),
+            ) {
               Icon(
                 Icons.AutoMirrored.Outlined.HelpOutline,
                 contentDescription = stringResource(Res.string.help_title),

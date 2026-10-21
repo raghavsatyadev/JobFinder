@@ -90,6 +90,8 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_summary_scanning
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
 import io.github.raghavsatyadev.jobfinder.ui.components.EmptyState
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
+import io.github.raghavsatyadev.jobfinder.ui.components.settingsSectionKey
+import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -272,7 +274,7 @@ private fun MenuRow(section: SettingsSection, chosen: Boolean, onOpen: (Settings
           else MaterialTheme.colorScheme.surfaceContainer
       ),
     shape = MaterialTheme.shapes.large,
-    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier.fillMaxWidth().sharedContainer(settingsSectionKey(section.name)),
   ) {
     ListItem(
       headlineContent = {
