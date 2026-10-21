@@ -40,6 +40,7 @@ import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -323,14 +324,15 @@ private fun ModelRow(
       if (inUse) {
         // Same box as a TextButton, so the label lines up with the buttons beside it.
         Box(
-          modifier = Modifier
-            .heightIn(min = ButtonDefaults.MinHeight)
-            .padding(ButtonDefaults.TextButtonContentPadding),
+          modifier =
+            Modifier.minimumInteractiveComponentSize()
+              .heightIn(min = ButtonDefaults.MinHeight)
+              .padding(ButtonDefaults.TextButtonContentPadding),
           contentAlignment = Alignment.Center,
         ) {
           Text(
             stringResource(Res.string.models_in_use),
-            style = MaterialTheme.typography.labelLarge,
+            style = ButtonDefaults.textStyleFor(ButtonDefaults.MinHeight),
             color = MaterialTheme.colorScheme.primary,
           )
         }

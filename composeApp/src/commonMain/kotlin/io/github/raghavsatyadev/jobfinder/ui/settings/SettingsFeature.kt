@@ -69,6 +69,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,6 +95,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
+import io.github.raghavsatyadev.jobfinder.resources.help_setup_open
 import io.github.raghavsatyadev.jobfinder.resources.help_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_hint
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_title
@@ -201,6 +203,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AiChoice
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
+import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import io.github.raghavsatyadev.jobfinder.ui.resume.ResumePdfViewModel
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
@@ -692,6 +695,14 @@ private fun LoginSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -> U
         color = if (failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
       )
+      if (result == SignInCopy.NoExtension) {
+        val setup = getKoin().getOrNull<SetupAssistant>()
+        if (setup != null) {
+          TextButton(onClick = { setup.show(true) }, shapes = ButtonDefaults.shapes()) {
+            Text(stringResource(Res.string.help_setup_open))
+          }
+        }
+      }
     }
   }
 }
