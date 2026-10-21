@@ -25,7 +25,7 @@ import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsUiState
 @ScreenPreviews
 @Composable
 fun SettingsDesktopScreenshot() {
-  Settings(LOADED.copy(desktop = true, pairing = PAIRED))
+  Settings(LOADED.copy(desktop = true, pairing = PAIRED), SettingsSection.PAIRING)
 }
 
 /** Android look (PhonePairing bound): two paired computers, the active one connected. */
@@ -33,7 +33,10 @@ fun SettingsDesktopScreenshot() {
 @ScreenPreviews
 @Composable
 fun SettingsAndroidScreenshot() {
-  Settings(LOADED.copy(phone = true, computers = COMPUTERS, phoneConnected = true))
+  Settings(
+    LOADED.copy(phone = true, computers = COMPUTERS, phoneConnected = true),
+    SettingsSection.COMPUTERS,
+  )
 }
 
 /** Android with the computer unreachable, and the forget dialog open. */
@@ -41,7 +44,10 @@ fun SettingsAndroidScreenshot() {
 @StatePreviews
 @Composable
 fun SettingsAndroidOfflineScreenshot() {
-  Settings(LOADED.copy(phone = true, computers = COMPUTERS, confirmForget = COMPUTERS.first()))
+  Settings(
+    LOADED.copy(phone = true, computers = COMPUTERS, confirmForget = COMPUTERS.first()),
+    SettingsSection.COMPUTERS,
+  )
 }
 
 /** Android with the computer out of reach: the scanner settings show read-only with a note. */
@@ -50,7 +56,7 @@ fun SettingsAndroidOfflineScreenshot() {
 @Composable
 fun SettingsAndroidReadOnlyScreenshot() {
   CompositionLocalProvider(LocalComputerOffline provides true) {
-    Settings(LOADED.copy(phone = true, computers = COMPUTERS))
+    Settings(LOADED.copy(phone = true, computers = COMPUTERS), SettingsSection.SCANNING)
   }
 }
 
@@ -59,7 +65,7 @@ fun SettingsAndroidReadOnlyScreenshot() {
 @StatePreviews
 @Composable
 fun SettingsServerOffScreenshot() {
-  Settings(LOADED.copy(desktop = true, pairing = null, portInput = "80"))
+  Settings(LOADED.copy(desktop = true, pairing = null, portInput = "80"), SettingsSection.PAIRING)
 }
 
 /** A frequency more often than every 12 hours: the warning under the picker and the dialog. */
@@ -71,24 +77,25 @@ fun SettingsRiskyFrequencyScreenshot() {
     LOADED.copy(
       scanner = ScannerSettings(cronRule = "0 */4 * * *"),
       confirmFrequency = ScanFrequency("0 */4 * * *", Res.string.settings_frequency_4_hours),
-    )
+    ),
+    SettingsSection.SCANNING,
   )
 }
 
-/** As the app opens it: every section closed, under the search. */
+/** As the app opens it: the section menu under the search. */
 @PreviewTest
 @ScreenPreviews
 @Composable
 fun SettingsClosedScreenshot() {
-  Settings(LOADED.copy(desktop = true, pairing = PAIRED), open = emptySet())
+  Settings(LOADED.copy(desktop = true, pairing = PAIRED))
 }
 
-/** A search opens the sections it finds and hides the rest. */
+/** A search keeps the sections it finds and hides the rest. */
 @PreviewTest
 @StatePreviews
 @Composable
 fun SettingsSearchScreenshot() {
-  Settings(LOADED.copy(desktop = true, pairing = PAIRED), open = emptySet(), query = "port")
+  Settings(LOADED.copy(desktop = true, pairing = PAIRED), query = "port")
 }
 
 /** A search that finds nothing. */
@@ -96,7 +103,7 @@ fun SettingsSearchScreenshot() {
 @StatePreviews
 @Composable
 fun SettingsSearchNoneScreenshot() {
-  Settings(LOADED.copy(desktop = true, pairing = PAIRED), open = emptySet(), query = "zebra")
+  Settings(LOADED.copy(desktop = true, pairing = PAIRED), query = "zebra")
 }
 
 @PreviewTest
@@ -116,7 +123,7 @@ fun SettingsErrorScreenshot() {
 @Composable
 private fun Settings(
   state: SettingsUiState,
-  open: Set<SettingsSection> = SettingsSection.entries.toSet(),
+  section: SettingsSection? = null,
   query: String = "",
 ) {
   ScreenshotHost {
@@ -124,7 +131,8 @@ private fun Settings(
       state,
       onEvent = {},
       snackbar = remember { SnackbarHostState() },
-      initiallyOpen = open,
+      section = section,
+      onBack = if (section != null) ({}) else null,
       initialQuery = query,
     )
   }

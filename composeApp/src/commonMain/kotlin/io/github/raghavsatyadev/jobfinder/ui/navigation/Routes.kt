@@ -27,6 +27,9 @@ import kotlinx.serialization.modules.polymorphic
 
 @Serializable data object SettingsRoute : NavKey
 
+/** One settings section on its own page; [section] is a `SettingsSection` name. */
+@Serializable data class SettingsSectionRoute(val section: String) : NavKey
+
 @Serializable data object HelpRoute : NavKey
 
 /** Saves the back stacks on every platform: Nav3 needs the [NavKey] subclasses registered. */
@@ -39,6 +42,7 @@ val NavSavedStateConfiguration = SavedStateConfiguration {
       subclass(AddLinkRoute::class, AddLinkRoute.serializer())
       subclass(AiFiltersRoute::class, AiFiltersRoute.serializer())
       subclass(SettingsRoute::class, SettingsRoute.serializer())
+      subclass(SettingsSectionRoute::class, SettingsSectionRoute.serializer())
       subclass(HelpRoute::class, HelpRoute.serializer())
     }
   }

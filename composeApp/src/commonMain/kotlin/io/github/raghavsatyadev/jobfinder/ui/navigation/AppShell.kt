@@ -78,6 +78,7 @@ import io.github.raghavsatyadev.jobfinder.ui.links.AddLinkScreen
 import io.github.raghavsatyadev.jobfinder.ui.links.LinksScreen
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsScreen
+import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsSection
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -286,7 +287,18 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
             }
             entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
             entry<SettingsRoute> {
-              Entry { SettingsScreen(onOpenHelp = { backStack.add(HelpRoute) }) }
+              Entry {
+                SettingsScreen(
+                  onOpenSection = { backStack.add(SettingsSectionRoute(it.name)) },
+                  onOpenHelp = { backStack.add(HelpRoute) },
+                )
+              }
+            }
+            entry<SettingsSectionRoute> { route ->
+              val section = SettingsSection.entries.firstOrNull { it.name == route.section }
+              Entry {
+                SettingsScreen(section = section, onBack = { backStack.removeLastOrNull() })
+              }
             }
             entry<HelpRoute> { Entry { HelpScreen(onBack = { backStack.removeLastOrNull() }) } }
           },

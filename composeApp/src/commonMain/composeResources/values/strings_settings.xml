@@ -5,8 +5,16 @@
     <string name="settings_search">Search settings</string>
     <string name="settings_search_clear">Clear the search</string>
     <string name="settings_search_none">No settings match “%1$s”.</string>
-    <string name="settings_section_open">Open</string>
-    <string name="settings_section_close">Close</string>
+    <string name="settings_summary_scanning">How often to scan, sleep, sound and clean-up</string>
+    <string name="settings_summary_layout">The order of the parts of a job</string>
+    <string name="settings_summary_ai">The model that reads jobs, and free online keys</string>
+    <string name="settings_summary_resume">The resume jobs are matched against</string>
+    <string name="settings_summary_backup">Export, import and move your data</string>
+    <string name="settings_summary_form_answers">Saved answers for application forms</string>
+    <string name="settings_summary_agents">Let AI agents use JobFinder</string>
+    <string name="settings_summary_computers">The computers this phone connects to</string>
+    <string name="settings_summary_pairing">Connect a phone with a QR code</string>
+    <string name="settings_summary_login">Sign in to job sites for full results</string>
     <!-- Words each section is found by in the settings search, besides its title. Comma separated. -->
     <string name="settings_keywords_scanning">scan, search, frequency, how often, never, schedule, sleep, awake, sound, notification, in-app browser, web browser, delete, filtered out, excluded, old jobs, keep, cleanup, days, pause, ai work, background, ats, ratings, careers, cpu, gpu, translate, translation, language, german, french, dutch</string>
     <string name="settings_keywords_layout">job details, order, sections, hide, show, description, notes, labels, insights, ghost, ATS, tips, layout</string>
