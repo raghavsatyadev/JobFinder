@@ -3,6 +3,7 @@
 package io.github.raghavsatyadev.jobfinder.ui.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -57,6 +58,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import io.github.raghavsatyadev.jobfinder.resources.Res
@@ -240,20 +242,8 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator(),
           ),
-        // Keep the list behind a card that grows into its detail: the arriving screen fades in
-        // over the transform and the leaving one only fades at the end.
-        transitionSpec = {
-          if (instant) EnterTransition.None togetherWith ExitTransition.None
-          else
-            fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
-              fadeOut(tween(120, delayMillis = 380))
-        },
-        popTransitionSpec = {
-          if (instant) EnterTransition.None togetherWith ExitTransition.None
-          else
-            fadeIn(tween(500), initialAlpha = 0.99f) togetherWith
-              fadeOut(tween(120, delayMillis = 380))
-        },
+        transitionSpec = { sceneTransition(instant, initialState, targetState) },
+        popTransitionSpec = { sceneTransition(instant, initialState, targetState) },
         entryProvider =
           entryProvider {
             entry<JobsRoute>(
@@ -277,7 +267,9 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
                 )
               }
             }
-            entry<JobDetailRoute>(metadata = ListDetailSceneStrategy.detailPane()) { route ->
+            entry<JobDetailRoute>(
+              metadata = ListDetailSceneStrategy.detailPane() + CARD_TRANSFORM
+            ) { route ->
               Entry { JobDetailPane(route, onClose = { backStack.removeLastOrNull() }) }
             }
             entry<LinksRoute> {
@@ -323,6 +315,30 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
     }
   }
 }
+
+/** Marks the entry a job card grows into, whose screen change waits for that transform. */
+private val CARD_TRANSFORM = mapOf("jobfinder.cardTransform" to true)
+
+private fun Scene<NavKey>.growsFromCard() = entries.any {
+  it.metadata["jobfinder.cardTransform"] == true
+}
+
+/**
+ * Between a job card and its detail the list stays behind the card that grows into the detail: the
+ * arriving screen fades in over the transform and the leaving one only fades at the end. Any other
+ * change (a settings page, Help) is a quick fade, so back feels immediate.
+ */
+private fun sceneTransition(
+  instant: Boolean,
+  from: Scene<NavKey>,
+  to: Scene<NavKey>,
+): ContentTransform =
+  when {
+    instant -> EnterTransition.None togetherWith ExitTransition.None
+    from.growsFromCard() || to.growsFromCard() ->
+      fadeIn(tween(500), initialAlpha = 0.99f) togetherWith fadeOut(tween(120, delayMillis = 380))
+    else -> fadeIn(tween(150)) togetherWith fadeOut(tween(90))
+  }
 
 /** Gives the entry's content the visibility scope its shared elements animate in. */
 @Composable
