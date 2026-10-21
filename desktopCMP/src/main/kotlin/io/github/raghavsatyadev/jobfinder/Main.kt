@@ -62,6 +62,7 @@ import io.github.raghavsatyadev.jobfinder.resources.restore_request_notify_title
 import io.github.raghavsatyadev.jobfinder.resources.tray_hidden_text
 import io.github.raghavsatyadev.jobfinder.resources.tray_hidden_title
 import io.github.raghavsatyadev.jobfinder.resources.tray_quit
+import io.github.raghavsatyadev.jobfinder.resources.tray_setup
 import io.github.raghavsatyadev.jobfinder.server.ai.AiService
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
@@ -361,7 +362,12 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
     val menu = runBlocking {
       listOf(TopLevel.Jobs, TopLevel.Links, TopLevel.Settings).map { destination ->
         TrayMenuItem(getString(destination.label)) { windows.show(destination) }
-      } + TrayMenuItem(getString(Res.string.tray_quit)) { windows.quit() }
+      } +
+        TrayMenuItem(getString(Res.string.tray_setup)) {
+          windows.show()
+          get<SetupAssistant>().show(true)
+        } +
+        TrayMenuItem(getString(Res.string.tray_quit)) { windows.quit() }
     }
     TrayIcon.create(APP_NAME, menu) { windows.show() }
   }

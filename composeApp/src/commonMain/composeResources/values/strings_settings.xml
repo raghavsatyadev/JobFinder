@@ -67,6 +67,11 @@
     <string name="settings_section_login">Job site sign-in</string>
     <string name="settings_login_hint">Sign in to LinkedIn and other job sites in the scanner’s browser, so scans see the same results as you.</string>
     <string name="settings_login_button">Open sign-in browser</string>
+    <string name="settings_login_checking">Checking your sign-ins…</string>
+    <string name="settings_login_all_ok">All set: scans already see full results on %1$s.</string>
+    <string name="settings_login_opened">Sign in on %1$s in the browser that opened, then close it.</string>
+    <string name="settings_login_no_searches">Save a search first. The sign-in browser then opens on its job site.</string>
+    <string name="settings_login_open_anyway">Open anyway</string>
     <string name="settings_login_copy_hint">Already signed in to these sites in Chrome or Edge? With the JobFinder Helper extension, copy those sign-ins instead. Google sign-in works this way too.</string>
     <string name="settings_login_copy">Copy sign-ins from my browser</string>
     <string name="settings_login_copying">Copying sign-ins…</string>
@@ -97,6 +102,7 @@
     <string name="login_window_done">Done</string>
 
     <!-- Notification-area icon (desktop) -->
+    <string name="tray_setup">Setup</string>
     <string name="tray_quit">Quit</string>
 
     <!-- Title bar buttons (desktop) -->

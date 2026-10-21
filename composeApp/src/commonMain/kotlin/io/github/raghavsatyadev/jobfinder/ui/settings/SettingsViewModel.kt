@@ -11,7 +11,9 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhonePairing
 import io.github.raghavsatyadev.jobfinder.ui.platform.SavedComputer
+import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCheck
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
+import io.github.raghavsatyadev.jobfinder.ui.platform.SignInPage
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -49,6 +51,10 @@ data class SettingsUiState(
   val copyingSignIns: Boolean = false,
   /** How the last copy of the browser's sign-ins went. */
   val signInCopy: SignInCopy? = null,
+  /** Looking at the job sites before opening the sign-in browser. */
+  val checkingSignIns: Boolean = false,
+  /** What that look found; the browser opened on [SignInCheck.Checked.needed] if any. */
+  val signInCheck: SignInCheck? = null,
 ) {
   val portValid: Boolean
     get() = portInput.toIntOrNull()?.let { it in SettingsViewModel.PORT_RANGE } == true
@@ -92,7 +98,11 @@ sealed interface SettingsUiEvent {
 
   data object ConfirmRotate : SettingsUiEvent
 
+  /** Checks the job sites first; opens the browser only where a sign-in is needed. */
   data object OpenLoginBrowser : SettingsUiEvent
+
+  /** Opens the sign-in browser even though every site is signed in, to switch accounts. */
+  data object OpenLoginBrowserAnyway : SettingsUiEvent
 
   data object CopyBrowserSignIns : SettingsUiEvent
 
@@ -183,7 +193,8 @@ class SettingsViewModel(
         if (desktop != null) _state.update { it.copy(confirmRotate = true) }
       SettingsUiEvent.DismissRotate -> _state.update { it.copy(confirmRotate = false) }
       SettingsUiEvent.ConfirmRotate -> rotate()
-      SettingsUiEvent.OpenLoginBrowser -> desktop?.openLoginBrowser()
+      SettingsUiEvent.OpenLoginBrowser -> checkSignIns()
+      SettingsUiEvent.OpenLoginBrowserAnyway -> openAnyway()
       SettingsUiEvent.CopyBrowserSignIns -> copySignIns()
       is SettingsUiEvent.SelectComputer -> phone?.select(event.key)
       is SettingsUiEvent.RequestForget ->
@@ -252,6 +263,35 @@ class SettingsViewModel(
         _effects.trySend(SettingsEffect.SaveFailed)
       }
     }
+  }
+
+  private fun checkSignIns() {
+    val desktop = desktop ?: return
+    if (_state.value.checkingSignIns) return
+    _state.update { it.copy(checkingSignIns = true, signInCheck = null) }
+    viewModelScope.launch {
+      val result =
+        try {
+          desktop.checkSignIns()
+        } catch (e: Exception) {
+          if (e is CancellationException) throw e
+          null
+        }
+      when (result) {
+        null -> desktop.openLoginBrowser()
+        is SignInCheck.Checked -> result.needed.forEach { desktop.openLoginBrowser(it.url) }
+        SignInCheck.NoSearches -> Unit
+      }
+      _state.update { it.copy(checkingSignIns = false, signInCheck = result) }
+    }
+  }
+
+  /** Opens every saved search's site, or a blank page without any. */
+  private fun openAnyway() {
+    val desktop = desktop ?: return
+    val checked = _state.value.signInCheck as? SignInCheck.Checked
+    val pages = checked?.let { (it.ready + it.needed).map(SignInPage::url) }.orEmpty()
+    if (pages.isEmpty()) desktop.openLoginBrowser() else pages.forEach(desktop::openLoginBrowser)
   }
 
   private fun copySignIns() {

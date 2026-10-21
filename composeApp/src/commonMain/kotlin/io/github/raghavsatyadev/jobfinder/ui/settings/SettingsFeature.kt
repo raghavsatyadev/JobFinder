@@ -30,10 +30,8 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
-import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.LockReset
@@ -69,7 +67,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,10 +80,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -95,7 +90,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
-import io.github.raghavsatyadev.jobfinder.resources.help_setup_open
 import io.github.raghavsatyadev.jobfinder.resources.help_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_hint
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_title
@@ -138,16 +132,6 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_pairing
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_resume
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_scanning
 import io.github.raghavsatyadev.jobfinder.resources.settings_load_failed
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_button
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copied
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copied_missing
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copy
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copy_failed
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copy_hint
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_copying
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_hint
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_no_extension
-import io.github.raghavsatyadev.jobfinder.resources.settings_login_sharing_off
 import io.github.raghavsatyadev.jobfinder.resources.settings_pairing_address
 import io.github.raghavsatyadev.jobfinder.resources.settings_pairing_hint
 import io.github.raghavsatyadev.jobfinder.resources.settings_pairing_off
@@ -201,8 +185,6 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AiChoice
 import io.github.raghavsatyadev.jobfinder.ui.platform.AiKeys
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
-import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
-import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import io.github.raghavsatyadev.jobfinder.ui.resume.ResumePdfViewModel
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import io.github.raghavsatyadev.jobfinder.ui.translate.TranslateToPicker
@@ -621,87 +603,6 @@ private fun KeepDaysStepper(days: Int, enabled: Boolean, onChange: (Int) -> Unit
 }
 
 private val KEEP_DAY_STEPS = listOf(1, 3, 7, 14, 30, 60, 90, 180, 365)
-
-@Composable
-private fun LoginSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -> Unit) {
-  Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-    Text(
-      stringResource(Res.string.settings_login_hint),
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    Button(
-      onClick = { onEvent(SettingsUiEvent.OpenLoginBrowser) },
-      shapes = ButtonDefaults.shapes(),
-    ) {
-      Icon(
-        Icons.AutoMirrored.Rounded.Login,
-        contentDescription = null,
-        modifier = Modifier.size(ButtonDefaults.IconSize),
-      )
-      Text(
-        stringResource(Res.string.settings_login_button),
-        Modifier.padding(start = ButtonDefaults.IconSpacing),
-      )
-    }
-    HorizontalDivider()
-    Text(
-      stringResource(Res.string.settings_login_copy_hint),
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    OutlinedButton(
-      onClick = { onEvent(SettingsUiEvent.CopyBrowserSignIns) },
-      enabled = !state.copyingSignIns,
-      shapes = ButtonDefaults.shapes(),
-    ) {
-      Icon(
-        Icons.Rounded.ContentCopy,
-        contentDescription = null,
-        modifier = Modifier.size(ButtonDefaults.IconSize),
-      )
-      Text(
-        stringResource(
-          if (state.copyingSignIns) Res.string.settings_login_copying
-          else Res.string.settings_login_copy
-        ),
-        Modifier.padding(start = ButtonDefaults.IconSpacing),
-      )
-    }
-    state.signInCopy?.let { result ->
-      val failed = result !is SignInCopy.Copied || result.missing.isNotEmpty()
-      Text(
-        when (result) {
-          is SignInCopy.Copied ->
-            if (result.missing.isEmpty()) {
-              stringResource(Res.string.settings_login_copied, result.cookies)
-            } else {
-              stringResource(
-                Res.string.settings_login_copied_missing,
-                result.cookies,
-                result.missing.joinToString(", "),
-              )
-            }
-          SignInCopy.NoExtension -> stringResource(Res.string.settings_login_no_extension)
-          SignInCopy.SharingOff -> stringResource(Res.string.settings_login_sharing_off)
-          is SignInCopy.Failed ->
-            stringResource(Res.string.settings_login_copy_failed, result.message)
-        },
-        style = MaterialTheme.typography.bodyMedium,
-        color = if (failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-      )
-      if (result == SignInCopy.NoExtension) {
-        val setup = getKoin().getOrNull<SetupAssistant>()
-        if (setup != null) {
-          TextButton(onClick = { setup.show(true) }, shapes = ButtonDefaults.shapes()) {
-            Text(stringResource(Res.string.help_setup_open))
-          }
-        }
-      }
-    }
-  }
-}
 
 /** A card whose title row opens and closes it. */
 @Composable

@@ -1,9 +1,11 @@
 package io.github.raghavsatyadev.jobfinder.desktop.ui
 
+import io.github.raghavsatyadev.jobfinder.desktop.browser.SignInChecker
 import io.github.raghavsatyadev.jobfinder.desktop.scan.DesktopScanRepository
 import io.github.raghavsatyadev.jobfinder.desktop.server.RefreshingSettingsRepository
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsRepository
+import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SettingsRepository
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgentAccess
@@ -44,6 +46,10 @@ val desktopUiModule = module {
       phones = getOrNull(),
       extensionSignIns = getOrNull(),
       setupMemory = getOrNull(),
+      signInChecker =
+        SignInChecker(get()) {
+          get<LinksRepository>().listLinks().distinctBy { it.siteId }.map { it.url }
+        },
     )
   } onClose
     {

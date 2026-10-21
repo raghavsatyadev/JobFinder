@@ -9,6 +9,20 @@ data class PairingInfo(val baseUrl: String, val pairingCode: String)
 /** The app's browser opened: [page] is its extensions address, [copied] if on the clipboard. */
 data class AppBrowserOpened(val page: String, val copied: Boolean)
 
+/** Which job sites the scanner is signed in to, from one look at each saved search's site. */
+sealed interface SignInCheck {
+  /** No search saved yet, so there is no site to sign in to. */
+  data object NoSearches : SignInCheck
+
+  /**
+   * [ready] sites show the scanner full results; [needed] ones want a sign-in, with a page each.
+   */
+  data class Checked(val ready: List<SignInPage>, val needed: List<SignInPage>) : SignInCheck
+}
+
+/** A job site, by host, and the saved search page to sign in on. */
+data class SignInPage(val site: String, val url: String)
+
 /** How copying the browser's sign-ins went. */
 sealed interface SignInCopy {
   /** [cookies] copied; [missing] boards the extension may not read. */
@@ -36,6 +50,9 @@ interface DesktopFeatures {
 
   /** Opens the sign-in browser on the scanner's profile, at [url] or a blank page. */
   fun openLoginBrowser(url: String? = null)
+
+  /** Looks at each saved search's site in the scanner's browser; `null` when it cannot. */
+  suspend fun checkSignIns(): SignInCheck? = null
 
   /** The Chrome or Edge the app signs in with, by name; `null` when neither is installed. */
   val appBrowserName: String?

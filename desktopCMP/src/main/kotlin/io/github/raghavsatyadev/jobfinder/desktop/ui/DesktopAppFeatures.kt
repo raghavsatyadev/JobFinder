@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder.desktop.ui
 import androidx.compose.runtime.Composable
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefRuntime
 import io.github.raghavsatyadev.jobfinder.desktop.browser.ExtensionSignIns
+import io.github.raghavsatyadev.jobfinder.desktop.browser.SignInChecker
 import io.github.raghavsatyadev.jobfinder.desktop.browser.SystemBrowserSignIn
 import io.github.raghavsatyadev.jobfinder.desktop.setup.SetupMemory
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
@@ -11,6 +12,7 @@ import io.github.raghavsatyadev.jobfinder.server.repository.LocalSettingsReposit
 import io.github.raghavsatyadev.jobfinder.ui.platform.AppBrowserOpened
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
+import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCheck
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -44,6 +46,8 @@ class DesktopAppFeatures(
   private val extensionSignIns: ExtensionSignIns? = null,
   /** Remembers a sign-in opened from anywhere, so the setup step shows done. */
   private val setupMemory: SetupMemory? = null,
+  /** Looks at the saved searches' sites before the sign-in browser opens. */
+  private val signInChecker: SignInChecker? = null,
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : DesktopFeatures, AutoCloseable {
   private val log = LoggerFactory.getLogger(DesktopAppFeatures::class.java)
@@ -96,6 +100,8 @@ class DesktopAppFeatures(
       }
     }
   }
+
+  override suspend fun checkSignIns(): SignInCheck? = signInChecker?.check()
 
   override val appBrowserName: String?
     get() = signIn?.takeIf { it.isAvailable }?.browserName
