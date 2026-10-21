@@ -77,6 +77,7 @@ import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsListPane
 import io.github.raghavsatyadev.jobfinder.ui.links.AddLinkScreen
 import io.github.raghavsatyadev.jobfinder.ui.links.LinksScreen
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
+import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsPlaceholder
 import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsScreen
 import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsSection
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
@@ -286,18 +287,34 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
               Entry { AddLinkScreen(onDone = { backStack.removeLastOrNull() }) }
             }
             entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
-            entry<SettingsRoute> {
+            entry<SettingsRoute>(
+              metadata =
+                ListDetailSceneStrategy.listPane(detailPlaceholder = { SettingsPlaceholder() })
+            ) {
               Entry {
+                val open = (backStack.lastOrNull() as? SettingsSectionRoute)?.section
                 SettingsScreen(
-                  onOpenSection = { backStack.add(SettingsSectionRoute(it.name)) },
+                  onOpenSection = {
+                    // Side by side, one page at a time: the new section replaces the open one.
+                    if (backStack.lastOrNull() is SettingsSectionRoute) backStack.removeLastOrNull()
+                    backStack.add(SettingsSectionRoute(it.name))
+                  },
                   onOpenHelp = { backStack.add(HelpRoute) },
+                  selected =
+                    SettingsSection.entries
+                      .firstOrNull { it.name == open }
+                      .takeIf { directive.maxHorizontalPartitions > 1 },
                 )
               }
             }
-            entry<SettingsSectionRoute> { route ->
+            entry<SettingsSectionRoute>(metadata = ListDetailSceneStrategy.detailPane()) { route ->
               val section = SettingsSection.entries.firstOrNull { it.name == route.section }
               Entry {
-                SettingsScreen(section = section, onBack = { backStack.removeLastOrNull() })
+                SettingsScreen(
+                  section = section,
+                  onBack = { backStack.removeLastOrNull() },
+                  backArrow = directive.maxHorizontalPartitions <= 1,
+                )
               }
             }
             entry<HelpRoute> { Entry { HelpScreen(onBack = { backStack.removeLastOrNull() }) } }

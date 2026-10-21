@@ -120,7 +120,8 @@ val SCAN_FREQUENCIES: ImmutableList<ScanFrequency> =
 
 /**
  * Settings: the section menu, or with [section] that section's own page. [onOpenSection] opens a
- * page from the menu and [onBack] leaves a page.
+ * page from the menu and [onBack] leaves a page. On a wide window the page sits beside the menu:
+ * [selected] marks its row there and [backArrow] `false` drops the page's back arrow.
  */
 @Composable
 fun SettingsScreen(
@@ -128,6 +129,8 @@ fun SettingsScreen(
   onOpenSection: (SettingsSection) -> Unit = {},
   onBack: (() -> Unit)? = null,
   onOpenHelp: (() -> Unit)? = null,
+  selected: SettingsSection? = null,
+  backArrow: Boolean = true,
 ) {
   val viewModel = koinViewModel<SettingsViewModel>()
   val state by viewModel.state.collectAsStateWithLifecycle()
@@ -161,6 +164,8 @@ fun SettingsScreen(
     onOpenSection = onOpenSection,
     onBack = onBack,
     onOpenHelp = onOpenHelp,
+    selected = selected,
+    backArrow = backArrow,
   )
 }
 
@@ -194,6 +199,10 @@ fun SettingsContent(
   onBack: (() -> Unit)? = null,
   /** Opens Help from the menu's top bar; `null` hides the button. */
   onOpenHelp: (() -> Unit)? = null,
+  /** The section open beside the menu on a wide window, marked in the menu. */
+  selected: SettingsSection? = null,
+  /** `false` hides the back arrow, when the menu sits beside the page. */
+  backArrow: Boolean = true,
 ) {
   val entries = settingsEntries(state, onEvent, resume, backup, layout, ai, keys, answers, agents)
   val page = section?.let { wanted -> entries.firstOrNull { it.section == wanted } }
@@ -205,7 +214,7 @@ fun SettingsContent(
       TopAppBar(
         title = { Text(stringResource(section?.title ?: Res.string.settings_title)) },
         navigationIcon = {
-          if (onBack != null) {
+          if (onBack != null && backArrow) {
             IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
               Icon(
                 Icons.AutoMirrored.Rounded.ArrowBack,
@@ -236,7 +245,7 @@ fun SettingsContent(
       when {
         state.loading && state.scanner == null -> LoadingState()
         page != null -> SettingsPage(page)
-        section == null -> SettingsMenu(entries, initialQuery, onOpenSection)
+        section == null -> SettingsMenu(entries, initialQuery, onOpenSection, selected)
       }
     }
   }
