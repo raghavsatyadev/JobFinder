@@ -101,7 +101,19 @@ class DesktopAppFeatures(
     }
   }
 
-  override suspend fun checkSignIns(): SignInCheck? = signInChecker?.check()
+  /** Runs off the Swing thread: CEF starts on it, so waiting for CEF there would block. */
+  override suspend fun checkSignIns(): SignInCheck? {
+    val checker = signInChecker ?: return null
+    return withContext(Dispatchers.IO) {
+      try {
+        checker.check()
+      } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        log.warn("Could not check the job site sign-ins", e)
+        null
+      }
+    }
+  }
 
   override val appBrowserName: String?
     get() = signIn?.takeIf { it.isAvailable }?.browserName
