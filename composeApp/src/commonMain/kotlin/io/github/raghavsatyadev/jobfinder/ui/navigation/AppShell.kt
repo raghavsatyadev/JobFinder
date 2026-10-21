@@ -244,6 +244,8 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
           ),
         transitionSpec = { sceneTransition(instant, initialState, targetState) },
         popTransitionSpec = { sceneTransition(instant, initialState, targetState) },
+        // The system back button and gesture too, not the library's default slide and scale.
+        predictivePopTransitionSpec = { sceneTransition(instant, initialState, targetState) },
         entryProvider =
           entryProvider {
             entry<JobsRoute>(
