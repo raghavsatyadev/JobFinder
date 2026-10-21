@@ -132,7 +132,6 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_ai
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_backup
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_computers
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_form_answers
-import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_keys
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_layout
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_login
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_pairing
@@ -175,7 +174,6 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_section_backup
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_close
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_desktop
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_form_answers
-import io.github.raghavsatyadev.jobfinder.resources.settings_section_keys
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_layout
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_login
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_open
@@ -405,7 +403,6 @@ enum class SettingsSection(val title: StringResource, val keywords: StringResour
   SCANNING(Res.string.settings_section_scanning, Res.string.settings_keywords_scanning),
   LAYOUT(Res.string.settings_section_layout, Res.string.settings_keywords_layout),
   AI(Res.string.settings_section_ai, Res.string.settings_keywords_ai),
-  KEYS(Res.string.settings_section_keys, Res.string.settings_keywords_keys),
   RESUME(Res.string.settings_section_resume, Res.string.settings_keywords_resume),
   BACKUP(Res.string.settings_section_backup, Res.string.settings_keywords_backup),
   FORM_ANSWERS(
@@ -444,8 +441,7 @@ private fun SettingsList(
   val entries = buildList {
     add(SectionEntry(SettingsSection.SCANNING) { ScanningSection(scanner, onEvent) })
     layout?.let { add(SectionEntry(SettingsSection.LAYOUT, it)) }
-    ai?.let { add(SectionEntry(SettingsSection.AI, it)) }
-    keys?.let { add(SectionEntry(SettingsSection.KEYS, it)) }
+    if (ai != null || keys != null) add(SectionEntry(SettingsSection.AI) { AiSection(ai, keys) })
     resume?.let { add(SectionEntry(SettingsSection.RESUME, it)) }
     backup?.let { add(SectionEntry(SettingsSection.BACKUP, it)) }
     answers?.let { add(SectionEntry(SettingsSection.FORM_ANSWERS, it)) }

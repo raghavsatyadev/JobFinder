@@ -1,5 +1,5 @@
 <resources>
-    <!-- Settings → Free online AI: the Antigravity CLI (agy) on this computer -->
+    <!-- Settings → AI → Free online keys: the Antigravity CLI (agy) on this computer -->
     <string name="agy_title">Antigravity (this computer’s CLI)</string>
     <string name="agy_hint">Gemini Flash through the Antigravity CLI on this computer, on your Google sign-in. No key needed. Only public job text goes to it unless you turn it on for your resume below. Each answer takes about 15 seconds.</string>
     <string name="agy_found">Installed: agy %1$s</string>

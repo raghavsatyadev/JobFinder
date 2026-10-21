@@ -1,6 +1,6 @@
 <resources>
     <!-- Settings: free online AI keys -->
-    <string name="settings_section_keys">Free online AI</string>
+    <string name="settings_section_keys">Free online keys</string>
     <string name="keys_hint">Free keys from these sites take AI work off this computer. When a key runs out for the day, the next one takes over, and this computer comes last.</string>
     <string name="keys_guide_title">Where to get a free key, most free use first</string>
     <string name="keys_per_minute">%1$d a minute</string>

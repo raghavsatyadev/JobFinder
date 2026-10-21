@@ -81,8 +81,8 @@
     <string name="setup_ai_full">Offline first. The AI runs on this computer: free, private and fast. Free online keys are optional.</string>
     <string name="setup_ai_split">Offline first, with help. The AI runs here, but part of it doesn’t fit on the graphics card and runs slower on the processor. Add free online keys for job pages on busy days; your resume stays here.</string>
     <string name="setup_ai_small">Online first. This computer fits only a smaller model, which misses more good jobs. Free online keys read the job pages; this computer is the backup and keeps your resume.</string>
-    <string name="setup_ai_online">Online first. This computer can’t run a good AI model: it needs at least 4 GB on the graphics card and 8 GB memory. Use free online keys for job pages, and pick an online model in Settings → AI model for resume work.</string>
-    <string name="setup_ai_keys">Get free keys, most free use first, then paste them in Settings → Free online AI.</string>
+    <string name="setup_ai_online">Online first. This computer can’t run a good AI model: it needs at least 4 GB on the graphics card and 8 GB memory. Use free online keys for job pages, and pick an online model in Settings → AI → Main model for resume work.</string>
+    <string name="setup_ai_keys">Get free keys, most free use first, then paste them in Settings → AI → Free online keys.</string>
     <string name="help_setup_open">Open the setup</string>
     <string name="setup_helper_boards_title">Find job boards with an AI assistant</string>
     <string name="setup_helper_boards_text">Copy the request, paste it into Claude, Gemini, ChatGPT or another assistant and attach your resume. It suggests search pages for your skills; paste its answer here to add them as searches.</string>

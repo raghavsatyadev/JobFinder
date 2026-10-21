@@ -1,6 +1,7 @@
 <resources>
     <!-- Settings: AI model -->
-    <string name="settings_section_ai">AI model</string>
+    <string name="settings_section_ai">AI</string>
+    <string name="settings_ai_part_main">Main model</string>
     <string name="ai_hint">The AI filter, pages read with AI and ATS scores all use this model.</string>
     <string name="ai_provider_ollama">On this computer (Ollama)</string>
     <string name="ai_provider_ollama_hint">Free and private: nothing leaves this computer. Needs a strong computer.</string>

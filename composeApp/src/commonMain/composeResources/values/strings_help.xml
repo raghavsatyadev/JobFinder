@@ -26,23 +26,23 @@
     <string name="help_a_keyboard">Yes. In the jobs list you can use these shortcuts:</string>
 
     <string name="help_q_free_ai">Can free online AI do the work instead of my computer?</string>
-    <string name="help_a_free_ai">Yes. Add free keys in Settings → Free online AI. Job pages go to the online keys first, most free use first, and this computer takes over when they run out for the day. Work that reads your resume (ATS scores, tips, form answers) stays on this computer unless you choose otherwise. The setup shows which way suits this computer.</string>
+    <string name="help_a_free_ai">Yes. Add free keys in Settings → AI → Free online keys. Job pages go to the online keys first, most free use first, and this computer takes over when they run out for the day. Work that reads your resume (ATS scores, tips, form answers) stays on this computer unless you choose otherwise. The setup shows which way suits this computer.</string>
 
     <string name="help_q_resume_pdf">Can the app make a resume PDF for a job?</string>
     <string name="help_a_resume_pdf">Yes. Settings → Resume → Resume PDF makes a one-column PDF that ATS software reads well, in your page size, length and section order. Save as PDF in Improve my resume for this job makes one for that job with the edits you ticked. Import your LinkedIn data export there, and a job’s PDF can bring in your own LinkedIn skills, bullets and projects that the job asks for. Nothing is made up.</string>
 
     <string name="help_q_key_nvidia">How do I get a free NVIDIA key?</string>
-    <string name="help_a_key_nvidia">Open build.nvidia.com and sign in or make a free NVIDIA account. Open Settings → API Keys and choose Generate API Key. The key starts with nvapi-. About 40 requests a minute, with no daily limit; meant for trying models out. Copy the key and paste it in Settings → Free online AI.</string>
+    <string name="help_a_key_nvidia">Open build.nvidia.com and sign in or make a free NVIDIA account. Open Settings → API Keys and choose Generate API Key. The key starts with nvapi-. About 40 requests a minute, with no daily limit; meant for trying models out. Copy the key and paste it in Settings → AI → Free online keys.</string>
 
 
     <string name="help_q_key_groq">How do I get a free Groq key?</string>
-    <string name="help_a_key_groq">Open console.groq.com and sign in. Choose API Keys, then Create API Key. The key starts with gsk_. 30 requests a minute and 1,000 a day. Copy the key and paste it in Settings → Free online AI.</string>
+    <string name="help_a_key_groq">Open console.groq.com and sign in. Choose API Keys, then Create API Key. The key starts with gsk_. 30 requests a minute and 1,000 a day. Copy the key and paste it in Settings → AI → Free online keys.</string>
 
     <string name="help_q_key_openrouter">How do I get a free OpenRouter key?</string>
-    <string name="help_a_key_openrouter">Open openrouter.ai and sign in. Choose Keys, then Create Key. The key starts with sk-or-. Free models allow 50 requests a day, or 1,000 after a one-time $10 credit. Some free models keep what you send. Copy the key and paste it in Settings → Free online AI.</string>
+    <string name="help_a_key_openrouter">Open openrouter.ai and sign in. Choose Keys, then Create Key. The key starts with sk-or-. Free models allow 50 requests a day, or 1,000 after a one-time $10 credit. Some free models keep what you send. Copy the key and paste it in Settings → AI → Free online keys.</string>
 
     <string name="help_q_key_gemini">How do I get a free Google Gemini key?</string>
-    <string name="help_a_key_gemini">Open aistudio.google.com and sign in with a Google account. Choose Get API key, then Create API key. The key starts with AIza. On the free plan Google may use what you send to improve its models. Copy the key and paste it in Settings → Free online AI.</string>
+    <string name="help_a_key_gemini">Open aistudio.google.com and sign in with a Google account. Choose Get API key, then Create API key. The key starts with AIza. On the free plan Google may use what you send to improve its models. Copy the key and paste it in Settings → AI → Free online keys.</string>
 
 
     <string name="help_shortcuts_title">Keyboard shortcuts</string>

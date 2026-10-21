@@ -254,10 +254,10 @@ private fun Form(
   }
 }
 
-/** "What to filter out" as a row of the AI instructions, open at first. */
+/** "What to filter out" as a row of the AI instructions, closed like the others. */
 @Composable
 private fun FilterPromptItem(state: AiFiltersUiState, onEvent: (AiFiltersEvent) -> Unit) {
-  var open by rememberSaveable { mutableStateOf(true) }
+  var open by rememberSaveable { mutableStateOf(false) }
   val motion = MaterialTheme.motionScheme
   Column {
     Row(
