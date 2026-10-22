@@ -230,31 +230,28 @@ class JobScanner(
   }
 
   /**
-   * Reads the descriptions of [jobs]: incognito-capable sites in the incognito browser, the rest in
-   * the persistent ones, both groups at once, in chunks of [DESCRIPTION_CHUNK]. Returns the jobs as
-   * they are afterwards; a job whose page could not be loaded comes back unchanged, and a job whose
-   * posting was gone is left out (it was deleted).
+   * Reads the descriptions of [jobs] one at a time, incognito-capable sites in the incognito
+   * browser. Each job is saved as soon as it is read, so a scan that stops redoes at most the job
+   * it was on. A job the user moved meanwhile is skipped. Returns the jobs as they are afterwards;
+   * a job whose page could not be loaded comes back unchanged, and a job whose posting was gone is
+   * left out (it was deleted).
    */
   private suspend fun describe(jobs: List<Job>): List<Job> {
     if (jobs.isEmpty()) return emptyList()
     val incognitoSites =
       db.sitesDao().listAll().filter { it.incognitoSupport }.map { it.id }.toSet()
-    val (incognito, persistent) = jobs.partition { it.siteId in incognitoSites }
-    return coroutineScope {
-      listOf(incognito to true, persistent to false)
-        .map { (group, inIncognito) -> async { describeInChunks(group, inIncognito) } }
-        .awaitAll()
-        .flatten()
+    val described = mutableListOf<Job>()
+    for (job in jobs) {
+      if (!open.get()) break
+      if (db.jobsDao().get(job.id)?.status != JobStatus.PROCESSING.wire) {
+        _state.update { it.copy(jobsDone = it.jobsDone + 1) }
+        publishState()
+        continue
+      }
+      describeOne(job, job.siteId in incognitoSites)?.let { described += it }
     }
-      .filterNotNull()
-      .sortedBy { job -> jobs.indexOfFirst { it.id == job.id } }
+    return described
   }
-
-  private suspend fun describeInChunks(jobs: List<Job>, incognito: Boolean): List<Job?> =
-    jobs.chunked(DESCRIPTION_CHUNK).flatMap { chunk ->
-      if (!open.get()) return@flatMap chunk
-      coroutineScope { chunk.map { async { describeOne(it, incognito) } }.awaitAll() }
-    }
 
   /** [job] after its page was read, or `null` when the posting was gone and the job deleted. */
   private suspend fun describeOne(job: Job, incognito: Boolean): Job? =
@@ -303,7 +300,7 @@ class JobScanner(
   }
 
   private suspend fun processingJobs(): List<Job> =
-    db.jobsDao().listProcessing().take(MAX_JOBS_PER_SCAN).map { it.toModel() }
+    db.jobsDao().listProcessing().map { it.toModel() }
 
   private fun begin(links: Int, jobs: Int) {
     _state.update {
@@ -352,12 +349,6 @@ class JobScanner(
 
     /** Scrolls of a job page. */
     const val DESCRIPTION_SCROLLS = 1
-
-    /** Job pages read at once per browser kind. */
-    const val DESCRIPTION_CHUNK = 10
-
-    /** The old scanner read at most this many `processing` jobs per scan. */
-    const val MAX_JOBS_PER_SCAN = 300
 
     private const val MS_PER_SECOND = 1_000
 
