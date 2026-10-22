@@ -242,7 +242,8 @@ fun JobsListContent(
         state = pull,
         enabled = canPull,
         indicator = {
-          if (canPull) {
+          // The computer has no pull, but its menu's Refresh still shows the spinner.
+          if (canPull || state.refreshing) {
             PullToRefreshDefaults.LoadingIndicator(
               state = pull,
               isRefreshing = state.refreshing,

@@ -101,3 +101,6 @@ sealed interface JobsMessage {
 
 /** How long typing pauses before the search runs. */
 internal const val SEARCH_DEBOUNCE_MILLIS = 300L
+
+/** How long a Refresh shows its spinner at least. */
+internal const val MIN_REFRESH_MILLIS = 600L

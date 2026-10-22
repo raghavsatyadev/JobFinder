@@ -11,6 +11,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.TimeSource
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Job as CoroutineJob
@@ -156,6 +157,7 @@ class JobsListViewModel(
   private fun load() {
     loadJob?.cancel()
     _state.update { it.copy(loading = true, loadingMore = false) }
+    val started = TimeSource.Monotonic.markNow()
     loadJob = viewModelScope.launch {
       val s = _state.value
       val filter = effectiveFilter(s)
@@ -165,6 +167,8 @@ class JobsListViewModel(
         val result = jobs.listJobs(s.status, listFilter(s), pageSize)
         val counts = jobs.countJobs(filter)
         val starred = starredCount(filter)
+        // A local reload ends in a frame: keep the spinner up long enough to be seen.
+        if (s.refreshing) delay(MIN_REFRESH_MILLIS - started.elapsedNow().inWholeMilliseconds)
         _state.update {
           it.copy(
             jobs = result.jobs.toImmutableList(),
