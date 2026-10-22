@@ -1,12 +1,12 @@
 {
   "mcpServers": {
     "artemis": {
-      "command": "C:/Raghav/Work/CurrentProjects/artemis/.venv/Scripts/python.exe",
+      "command": "${ARTEMIS_HOME}/.venv/Scripts/python.exe",
       "args": ["-m", "mcp_server"],
-      "cwd": "C:/Raghav/Work/CurrentProjects/artemis",
+      "cwd": "${ARTEMIS_HOME}",
       "env": {
         "PYTHONUNBUFFERED": "1",
-        "PYTHONPATH": "C:/Raghav/Work/CurrentProjects/artemis"
+        "PYTHONPATH": "${ARTEMIS_HOME}"
       }
     }
   }
