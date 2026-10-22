@@ -74,6 +74,7 @@ dependencies {
   implementation(libs.compose.ui.preview)
   implementation(libs.koin.android)
   implementation(libs.ktor.client.okhttp)
+  implementation(libs.multiplatform.settings)
   implementation(libs.play.services.code.scanner)
   implementation(libs.compose.components.resources.mp)
   implementation(libs.androidx.room3.runtime)

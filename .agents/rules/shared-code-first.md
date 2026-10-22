@@ -1,11 +1,12 @@
 # Shared code first
 
-The user plans Linux, macOS and iOS apps (2026-10-17). So:
+The computer app runs on Windows, macOS and Linux; the phone app on Android and iOS. So:
 
 - **All UI** lives in `:composeApp` `commonMain`: screens, dialogs, components, ViewModels,
-  strings. `desktopCMP` and `androidCMP` keep only what cannot be shared: the app entry point,
+  strings. `desktopCMP`, `androidCMP` and `iosCMP` keep only what cannot be shared: the app entry point,
   the window frame and title bar, the embedded CEF browser, the tray, Windows APIs (DPAPI, sleep
-  blocker), Android activities, notifications and the QR scanner.
+  blocker), Android activities, iOS UIKit sheets, notifications, Bonjour/NSD discovery and the QR scanner. Phone
+  wiring is shared in `clientModule()`; a phone platform only implements `ClientPlatform`.
 - **Business logic** lives in `:shared` / `:composeApp` `commonMain` (clients) or `:server`
   (computer, plain JVM so Linux and macOS reuse it). A platform module only implements an
   interface the shared code defines, and binds it in Koin.

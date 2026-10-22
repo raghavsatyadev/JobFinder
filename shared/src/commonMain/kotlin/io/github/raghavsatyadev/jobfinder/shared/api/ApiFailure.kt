@@ -6,5 +6,8 @@ package io.github.raghavsatyadev.jobfinder.shared.api
  * user. The server throws it in process on desktop; the Android client throws it for an error
  * [BaseResponse].
  */
-open class ApiFailure(val code: ApiErrorCode, message: String = code.defaultMessage) :
-  RuntimeException(message)
+open class ApiFailure(
+  val code: ApiErrorCode,
+  message: String = code.defaultMessage,
+  cause: Throwable? = null,
+) : RuntimeException(message, cause)

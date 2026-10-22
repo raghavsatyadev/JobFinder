@@ -32,11 +32,8 @@ class DesktopUnreachableException(cause: Throwable) :
   ApiFailure(
     ApiErrorCode.UNAVAILABLE,
     "Can't reach the desktop app. Is it running on this Wi-Fi?",
-  ) {
-  init {
-    initCause(cause)
-  }
-}
+    cause,
+  )
 
 /**
  * Calls the desktop's `/v1` API: sends the pairing token, unwraps [BaseResponse] and turns an error

@@ -30,6 +30,10 @@ kotlin {
   // Same bytecode level as :server and :desktopCMP (toolchain 21), which load these classes.
   jvm { compilerOptions { jvmTarget.set(JvmTarget.JVM_21) } }
 
+  // The iOS app; :iosCMP builds the framework Xcode links.
+  iosArm64()
+  iosSimulatorArm64()
+
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.ui.preview)
@@ -67,4 +71,6 @@ dependencies {
   androidRuntimeClasspath(libs.compose.ui.tooling)
   add("kspAndroid", libs.androidx.room3.compiler)
   add("kspJvm", libs.androidx.room3.compiler)
+  add("kspIosArm64", libs.androidx.room3.compiler)
+  add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
 }

@@ -44,3 +44,8 @@ memory/
 .claude/.last-prompt
 .claude/.plan-*
 .claude/.PLAN.md.bak
+
+# Xcode (iosApp)
+xcuserdata/
+*.xcuserstate
+iosApp/build/

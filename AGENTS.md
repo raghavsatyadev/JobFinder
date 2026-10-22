@@ -4,7 +4,7 @@ Shared instructions for every coding agent in this repo — Claude, Gemini, Code
 `CLAUDE.md` and `GEMINI.md` just point here.
 
 **JobFinder** (a rewrite of first2apply) — job-search scraper and tracker: Compose Multiplatform desktop app with an embedded Ktor server, plus an Android client over home Wi-Fi; all AI on local Ollama.
-Modules: `:shared`, `:composeApp`, `:server`, `:desktopCMP`, `:androidCMP`, `:migrator` · app module `:androidCMP` · applicationId `io.github.raghavsatyadev.jobfinder` ·
+Modules: `:shared`, `:composeApp`, `:server`, `:desktopCMP` (Windows, macOS, Linux), `:androidCMP`, `:iosCMP` (+ Xcode host `iosApp/`), `:migrator` · app module `:androidCMP` · applicationId `io.github.raghavsatyadev.jobfinder` ·
 base branch `master`. Values also live in `agent-kit.env`.
 
 ## How to work
@@ -49,6 +49,9 @@ New machine: run the setup doctor first — `scripts/setup-env.ps1` (Windows) or
 scripts/ci-local.sh                      # ktfmt + compile<APP_VARIANT>Kotlin — run before pushing
 scripts/gradle-agent.sh <tasks>          # agents: Gradle with errors only; full log in tmp/
 ./gradlew :androidCMP:assembleDebug   # build
+./gradlew :desktopCMP:run              # computer app (macOS: :desktopCMP:packageDmg for the .app)
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath iosApp/build build
 git config core.hooksPath .githooks  # once: hooks run the format and CI checks
 ```
 

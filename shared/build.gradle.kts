@@ -22,6 +22,10 @@ kotlin {
   // Same bytecode level as :server and :desktopCMP (toolchain 21), which load these classes.
   jvm { compilerOptions { jvmTarget.set(JvmTarget.JVM_21) } }
 
+  // The iOS app (Apple silicon devices and simulators).
+  iosArm64()
+  iosSimulatorArm64()
+
   sourceSets {
     commonMain.dependencies {
       api(libs.kotlinx.serialization.json)
@@ -39,6 +43,10 @@ kotlin {
     androidMain.dependencies {
       implementation(libs.ktor.client.okhttp)
       implementation(libs.cryptography.provider.jdk)
+    }
+    iosMain.dependencies {
+      implementation(libs.ktor.client.darwin)
+      implementation(libs.cryptography.provider.optimal)
     }
   }
 

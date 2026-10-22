@@ -26,4 +26,4 @@ rootProject.buildFileName = "project.gradle.kts"
 
 rootProject.name = "jobfinder"
 
-include(":shared", ":composeApp", ":server", ":desktopCMP", ":androidCMP", ":migrator")
+include(":shared", ":composeApp", ":server", ":desktopCMP", ":androidCMP", ":iosCMP", ":migrator")
