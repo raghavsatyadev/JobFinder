@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +24,7 @@ import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SmartToy
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.TravelExplore
 import androidx.compose.material.icons.rounded.ViewAgenda
 import androidx.compose.material3.Card
@@ -62,6 +62,8 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_login
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_pairing
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_resume
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_scanning
+import io.github.raghavsatyadev.jobfinder.resources.settings_pick_hint
+import io.github.raghavsatyadev.jobfinder.resources.settings_pick_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_search
 import io.github.raghavsatyadev.jobfinder.resources.settings_search_clear
 import io.github.raghavsatyadev.jobfinder.resources.settings_search_none
@@ -86,7 +88,10 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_summary_pairing
 import io.github.raghavsatyadev.jobfinder.resources.settings_summary_resume
 import io.github.raghavsatyadev.jobfinder.resources.settings_summary_scanning
 import io.github.raghavsatyadev.jobfinder.shared.model.ScannerSettings
+import io.github.raghavsatyadev.jobfinder.ui.components.EmptyState
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
+import io.github.raghavsatyadev.jobfinder.ui.components.settingsSectionKey
+import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -196,6 +201,8 @@ internal fun SettingsMenu(
   entries: List<SectionEntry>,
   initialQuery: String,
   onOpen: (SettingsSection) -> Unit,
+  /** The section open beside the menu, shown as chosen; `null` when the page covers the menu. */
+  selected: SettingsSection? = null,
 ) {
   var query by rememberSaveable { mutableStateOf(initialQuery) }
   val words = query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
@@ -214,7 +221,6 @@ internal fun SettingsMenu(
       onChange = { query = it },
       modifier =
         Modifier.align(Alignment.CenterHorizontally)
-          .widthIn(max = MAX_WIDTH)
           .fillMaxWidth()
           .padding(horizontal = 16.dp, vertical = 8.dp),
     )
@@ -227,9 +233,21 @@ internal fun SettingsMenu(
           modifier = Modifier.padding(8.dp),
         )
       }
-      shown.forEach { entry -> key(entry.section.name) { MenuRow(entry.section, onOpen) } }
+      shown.forEach { entry ->
+        key(entry.section.name) { MenuRow(entry.section, entry.section == selected, onOpen) }
+      }
     }
   }
+}
+
+/** The empty pane beside the menu on a wide window, before a section is picked. */
+@Composable
+fun SettingsPlaceholder() {
+  EmptyState(
+    icon = Icons.Rounded.TouchApp,
+    title = stringResource(Res.string.settings_pick_title),
+    hint = stringResource(Res.string.settings_pick_hint),
+  )
 }
 
 /** One section on its own page, in a single card. */
@@ -247,11 +265,16 @@ internal fun SettingsPage(entry: SectionEntry) {
 }
 
 @Composable
-private fun MenuRow(section: SettingsSection, onOpen: (SettingsSection) -> Unit) {
+private fun MenuRow(section: SettingsSection, chosen: Boolean, onOpen: (SettingsSection) -> Unit) {
   Card(
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    colors =
+      CardDefaults.cardColors(
+        containerColor =
+          if (chosen) MaterialTheme.colorScheme.secondaryContainer
+          else MaterialTheme.colorScheme.surfaceContainer
+      ),
     shape = MaterialTheme.shapes.large,
-    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier.fillMaxWidth().sharedContainer(settingsSectionKey(section.name)),
   ) {
     ListItem(
       headlineContent = {
@@ -283,13 +306,12 @@ private fun MenuRow(section: SettingsSection, onOpen: (SettingsSection) -> Unit)
   }
 }
 
-/** The scrolling column every settings page sits in, centred and at most [MAX_WIDTH] wide. */
+/** The scrolling column every settings page sits in, as wide as its pane. */
 @Composable
 private fun PageColumn(spacing: Dp, content: @Composable () -> Unit) {
   Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
     Column(
       Modifier.align(Alignment.TopCenter)
-        .widthIn(max = MAX_WIDTH)
         .fillMaxWidth()
         .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp + scrollBottom()),
       verticalArrangement = Arrangement.spacedBy(spacing),
@@ -324,5 +346,3 @@ private fun SearchField(query: String, onChange: (String) -> Unit, modifier: Mod
     modifier = modifier,
   )
 }
-
-private val MAX_WIDTH = 760.dp
