@@ -24,17 +24,24 @@ data class AppPaths(val root: File) {
 
   companion object {
     /**
-     * `%LOCALAPPDATA%\jobfinder-data`, or `~/.jobfinder-data` where LOCALAPPDATA is not set. Not
-     * `jobfinder`: Windows installs the app in `%LOCALAPPDATA%\JobFinder`, the same folder.
+     * `%LOCALAPPDATA%\jobfinder-data`, `~/Library/Application Support/JobFinder` on macOS, or
+     * `~/.jobfinder-data` elsewhere. Not `jobfinder` on Windows: it installs the app in
+     * `%LOCALAPPDATA%\JobFinder`, the same folder.
      */
     fun default(
       env: Map<String, String> = System.getenv(),
       userHome: String = System.getProperty("user.home"),
+      mac: Boolean = System.getProperty("os.name").orEmpty().startsWith("Mac"),
     ): AppPaths {
       val localAppData = env["LOCALAPPDATA"]?.takeIf { it.isNotBlank() }
       fun dir(name: String) =
         if (localAppData != null) File(localAppData, name) else File(userHome, ".$name")
-      return AppPaths(moveOldData(listOf(dir(SHORT_APP_DIR), dir(OLD_APP_DIR)), dir(APP_DIR)))
+      val olds = listOf(dir(SHORT_APP_DIR), dir(OLD_APP_DIR))
+      if (mac) {
+        val root = File(userHome, "Library/Application Support/$MAC_APP_DIR")
+        return AppPaths(moveOldData(olds + dir(APP_DIR), root))
+      }
+      return AppPaths(moveOldData(olds, dir(APP_DIR)))
     }
 
     /**
@@ -70,6 +77,8 @@ data class AppPaths(val root: File) {
     }
 
     private const val APP_DIR = "jobfinder-data"
+    /** The macOS data folder's name, under `~/Library/Application Support`. */
+    private const val MAC_APP_DIR = "JobFinder"
     /** 0.0.33 and 0.0.34 kept the data here. */
     private const val SHORT_APP_DIR = "jobfinder"
     private const val DB = "jobfinder"

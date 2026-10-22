@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.FrameWindowScope
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.app_icon
+import java.awt.Taskbar
 import org.jetbrains.compose.resources.painterResource
 
 private const val ICON_SIZE_PX = 256f
@@ -23,7 +24,12 @@ fun FrameWindowScope.AppWindowIcon() {
   val painter = painterResource(Res.drawable.app_icon)
   val density = LocalDensity.current
   LaunchedEffect(painter, density) {
-    window.iconImage =
-      painter.toAwtImage(density, LayoutDirection.Ltr, Size(ICON_SIZE_PX, ICON_SIZE_PX))
+    val image = painter.toAwtImage(density, LayoutDirection.Ltr, Size(ICON_SIZE_PX, ICON_SIZE_PX))
+    window.iconImage = image
+    // macOS shows the Dock icon, not the window's; a packaged app already has its own.
+    if (Taskbar.isTaskbarSupported()) {
+      val taskbar = Taskbar.getTaskbar()
+      if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) taskbar.iconImage = image
+    }
   }
 }

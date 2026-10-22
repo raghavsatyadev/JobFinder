@@ -1,8 +1,11 @@
 package io.github.raghavsatyadev.jobfinder.desktop.models
 
+import com.sun.jna.Platform
 import io.github.raghavsatyadev.jobfinder.desktop.setup.Shell
 import io.github.raghavsatyadev.jobfinder.ui.platform.PcProfile
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -13,12 +16,14 @@ import kotlinx.serialization.json.longOrNull
 /**
  * Reads this PC's memory and graphics card through PowerShell. The card's memory comes from the
  * display driver's registry key (`HardwareInformation.qwMemorySize`), which, unlike WMI's
- * `AdapterRAM`, is not capped at 4 GB; the largest card counts.
+ * `AdapterRAM`, is not capped at 4 GB; the largest card counts. On a Mac, `sysctl`: the chip shares
+ * its memory with the GPU, which may use about two thirds of it (three quarters above 36 GB).
  */
 class PcProfiler(private val shell: Shell, private val modelsDir: () -> File = ::ollamaModelsDir) {
   suspend fun profile(): PcProfile {
-    val result = runCatching { shell.run(SCRIPT) }.getOrNull()
-    val parsed = result?.takeIf { it.ok }?.output?.let(::parse)
+    val parsed =
+      if (Platform.isMac()) macProfile()
+      else runCatching { shell.run(SCRIPT) }.getOrNull()?.takeIf { it.ok }?.output?.let(::parse)
     val free = runCatching {
       modelsDir().let { it.takeIf(File::exists) ?: it.parentFile }
     }
@@ -35,6 +40,19 @@ class PcProfiler(private val shell: Shell, private val modelsDir: () -> File = :
 
   class Parsed(val ramBytes: Long?, val gpuName: String?, val vramBytes: Long?)
 
+  private suspend fun macProfile(): Parsed =
+    withContext(Dispatchers.IO) {
+      val ram = sysctl("hw.memsize")?.toLongOrNull()
+      Parsed(ram, sysctl("machdep.cpu.brand_string"), ram?.let(::macGpuShare))
+    }
+
+  private fun sysctl(name: String): String? = runCatching {
+    val process = ProcessBuilder("/usr/sbin/sysctl", "-n", name).redirectErrorStream(true).start()
+    val output = process.inputStream.bufferedReader().readText().trim()
+    output.takeIf { process.waitFor() == 0 && it.isNotEmpty() }
+  }
+    .getOrNull()
+
   companion object {
     /** Binary gigabytes, as Windows shows them: a 64 GB PC reads 64, not 68. */
     private const val GB = 1_073_741_824.0
@@ -48,6 +66,12 @@ class PcProfiler(private val shell: Shell, private val modelsDir: () -> File = :
       @{ ram = [long]${'$'}ram; gpus = @(${'$'}gpus) } | ConvertTo-Json -Compress -Depth 3
       """
         .trimIndent()
+
+    /** How much of a Mac's [ramBytes] Metal lets the GPU use by default. */
+    fun macGpuShare(ramBytes: Long): Long =
+      if (ramBytes > MAC_LARGE_RAM) ramBytes / 4 * 3 else ramBytes / 3 * 2
+
+    private const val MAC_LARGE_RAM = 36L * 1_073_741_824
 
     fun parse(output: String): Parsed? = runCatching {
       // The JSON line; anything else PowerShell wrote around it is skipped.

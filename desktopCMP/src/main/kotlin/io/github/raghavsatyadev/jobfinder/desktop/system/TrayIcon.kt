@@ -29,13 +29,16 @@ interface TrayIcon : AutoCloseable {
 
   companion object {
     /**
-     * The icon for this system: the Win32 one on Windows, none elsewhere (notifications are then
-     * only logged). [onOpen] runs on the icon's thread when the icon or a notification is clicked;
-     * a right click shows [menu].
+     * The icon for this system: the Win32 one on Windows, the menu bar one on macOS, none elsewhere
+     * (notifications are then only logged). [onOpen] runs on the icon's thread when the icon or a
+     * notification is clicked; a right click (on macOS, any click) shows [menu].
      */
     fun create(tooltip: String, menu: List<TrayMenuItem>, onOpen: () -> Unit): TrayIcon =
-      if (Platform.isWindows()) WindowsTrayIcon(tooltip, menu, onOpen).also { it.start() }
-      else LoggingTrayIcon
+      when {
+        Platform.isWindows() -> WindowsTrayIcon(tooltip, menu, onOpen).also { it.start() }
+        Platform.isMac() -> MacTrayIcon(tooltip, menu, onOpen).also { it.start() }
+        else -> LoggingTrayIcon
+      }
   }
 }
 

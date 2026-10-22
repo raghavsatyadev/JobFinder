@@ -40,7 +40,19 @@ data class InstalledBrowser(val name: String, val exe: File) {
     fun find(
       env: Map<String, String> = System.getenv(),
       exists: (File) -> Boolean = File::isFile,
+      mac: Boolean = System.getProperty("os.name").orEmpty().startsWith("Mac"),
     ): InstalledBrowser? {
+      if (mac) {
+        val apps = listOf("/Applications", "${System.getProperty("user.home")}/Applications")
+        val candidates =
+          apps.map {
+            InstalledBrowser("Chrome", File(it, "Google Chrome.app/Contents/MacOS/Google Chrome"))
+          } +
+            apps.map {
+              InstalledBrowser(EDGE, File(it, "Microsoft Edge.app/Contents/MacOS/Microsoft Edge"))
+            }
+        return candidates.firstOrNull { exists(it.exe) }
+      }
       // Windows variable names ignore case, but System.getenv()'s map does not.
       val vars = TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER).apply { putAll(env) }
       val roots =

@@ -26,13 +26,28 @@ data class ServerIdentity(val id: String, val name: String) {
       return ServerIdentity(id, name)
     }
 
-    /** `COMPUTERNAME` on Windows, else the host name, else a plain label. */
+    /**
+     * `COMPUTERNAME` on Windows, the Computer Name from Sharing settings on macOS, else the host
+     * name, else a plain label.
+     */
     fun computerName(env: Map<String, String> = System.getenv()): String =
       env["COMPUTERNAME"]?.takeIf { it.isNotBlank() }
+        ?: macComputerName()
         ?: runCatching { InetAddress.getLocalHost().hostName }
           .getOrNull()
           ?.takeIf { it.isNotBlank() }
         ?: "JobFinder computer"
+
+    /** `scutil --get ComputerName`, as Finder and AirDrop show the Mac; `null` off macOS. */
+    private fun macComputerName(): String? {
+      if (!System.getProperty("os.name").orEmpty().startsWith("Mac")) return null
+      return runCatching {
+        val process = ProcessBuilder("/usr/sbin/scutil", "--get", "ComputerName").start()
+        val name = process.inputStream.bufferedReader().readText().trim()
+        name.takeIf { process.waitFor() == 0 && it.isNotBlank() }
+      }
+        .getOrNull()
+    }
 
     private val ID = Regex("[0-9a-fA-F-]{36}")
   }

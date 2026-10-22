@@ -64,8 +64,14 @@ class DpapiSecretStore(private val dir: Path) : SecretStore {
     private val OLD_ENTROPY = "first2apply".toByteArray(Charsets.UTF_8)
     private const val FLAGS = WinCrypt.CRYPTPROTECT_UI_FORBIDDEN
 
-    /** DPAPI on Windows; elsewhere no keys yet, so only the local model works. */
+    /**
+     * DPAPI on Windows, the Keychain on macOS; elsewhere no keys, so only the local model works.
+     */
     fun forThisComputer(dir: Path): SecretStore =
-      if (Platform.isWindows()) DpapiSecretStore(dir) else NoSecretStore
+      when {
+        Platform.isWindows() -> DpapiSecretStore(dir)
+        Platform.isMac() -> KeychainSecretStore()
+        else -> NoSecretStore
+      }
   }
 }

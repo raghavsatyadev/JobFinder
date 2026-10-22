@@ -8,6 +8,7 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.WindowPlacement
+import com.sun.jna.Platform
 import io.github.raghavsatyadev.jobfinder.desktop.system.WindowMotion
 import io.github.raghavsatyadev.jobfinder.desktop.system.WindowsCaption
 import io.github.raghavsatyadev.jobfinder.resources.Res
@@ -68,9 +71,10 @@ private val CloseRed = Color(0xFFC42B1C)
 /**
  * The window's chrome around [content]: on Windows, the app's own title bar in the app's colours
  * (logo, [title], and minimise, maximise and close at the right end), with dragging, snapping and
- * resizing left to Windows; elsewhere, the system title bar. Minimise and maximise go through
- * [motion], so Windows animates them as for its own buttons. The close button runs the window's
- * `onCloseRequest`.
+ * resizing left to Windows; on macOS, the same bar in the app's colours under the system's own
+ * close, minimise and zoom buttons; elsewhere, the system title bar. Minimise and maximise go
+ * through [motion], so Windows animates them as for its own buttons. The close button runs the
+ * window's `onCloseRequest`.
  */
 @Composable
 fun FrameWindowScope.AppWindowFrame(
@@ -90,6 +94,10 @@ fun FrameWindowScope.AppWindowFrame(
       }
     window.addWindowListener(listener)
     onDispose { window.removeWindowListener(listener) }
+  }
+  if (Platform.isMac()) {
+    MacFrame(title, content)
+    return
   }
   val hook = caption
   if (hook == null) {
@@ -249,5 +257,58 @@ private fun CaptionButton(
     contentAlignment = Alignment.Center,
   ) {
     Canvas(Modifier.size(10.dp)) { glyph(tint) }
+  }
+}
+
+/** The macOS title bar's height: the system buttons sit centred in it. */
+private val MacTitleBarHeight = 28.dp
+
+/** Room the system's close, minimise and zoom buttons take at the left. */
+private val MacButtonsWidth = 78.dp
+
+/**
+ * The content fills the whole window and the system title bar turns transparent, so the app's own
+ * bar shows behind the system buttons. The bar drags the window.
+ */
+@Composable
+private fun FrameWindowScope.MacFrame(title: String, content: @Composable () -> Unit) {
+  DisposableEffect(window) {
+    window.rootPane.apply {
+      putClientProperty("apple.awt.fullWindowContent", true)
+      putClientProperty("apple.awt.transparentTitleBar", true)
+      putClientProperty("apple.awt.windowTitleVisible", false)
+    }
+    onDispose {}
+  }
+  Column(Modifier.fillMaxSize()) {
+    AppTheme {
+      WindowDraggableArea {
+        Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
+          Row(
+            Modifier.fillMaxWidth()
+              .height(MacTitleBarHeight)
+              .padding(start = MacButtonsWidth, end = MacButtonsWidth),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Image(
+              painterResource(Res.drawable.app_icon),
+              contentDescription = null,
+              modifier = Modifier.size(16.dp),
+            )
+            Text(
+              title,
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.SemiBold,
+              color = MaterialTheme.colorScheme.onSurface,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              modifier = Modifier.padding(start = 8.dp),
+            )
+          }
+        }
+      }
+    }
+    Box(Modifier.fillMaxWidth().weight(1f)) { content() }
   }
 }

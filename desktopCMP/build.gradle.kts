@@ -12,6 +12,7 @@ kotlin { jvmToolchain(21) }
 val PROGUARD_VERSION = "7.10.0"
 
 val isLinux = System.getProperty("os.name").startsWith("Linux")
+val isMac = System.getProperty("os.name").startsWith("Mac")
 
 dependencies {
   implementation(compose.desktop.currentOs)
@@ -31,10 +32,10 @@ dependencies {
   implementation(libs.jmdns)
   // Bundled CEF natives for the OS that builds the package: jcefmaven extracts them from the
   // classpath, so there is no download. jpackage builds only for its own OS anyway.
-  if (isLinux) {
-    runtimeOnly(libs.jcef.natives.linux.amd64)
-  } else {
-    runtimeOnly(libs.jcef.natives.windows.amd64)
+  when {
+    isLinux -> runtimeOnly(libs.jcef.natives.linux.amd64)
+    isMac -> runtimeOnly(libs.jcef.natives.macosx.arm64)
+    else -> runtimeOnly(libs.jcef.natives.windows.amd64)
   }
 }
 
@@ -61,6 +62,9 @@ val jcefJvmArgs =
     "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
     "--add-opens=java.desktop/sun.awt.windows=ALL-UNNAMED",
     "--add-opens=java.desktop/java.awt=ALL-UNNAMED",
+    // macOS: JCEF's windowed browser reaches into the Cocoa AWT peers.
+    "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+    "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
     // JNA and the bundled SQLite load native code.
     "--enable-native-access=ALL-UNNAMED",
   )
@@ -68,9 +72,26 @@ val jcefJvmArgs =
 compose.desktop {
   application {
     mainClass = "io.github.raghavsatyadev.jobfinder.MainKt"
+    // macOS: Android Studio's runtime has no jpackage, so packaging uses a full JDK 21 (Temurin,
+    // fetched once by the foojay toolchain resolver).
+    if (isMac) {
+      javaHome =
+        javaToolchains
+          .launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+          }
+          .get()
+          .metadata
+          .installationPath
+          .asFile
+          .absolutePath
+    }
     jvmArgs += jcefJvmArgs
     // Without a cap the JVM may grow its heap to a quarter of the PC's memory.
     jvmArgs += "-Xmx1g"
+    // The menu bar and Dock name in dev runs; the packaged app takes its bundle's name.
+    if (isMac) jvmArgs += listOf("-Xdock:name=JobFinder", "-Dapple.awt.application.name=JobFinder")
     // `packageReleaseMsi`: ProGuard drops unused classes (most of the extended icons). Shrink
     // only: obfuscation and optimization break the libraries that load classes by name.
     buildTypes.release.proguard {
@@ -80,7 +101,7 @@ compose.desktop {
       optimize.set(false)
     }
     nativeDistributions {
-      targetFormats(TargetFormat.Msi, TargetFormat.Deb)
+      targetFormats(TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Dmg)
       // `common/browser-extension`: the built extension, for "Load unpacked" (BundledExtension).
       appResourcesRootDir.set(layout.buildDirectory.dir("appResources"))
       packageName = libs.versions.releaseAppName.get()
@@ -94,6 +115,24 @@ compose.desktop {
         perUserInstall = true
         dirChooser = false
         upgradeUuid = "07242878-9a13-4a90-b785-2138acca2b4e"
+      }
+      macOS {
+        iconFile.set(project.file("icons/app.icns"))
+        bundleID = libs.versions.appIdProd.get()
+        appCategory = "public.app-category.productivity"
+        // macOS needs 1.x.y or later; the app's 0.0.x maps to 1.0.x.
+        packageVersion = "1.0." + libs.versions.versionName.get().substringAfterLast('.')
+        // Phones find the computer over Bonjour; macOS asks the user once (Local Network).
+        infoPlist {
+          extraKeysRawXml =
+            """
+            <key>NSLocalNetworkUsageDescription</key>
+            <string>JobFinder lets your phone find and reach this Mac on your Wi-Fi.</string>
+            <key>NSBonjourServices</key>
+            <array><string>_jobfinder._tcp</string></array>
+            """
+              .trimIndent()
+        }
       }
       linux {
         iconFile.set(project.file("icons/app.png"))
@@ -141,14 +180,28 @@ tasks.register<JavaExec>("readPageProbe") {
   jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
+/**
+ * npm from the PATH, else from where macOS installs put it (Homebrew, a user install in
+ * `~/.local/node`): a Gradle daemon started from an IDE has no shell PATH.
+ */
+fun npm(): String {
+  if (System.getProperty("os.name").startsWith("Windows")) return "npm.cmd"
+  val home = System.getProperty("user.home")
+  val dirs =
+    System.getenv("PATH").orEmpty().split(File.pathSeparator) +
+      listOf("/opt/homebrew/bin", "/usr/local/bin", "$home/.local/node/bin")
+  return dirs.map { File(it, "npm") }.firstOrNull { it.canExecute() }?.path ?: "npm"
+}
+
 // The browser extension, built with npm and bundled into the app's resources.
 val extensionDir = rootProject.layout.projectDirectory.dir("browser-extension")
 val buildExtension by
   tasks.registering(Exec::class) {
     group = "build"
     workingDir = extensionDir.asFile
-    val npm = if (System.getProperty("os.name").startsWith("Windows")) "npm.cmd" else "npm"
-    commandLine(npm, "run", "build")
+    commandLine(npm(), "run", "build")
+    // npm runs node from its own folder, which a Gradle daemon's PATH may not hold.
+    environment("PATH", File(npm()).parent + File.pathSeparator + System.getenv("PATH").orEmpty())
     inputs.dir(extensionDir.dir("src"))
     inputs.dir(extensionDir.dir("static"))
     inputs.file(extensionDir.file("build.mjs"))

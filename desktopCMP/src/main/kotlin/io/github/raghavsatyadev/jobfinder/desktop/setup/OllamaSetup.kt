@@ -65,9 +65,10 @@ interface OllamaSetup {
 
 /**
  * The real [OllamaSetup] and Ollama's HTTP API on [baseUrl]. On Windows: Ollama's per-user
- * installer (no permission prompt). On Linux: Ollama's own install script, run as root through
- * `pkexec`, which asks for the password once and also sets Ollama up as a service that starts with
- * the computer.
+ * installer (no permission prompt). On macOS: Ollama's app, unzipped into `~/Applications` (no
+ * permission prompt), and its bundled `ollama serve`; an Ollama already in `/Applications` is used
+ * as it is. On Linux: Ollama's own install script, run as root through `pkexec`, which asks for the
+ * password once and also sets Ollama up as a service that starts with the computer.
  */
 class DesktopOllamaSetup(
   private val http: HttpClient,
@@ -87,9 +88,14 @@ class DesktopOllamaSetup(
     }
 
   override fun installed(): Boolean =
-    if (Platform.isWindows()) File(installDir, OLLAMA_EXE).isFile else linuxBinary() != null
+    when {
+      Platform.isWindows() -> File(installDir, OLLAMA_EXE).isFile
+      Platform.isMac() -> macBinary() != null
+      else -> linuxBinary() != null
+    }
 
   override suspend fun install(onProgress: Progress) {
+    if (Platform.isMac()) return installMac(onProgress)
     if (!Platform.isWindows()) return installLinux(onProgress)
     val installer = File(downloads, "OllamaSetup.exe")
     try {
@@ -109,6 +115,32 @@ class DesktopOllamaSetup(
         else process.destroyForcibly().let { -1 }
       }
     installer.delete()
+    if (exit != 0 || !installed()) throw SetupFailure(SetupProblem.INSTALL_FAILED)
+  }
+
+  /** Ollama's app zip, unzipped by `ditto` (which keeps its signature) into `~/Applications`. */
+  private suspend fun installMac(onProgress: Progress) {
+    val zip = File(downloads, "Ollama-darwin.zip")
+    try {
+      download(MAC_ZIP_URL, zip, onProgress)
+    } catch (e: Exception) {
+      if (e is CancellationException) throw e
+      throw SetupFailure(SetupProblem.DOWNLOAD_FAILED, e)
+    }
+    val target = File(System.getProperty("user.home"), "Applications")
+    val exit =
+      withContext(Dispatchers.IO) {
+        target.mkdirs()
+        File(target, MAC_APP).deleteRecursively()
+        val process =
+          ProcessBuilder("/usr/bin/ditto", "-x", "-k", zip.path, target.path)
+            .redirectErrorStream(true)
+            .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+            .start()
+        if (process.waitFor(INSTALL_MINUTES, TimeUnit.MINUTES)) process.exitValue()
+        else process.destroyForcibly().let { -1 }
+      }
+    zip.delete()
     if (exit != 0 || !installed()) throw SetupFailure(SetupProblem.INSTALL_FAILED)
   }
 
@@ -141,6 +173,7 @@ class DesktopOllamaSetup(
     val app = File(installDir, OLLAMA_APP_EXE)
     val command =
       when {
+        Platform.isMac() -> listOf((macBinary() ?: return false).path, "serve")
         !Platform.isWindows() -> listOf((linuxBinary() ?: return false).path, "serve")
         app.isFile -> listOf(app.path)
         else -> listOf(File(installDir, OLLAMA_EXE).path, "serve")
@@ -249,6 +282,8 @@ class DesktopOllamaSetup(
     const val BASE_URL = "http://localhost:11434"
     const val INSTALLER_URL = "https://ollama.com/download/OllamaSetup.exe"
     const val LINUX_SCRIPT_URL = "https://ollama.com/install.sh"
+    const val MAC_ZIP_URL = "https://ollama.com/download/Ollama-darwin.zip"
+    private const val MAC_APP = "Ollama.app"
     private const val OLLAMA_EXE = "ollama.exe"
     private const val OLLAMA_APP_EXE = "ollama app.exe"
     private const val QUICK_MS = 2_000L
@@ -265,6 +300,16 @@ class DesktopOllamaSetup(
     /** Where Ollama's Linux install script puts it, or anywhere else on the PATH. */
     private fun linuxBinary(): File? =
       listOf(File("/usr/local/bin/ollama"), File("/usr/bin/ollama")).firstOrNull { it.canExecute() }
+        ?: onPath("ollama")
+
+    /** The `ollama` inside Ollama's app (user or system Applications), or one on the PATH. */
+    private fun macBinary(): File? =
+      listOf(File(System.getProperty("user.home"), "Applications"), File("/Applications"))
+        .map { File(it, "$MAC_APP/Contents/Resources/ollama") }
+        .firstOrNull { it.canExecute() }
+        ?: listOf(File("/opt/homebrew/bin/ollama"), File("/usr/local/bin/ollama")).firstOrNull {
+          it.canExecute()
+        }
         ?: onPath("ollama")
 
     private fun onPath(name: String): File? =

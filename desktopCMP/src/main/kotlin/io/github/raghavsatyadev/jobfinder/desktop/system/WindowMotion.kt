@@ -8,6 +8,7 @@ import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.ptr.IntByReference
 import com.sun.jna.win32.StdCallLibrary
 import com.sun.jna.win32.W32APIOptions
+import java.awt.Desktop
 import java.awt.Frame
 import java.awt.Window
 import kotlin.coroutines.coroutineContext
@@ -60,6 +61,7 @@ class WindowMotion(private val window: Window) {
     val hwnd = if (animate()) handle() else null
     if (hwnd == null) {
       window.isVisible = true
+      activateMacApp()
       window.toFront()
       return
     }
@@ -112,6 +114,19 @@ class WindowMotion(private val window: Window) {
   private fun sysCommand(command: Int): Boolean {
     val hwnd = handle() ?: return false
     return Api.INSTANCE.PostMessage(hwnd, WM_SYSCOMMAND, WinDef.WPARAM(command.toLong()), null)
+  }
+
+  /**
+   * On macOS, makes the app the active one: `toFront` alone leaves a window opened from the menu
+   * bar behind the app the user is in.
+   */
+  private fun activateMacApp() {
+    if (!Platform.isMac()) return
+    runCatching {
+      val desktop = Desktop.getDesktop()
+      if (desktop.isSupported(Desktop.Action.APP_REQUEST_FOREGROUND))
+        desktop.requestForeground(true)
+    }
   }
 
   /** The native window, created first when the window has never been shown. */

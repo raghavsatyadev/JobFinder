@@ -1,5 +1,6 @@
 package io.github.raghavsatyadev.jobfinder.desktop.browser
 
+import com.sun.jna.Platform
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import javax.swing.SwingUtilities
@@ -62,13 +63,17 @@ class CefRuntime(val paths: AppPaths) {
     }
     // Not builder.setAppHandler: it takes a MavenCefAppHandlerAdapter, whose final
     // onBeforeCommandLineProcessing can only append switches, and an appended second
-    // --disable-features would replace the list CEF sets. That adapter only matters on macOS.
+    // --disable-features would replace the list CEF sets.
     CefApp.addAppHandler(
       object : CefAppHandlerAdapter(null) {
         override fun onBeforeCommandLineProcessing(
           processType: String,
           commandLine: CefCommandLine,
         ) {
+          // macOS: jcefmaven's framework, bundle and helper paths, which CefApp's own handler adds
+          // (as MavenCefAppHandlerAdapter does). Without them Chromium finds no ICU data and quits.
+          if (Platform.isMac())
+            CefApp.getInstance().onBeforeCommandLineProcessing(processType, commandLine)
           if (processType.isEmpty()) CefConfig.applySwitches(commandLine)
         }
 

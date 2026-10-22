@@ -129,6 +129,7 @@ androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.r
 # Ktor client
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
@@ -162,11 +163,13 @@ jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 jcefmaven = { module = "me.friwi:jcefmaven", version.ref = "jcefmaven" }
 jcef-natives-windows-amd64 = { module = "me.friwi:jcef-natives-windows-amd64", version.ref = "jcef-natives" }
 jcef-natives-linux-amd64 = { module = "me.friwi:jcef-natives-linux-amd64", version.ref = "jcef-natives" }
+jcef-natives-macosx-arm64 = { module = "me.friwi:jcef-natives-macosx-arm64", version.ref = "jcef-natives" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 # Backup encryption (AES-GCM, PBKDF2) on the JVM and Android
 cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core", version.ref = "cryptography" }
 cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptography" }
+cryptography-provider-optimal = { module = "dev.whyoleg.cryptography:cryptography-provider-optimal", version.ref = "cryptography" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
