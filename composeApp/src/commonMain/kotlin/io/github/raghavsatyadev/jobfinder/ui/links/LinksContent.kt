@@ -231,7 +231,10 @@ private fun ScanBanner(scan: ScanState) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EmptyLinks(sites: ImmutableList<Site>, onAddLink: () -> Unit) {
-  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+  // The bottom padding lets the last boards scroll out from under the floating tab bar.
+  Column(
+    Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = scrollBottom())
+  ) {
     EmptyState(
       icon = Icons.Rounded.TravelExplore,
       title = stringResource(Res.string.links_empty_title),
