@@ -26,9 +26,7 @@
     "deny": [
       "Bash(gh pr merge:*)",
       "Bash(gh pr create:*)",
-      "Bash(gh pr review --approve:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)"
+      "Bash(gh pr review --approve:*)"
     ]
   },
   "hooks": {
