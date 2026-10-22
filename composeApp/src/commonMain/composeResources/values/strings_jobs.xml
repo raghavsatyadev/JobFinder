@@ -26,6 +26,7 @@
     <string name="jobs_loading_more">Loading more jobs</string>
     <string name="jobs_scanning">Scanning your searches</string>
     <string name="jobs_scanning_progress">Scanning: %1$d of %2$d searches</string>
+    <string name="jobs_reading_progress">Reading new jobs: %1$d of %2$d</string>
 
     <!-- Overflow -->
     <string name="jobs_action_refresh">Refresh</string>
@@ -142,4 +143,9 @@
     <string name="jobs_msg_archived_all">%1$d jobs archived</string>
     <string name="jobs_msg_deleted_all">%1$d jobs deleted</string>
     <string name="jobs_msg_failed">That did not work. Try again.</string>
+    <string name="jobs_msg_refresh_started">Checking your saved searches for new jobs</string>
+    <string name="jobs_msg_refresh_running">Already checking your saved searches</string>
+    <string name="jobs_msg_refresh_wait">You can check for new jobs again in %1$s. JobFinder waits 4 hours between refreshes so job sites do not block your IP address.</string>
+    <string name="jobs_wait_hours">%1$d h %2$d min</string>
+    <string name="jobs_wait_minutes">%1$d min</string>
 </resources>

@@ -46,13 +46,14 @@ class JobScanner(
   /** Reads a page in the user's own browser when the hidden one cannot. */
   fallback: PageFallback? = null,
   private val clock: () -> Long = System::currentTimeMillis,
+  private val cooldown: RefreshCooldown = RefreshCooldown(),
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : Scanner, AutoCloseable {
   private val log = LoggerFactory.getLogger(JobScanner::class.java)
   private val running = AtomicBoolean(false)
   private val open = AtomicBoolean(true)
   private val scraper = PageScraper(pool, pacing, fallback) { open.get() }
-  private val _state = MutableStateFlow(ScanState())
+  private val _state = MutableStateFlow(ScanState(refreshAllowedAt = cooldown.allowedAt))
 
   override val state: StateFlow<ScanState> = _state.asStateFlow()
 
@@ -61,6 +62,28 @@ class JobScanner(
       log.info("Not starting a scan: one is running")
       return false
     }
+    launchScanAll()
+    return true
+  }
+
+  override fun startRefresh(): Boolean {
+    if (!open.get()) return false
+    if (!cooldown.allows(clock())) {
+      log.info("Not starting a refresh: allowed again at {}", cooldown.allowedAt)
+      return false
+    }
+    if (!running.compareAndSet(false, true)) {
+      log.info("Not starting a refresh: a scan is running")
+      return false
+    }
+    cooldown.start(clock())
+    _state.update { it.copy(refreshAllowedAt = cooldown.allowedAt) }
+    publishState()
+    launchScanAll()
+    return true
+  }
+
+  private fun launchScanAll() {
     scope.launch {
       try {
         exclusive { scan(db.linksDao().listAll()) }
@@ -69,7 +92,6 @@ class JobScanner(
         log.error("Scan failed", e)
       }
     }
-    return true
   }
 
   override suspend fun scanLink(linkId: Long): List<Long> {
@@ -292,6 +314,7 @@ class JobScanner(
         jobsTotal = jobs,
         lastFinishedAt = it.lastFinishedAt,
         lastNewJobs = it.lastNewJobs,
+        refreshAllowedAt = it.refreshAllowedAt,
       )
     }
     publishState()

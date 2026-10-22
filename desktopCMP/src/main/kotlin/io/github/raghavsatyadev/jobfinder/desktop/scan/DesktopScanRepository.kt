@@ -38,7 +38,7 @@ class DesktopScanRepository(
 
   override val events: Flow<ServerEvent> = serverEvents.events
 
-  override suspend fun startScanAll(): Boolean = guard("scan all") { scanner.startScanAll() }
+  override suspend fun startScanAll(): Boolean = guard("scan all") { scanner.startRefresh() }
 
   override suspend fun scanLink(linkId: Long): List<Long> =
     guard("scan link $linkId") { scanner.scanLink(linkId) }

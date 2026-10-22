@@ -17,7 +17,7 @@ fun Route.scanRoutes(deps: ApiDependencies) {
   route("/scan") {
     get("/state") { call.respondOk(scanner.state.value) }
     post {
-      val started = scanner.startScanAll()
+      val started = scanner.startRefresh()
       call.respondOk(ScanStartResponse(started, scanner.state.value))
     }
     post("/links/{id}") { call.respondOk(scanner.scanLink(call.idParam())) }

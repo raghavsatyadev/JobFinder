@@ -3,6 +3,7 @@
 package io.github.raghavsatyadev.jobfinder.ui.jobs
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
@@ -66,6 +67,7 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_action_refresh
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filters
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filters_active
 import io.github.raghavsatyadev.jobfinder.resources.jobs_more_actions
+import io.github.raghavsatyadev.jobfinder.resources.jobs_reading_progress
 import io.github.raghavsatyadev.jobfinder.resources.jobs_scanning
 import io.github.raghavsatyadev.jobfinder.resources.jobs_scanning_progress
 import io.github.raghavsatyadev.jobfinder.resources.jobs_search_clear
@@ -300,14 +302,25 @@ private fun CountPill(count: Int, selected: Boolean) {
   )
 }
 
+/**
+ * A bar under the tabs while the computer scans: one step per saved search, then one per new job
+ * whose details it reads.
+ */
 @Composable
 internal fun ScanProgress(state: JobsListUiState) {
   if (!state.scan.scanning) return
   val scan = state.scan
+  val readingJobs = scan.jobsTotal > 0 && scan.linksDone >= scan.linksTotal
+  val (done, total) =
+    if (readingJobs) scan.jobsDone to scan.jobsTotal else scan.linksDone to scan.linksTotal
   val text =
-    if (scan.linksTotal > 0)
-      stringResource(Res.string.jobs_scanning_progress, scan.linksDone, scan.linksTotal)
-    else stringResource(Res.string.jobs_scanning)
+    when {
+      readingJobs -> stringResource(Res.string.jobs_reading_progress, done, total)
+      total > 0 -> stringResource(Res.string.jobs_scanning_progress, done, total)
+      else -> stringResource(Res.string.jobs_scanning)
+    }
+  val progress by
+    animateFloatAsState(if (total > 0) done.toFloat() / total else 0f, label = "scan progress")
   Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
     Text(
       text,
@@ -315,11 +328,6 @@ internal fun ScanProgress(state: JobsListUiState) {
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(Modifier.size(4.dp))
-    if (scan.linksTotal > 0) {
-      val progress = scan.linksDone.toFloat() / scan.linksTotal
-      WavyProgress(progress)
-    } else {
-      WavyProgress()
-    }
+    WavyProgress(if (total > 0) progress else null)
   }
 }

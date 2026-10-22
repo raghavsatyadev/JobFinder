@@ -78,8 +78,11 @@ sealed interface JobsListEvent {
 
   data object LoadMore : JobsListEvent
 
-  /** Reloads the tab and its counts (the old "Refresh"). */
+  /** Reloads the tab and its counts, and asks the computer to scan every saved search. */
   data object Refresh : JobsListEvent
+
+  /** Reloads the tab and its counts after a failed load; scans nothing. */
+  data object Reload : JobsListEvent
 
   data object ArchiveAll : JobsListEvent
 
@@ -97,6 +100,15 @@ sealed interface JobsMessage {
   data class DeletedAll(val count: Int) : JobsMessage
 
   data object Failed : JobsMessage
+
+  /** Refresh started a scan of every saved search. */
+  data object RefreshStarted : JobsMessage
+
+  /** Refresh found a scan already running. */
+  data object RefreshRunning : JobsMessage
+
+  /** Refresh is blocked for [waitMillis] more so job sites do not block the user's IP address. */
+  data class RefreshCooldown(val waitMillis: Long) : JobsMessage
 }
 
 /** How long typing pauses before the search runs. */

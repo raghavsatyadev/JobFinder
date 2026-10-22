@@ -76,6 +76,7 @@ import io.github.raghavsatyadev.jobfinder.server.nativehost.NativeHostLink
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalSitesRepository
 import io.github.raghavsatyadev.jobfinder.server.scan.BrowserPool
 import io.github.raghavsatyadev.jobfinder.server.scan.JobScanner
+import io.github.raghavsatyadev.jobfinder.server.scan.RefreshCooldown
 import io.github.raghavsatyadev.jobfinder.server.service.CustomBoards
 import io.github.raghavsatyadev.jobfinder.server.service.JobRetention
 import io.github.raghavsatyadev.jobfinder.server.service.NewJobsRecheck
@@ -347,7 +348,14 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
   single { runtime }
   single { CefBrowserPool(get()) } bind BrowserPool::class
   single {
-    JobScanner(get(), get(), get(), get(), fallback = ExtensionPageFallback(get<NativeHostLink>()))
+    JobScanner(
+      get(),
+      get(),
+      get(),
+      get(),
+      fallback = ExtensionPageFallback(get<NativeHostLink>()),
+      cooldown = RefreshCooldown(File(dataDir, "refresh-cooldown.txt")),
+    )
   }
   single { LanAnnouncer(get<ApiServerHost>().endpoint, get()) }
   single { EmbeddedServer(get(), get(), get(), get()) }

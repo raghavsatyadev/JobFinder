@@ -14,4 +14,6 @@ data class ScanState(
   val lastFinishedAt: Long? = null,
   /** New jobs stored by the last finished scan. */
   val lastNewJobs: Int = 0,
+  /** When the user's Refresh may start the next scan; `null` or past means it may now. */
+  val refreshAllowedAt: Long? = null,
 )

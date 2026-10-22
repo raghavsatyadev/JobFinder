@@ -69,7 +69,12 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_archived_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_deleted
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_deleted_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_failed
+import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_refresh_running
+import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_refresh_started
+import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_refresh_wait
 import io.github.raghavsatyadev.jobfinder.resources.jobs_msg_restored
+import io.github.raghavsatyadev.jobfinder.resources.jobs_wait_hours
+import io.github.raghavsatyadev.jobfinder.resources.jobs_wait_minutes
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
@@ -127,7 +132,18 @@ internal suspend fun JobsMessage.text(): String? =
     is JobsMessage.ArchivedAll -> getString(Res.string.jobs_msg_archived_all, count)
     is JobsMessage.DeletedAll -> getString(Res.string.jobs_msg_deleted_all, count)
     JobsMessage.Failed -> getString(Res.string.jobs_msg_failed)
+    JobsMessage.RefreshStarted -> getString(Res.string.jobs_msg_refresh_started)
+    JobsMessage.RefreshRunning -> getString(Res.string.jobs_msg_refresh_running)
+    is JobsMessage.RefreshCooldown ->
+      getString(Res.string.jobs_msg_refresh_wait, waitText(waitMillis))
   }
+
+/** "3 h 20 min" or "20 min", rounded up to the minute. */
+private suspend fun waitText(millis: Long): String {
+  val minutes = ((millis + 59_999) / 60_000).toInt()
+  return if (minutes >= 60) getString(Res.string.jobs_wait_hours, minutes / 60, minutes % 60)
+  else getString(Res.string.jobs_wait_minutes, minutes)
+}
 
 /** The job feed drawn from [state]; [JobsListScreen] feeds it from its ViewModel. */
 @Composable
@@ -276,7 +292,7 @@ fun JobsListContent(
           list == null && state.failed ->
             ErrorState(
               stringResource(Res.string.common_error_generic),
-              onRetry = { onEvent(JobsListEvent.Refresh) },
+              onRetry = { onEvent(JobsListEvent.Reload) },
             )
           list == null -> LoadingState()
           list.isEmpty() && !state.loading -> EmptyJobs(state, onEvent, caughtUp)

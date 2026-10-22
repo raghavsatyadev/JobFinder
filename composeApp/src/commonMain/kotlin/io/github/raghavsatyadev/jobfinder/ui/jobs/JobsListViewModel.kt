@@ -11,6 +11,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ScanRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
 import kotlin.time.TimeSource
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
@@ -133,6 +134,11 @@ class JobsListViewModel(
         _state.update { it.copy(refreshing = true) }
         load()
         loadFilterOptions()
+        checkJobSites()
+      }
+      JobsListEvent.Reload -> {
+        load()
+        loadFilterOptions()
       }
       JobsListEvent.ArchiveAll -> changeAll(JobStatus.ARCHIVED)
       JobsListEvent.DeleteAll -> changeAll(JobStatus.DELETED)
@@ -199,6 +205,33 @@ class JobsListViewModel(
         throw e
       } catch (_: Exception) {
         // The counts stay as they were; the next load fixes them.
+      }
+    }
+  }
+
+  /**
+   * Asks the computer to scan every saved search. It refuses while a scan runs or within 4 hours of
+   * the last Refresh (job sites block IP addresses that read them too often); say which.
+   */
+  private fun checkJobSites() {
+    viewModelScope.launch {
+      try {
+        if (scan.startScanAll()) {
+          _messages.trySend(JobsMessage.RefreshStarted)
+          return@launch
+        }
+        val now = Clock.System.now().toEpochMilliseconds()
+        val wait = scan.state.value.refreshAllowedAt?.minus(now) ?: 0
+        _messages.trySend(
+          when {
+            scan.state.value.scanning -> JobsMessage.RefreshRunning
+            wait > 0 -> JobsMessage.RefreshCooldown(wait)
+            else -> JobsMessage.Failed
+          }
+        )
+      } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        _messages.trySend(JobsMessage.Failed)
       }
     }
   }

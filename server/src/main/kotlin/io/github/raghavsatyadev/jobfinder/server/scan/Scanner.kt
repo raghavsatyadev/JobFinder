@@ -19,6 +19,13 @@ interface Scanner {
   /** Starts a scan of every link unless one is running. Returns `false` if one was running. */
   fun startScanAll(): Boolean
 
+  /**
+   * The user's Refresh: starts a scan of every link like [startScanAll], at most once per
+   * [RefreshCooldown.REFRESH_COOLDOWN_MILLIS] so job sites do not block the user's IP address.
+   * Returns `false` when a scan runs or the cooldown has not passed; [state] then says which.
+   */
+  fun startRefresh(): Boolean = startScanAll()
+
   /** Scans one link now and returns the ids of the new jobs (old `scan-link`). */
   suspend fun scanLink(linkId: Long): List<Long>
 
