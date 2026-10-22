@@ -49,3 +49,6 @@ memory/
 xcuserdata/
 *.xcuserstate
 iosApp/build/
+
+# Windows folder settings
+desktop.ini
