@@ -36,6 +36,9 @@ err() { printf '%s\n' "$*" >&2; }
 # ---------------------------------------------------------------------------
 # Requirements: Java
 # ---------------------------------------------------------------------------
+# kit-env.sh falls back to Android Studio's runtime on macOS, whose /usr/bin/java is only a stub.
+# shellcheck source=../scripts/kit-env.sh
+. "$KIT_ROOT/scripts/kit-env.sh"
 if ! command -v java >/dev/null 2>&1; then
   err "${RED}${BLD}pre-commit: 'java' not found on PATH.${RST} ktfmt needs a JDK to run."
   exit 1

@@ -6,6 +6,8 @@ set -u
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root" || exit 1
+# shellcheck source=kit-env.sh
+. "$root/scripts/kit-env.sh"
 
 mkdir -p tmp
 log="tmp/gradle-agent-$(date +%Y%m%d-%H%M%S)-$$.log"
