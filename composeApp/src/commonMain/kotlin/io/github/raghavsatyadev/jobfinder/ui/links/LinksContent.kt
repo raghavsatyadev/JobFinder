@@ -3,9 +3,12 @@
 package io.github.raghavsatyadev.jobfinder.ui.links
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,8 +25,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -56,11 +61,17 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
@@ -103,7 +114,6 @@ import io.github.raghavsatyadev.jobfinder.resources.links_scanning_all
 import io.github.raghavsatyadev.jobfinder.resources.links_scanning_link
 import io.github.raghavsatyadev.jobfinder.resources.links_scanning_progress
 import io.github.raghavsatyadev.jobfinder.resources.links_supported_sites
-import io.github.raghavsatyadev.jobfinder.resources.links_title
 import io.github.raghavsatyadev.jobfinder.resources.links_unknown_site
 import io.github.raghavsatyadev.jobfinder.resources.links_view_count
 import io.github.raghavsatyadev.jobfinder.resources.links_why
@@ -118,7 +128,9 @@ import io.github.raghavsatyadev.jobfinder.ui.components.ErrorState
 import io.github.raghavsatyadev.jobfinder.ui.components.FabCorner
 import io.github.raghavsatyadev.jobfinder.ui.components.LoadingState
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
+import io.github.raghavsatyadev.jobfinder.ui.components.LocalScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
+import io.github.raghavsatyadev.jobfinder.ui.components.ScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.StaggeredEntrance
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusPill
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusTone
@@ -128,6 +140,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.components.stale
+import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -140,9 +153,24 @@ fun LinksContent(
   snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
   val offline = LocalComputerOffline.current
+  // Scrolling down hides the toolbar and the floating tab bar; scrolling up shows them.
+  val bars = LocalScrollBars.current ?: remember { ScrollBars() }
+  DisposableEffect(bars) { onDispose { bars.visible = true } }
+  val gridState = rememberLazyGridState()
+  val atTop by remember {
+    derivedStateOf {
+      gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
+    }
+  }
+  var searchFocused by remember { mutableStateOf(false) }
+  // Kept while typing a search, and at the top of the grid, where there is nothing to make room
+  // for.
+  val showHeader = bars.visible || searchFocused || atTop
+  val animate = animationsEnabled()
+  val enter = if (animate) expandVertically() + fadeIn() else EnterTransition.None
+  val exit = if (animate) shrinkVertically() + fadeOut() else ExitTransition.None
   Scaffold(
     contentWindowInsets = screenInsets(),
-    topBar = { TopAppBar(title = { Text(stringResource(Res.string.links_title)) }) },
     floatingActionButton = {
       if (!state.links.isNullOrEmpty() && !offline) {
         SmallExtendedFloatingActionButton(
@@ -156,7 +184,19 @@ fun LinksContent(
     snackbarHost = { SnackbarHost(snackbarHostState) },
   ) { padding ->
     val links = state.links
-    Column(Modifier.fillMaxSize().paddingAbove(padding)) {
+    Column(Modifier.fillMaxSize().paddingAbove(padding).nestedScroll(bars.connection)) {
+      AnimatedVisibility(
+        visible = !links.isNullOrEmpty() && showHeader,
+        enter = enter,
+        exit = exit,
+        modifier = Modifier.onFocusChanged { searchFocused = it.hasFocus },
+      ) {
+        LinksToolbar(
+          view = state.view,
+          boards = state.boards,
+          onChange = { onEvent(LinksEvent.ChangeView(it)) },
+        )
+      }
       ScanBanner(state.scan)
       if (offline) OfflineNote()
       when {
@@ -168,12 +208,6 @@ fun LinksContent(
         links == null -> LoadingState()
         links.isEmpty() -> EmptyLinks(state.supportedSites, onAddLink)
         else -> {
-          LinksToolbar(
-            view = state.view,
-            boards = state.boards,
-            onChange = { onEvent(LinksEvent.ChangeView(it)) },
-            modifier = Modifier.padding(top = 8.dp),
-          )
           val groups = state.groups.orEmpty()
           if (groups.all { it.links.isEmpty() }) {
             NoMatchingLinks(onClear = { onEvent(LinksEvent.ChangeView(state.view.cleared())) })
@@ -181,6 +215,7 @@ fun LinksContent(
             LinksGrid(
               groups = groups,
               state = state,
+              gridState = gridState,
               onEvent = onEvent,
               modifier = Modifier.stale(state.stale, stringResource(Res.string.common_stale)),
             )
@@ -300,6 +335,7 @@ internal fun SiteChips(sites: ImmutableList<Site>, modifier: Modifier = Modifier
 private fun LinksGrid(
   groups: List<LinkGroup>,
   state: LinksUiState,
+  gridState: LazyGridState,
   onEvent: (LinksEvent) -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -311,6 +347,7 @@ private fun LinksGrid(
   }
   LazyVerticalGrid(
     columns = GridCells.Adaptive(minSize = 340.dp),
+    state = gridState,
     contentPadding =
       PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + scrollBottom()),
     horizontalArrangement = Arrangement.spacedBy(12.dp),

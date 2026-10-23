@@ -1,6 +1,5 @@
 <resources>
     <!-- Searches list -->
-    <string name="links_title">Job searches</string>
     <string name="links_add">Add search</string>
     <string name="links_view_search">Search your searches</string>
     <string name="links_view_search_clear">Clear the search text</string>
@@ -14,6 +13,12 @@
     <string name="links_view_sort_last_checked">Checked most recently</string>
     <string name="links_view_sort_failing">Failing first</string>
     <string name="links_view_count">(%1$d)</string>
+    <string name="links_filters">Filter searches</string>
+    <string name="links_filters_active">Filter searches, %1$d active</string>
+    <string name="links_filter_boards">Job boards</string>
+    <string name="links_filter_status">Status</string>
+    <string name="links_filter_done">Done</string>
+    <string name="links_sort">Sort searches</string>
     <string name="links_empty_title">No searches yet</string>
     <string name="links_empty_hint">JobFinder visits your saved job searches on a schedule and tells you when new jobs appear. Add the search page of a job board to start.</string>
     <string name="links_supported_sites">Supported job boards</string>
