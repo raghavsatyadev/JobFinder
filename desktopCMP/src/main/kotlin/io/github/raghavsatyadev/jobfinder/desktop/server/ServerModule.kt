@@ -422,6 +422,11 @@ fun serverModule(dataDir: File) = module {
       restoreResume = { get<AtsService>().restoreResume(it) },
       jobsCsv = { get<JobsCsvExporter>().export() },
       deviceKeys = get(),
+      afterImport = {
+        get<AtsService>().retryFailed()
+        // The scan pipeline is bound only in the app, not in the server-only module.
+        getOrNull<JobScanner>()?.resumeProcessing()
+      },
     )
   } bind BackupRepository::class
   single { ServerIdentity.load(dataDir.resolve(SERVER_ID_FILE).toPath()) }

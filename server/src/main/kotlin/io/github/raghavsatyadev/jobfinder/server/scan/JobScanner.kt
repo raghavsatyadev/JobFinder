@@ -266,7 +266,13 @@ class JobScanner(
       }
     } catch (e: Exception) {
       if (e is CancellationException) throw e
-      log.error("Could not read the description of job {} ({}): {}", job.id, job.title, e.message)
+      log.error(
+        "Could not read the description of job {} ({}): {}",
+        job.id,
+        job.title,
+        e.message,
+        e,
+      )
       job
     } finally {
       _state.update { it.copy(jobsDone = it.jobsDone + 1) }

@@ -54,6 +54,7 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -82,6 +83,11 @@ class BackupService(
   private val jobsCsv: (suspend () -> String)? = null,
   /** This computer's backup key; `null` (or no key) saves plain zips. */
   private val deviceKeys: DeviceBackupKeys? = null,
+  /**
+   * Runs after a full import: picks up the restored work left halfway (jobs still in `processing`,
+   * failed reviews), which otherwise waits for the next start.
+   */
+  private val afterImport: (suspend () -> Unit)? = null,
   private val clock: () -> Long = System::currentTimeMillis,
 ) : BackupRepository {
   /** One import or export at a time. */
@@ -130,6 +136,11 @@ class BackupService(
         summary.jobsAdded,
         summary.notesAdded,
       )
+      runCatching { afterImport?.invoke() }
+        .onFailure {
+          if (it is CancellationException) throw it
+          log.error("Could not resume the restored work", it)
+        }
       summary
     }
 

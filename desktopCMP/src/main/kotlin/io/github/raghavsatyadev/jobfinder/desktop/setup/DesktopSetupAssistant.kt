@@ -52,6 +52,10 @@ class DesktopSetupAssistant(
   private val pollEvery: Duration = 5.seconds,
   /** The AI choice: with an online model, Ollama and its model are not needed. */
   private val aiSettings: suspend () -> AiSettings = { AiSettings() },
+  /**
+   * Runs when Ollama and the app's model are ready: the AI work that failed without them retries.
+   */
+  private val onModelReady: suspend () -> Unit = {},
 ) : SetupAssistant, AutoCloseable {
   private val log = LoggerFactory.getLogger(DesktopSetupAssistant::class.java)
   private val _visible = MutableStateFlow(false)
@@ -298,6 +302,7 @@ class DesktopSetupAssistant(
           ollama.create(AppModel.NAME, AppModel.BASE, AppModel.CONTEXT_SIZE)
           finish(kind)
         }
+        onModelReady()
       } catch (e: Exception) {
         if (e is CancellationException) throw e
         log.warn("Setting up {} failed", kind, e)

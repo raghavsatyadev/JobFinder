@@ -20,6 +20,7 @@ import androidx.compose.ui.window.WindowExceptionHandlerFactory
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.sun.jna.Platform
 import io.github.raghavsatyadev.jobfinder.desktop.browser.AppPaths
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefBrowserPool
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefRuntime
@@ -80,6 +81,7 @@ import io.github.raghavsatyadev.jobfinder.server.scan.RefreshCooldown
 import io.github.raghavsatyadev.jobfinder.server.service.CustomBoards
 import io.github.raghavsatyadev.jobfinder.server.service.JobRetention
 import io.github.raghavsatyadev.jobfinder.server.service.NewJobsRecheck
+import io.github.raghavsatyadev.jobfinder.server.service.ats.AtsService
 import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import io.github.raghavsatyadev.jobfinder.ui.pairing.PairingApprovalDialog
@@ -87,6 +89,7 @@ import io.github.raghavsatyadev.jobfinder.ui.pairing.RestoreApprovalDialog
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.theme.AppTheme
+import java.awt.EventQueue
 import java.io.File
 import kotlin.system.exitProcess
 import kotlinx.coroutines.CancellationException
@@ -141,6 +144,7 @@ fun main(args: Array<String>) {
           serve(args.getOrNull(1)?.toLongOrNull())
         }
         args.firstOrNull() == "scan" -> {
+          startCefBeforeDatabase(runtime)
           initKoin(
             extraModules =
               listOf(desktopModule(runtime, paths.root), serverModule(paths.root), desktopUiModule)
@@ -148,6 +152,7 @@ fun main(args: Array<String>) {
           scanCommand(args.getOrNull(1)?.toLongOrNull())
         }
         else -> {
+          startCefBeforeDatabase(runtime)
           initKoin(
             extraModules =
               listOf(desktopModule(runtime, paths.root), serverModule(paths.root), desktopUiModule)
@@ -162,6 +167,18 @@ fun main(args: Array<String>) {
     }
   // CEF and AWT leave non-daemon threads behind.
   exitProcess(exitCode)
+}
+
+/**
+ * On macOS, starts CEF before the database opens. Chromium's start changes how memory is handed out
+ * in the whole process, and SQLite connections opened before that then fail to prepare large
+ * statements (an UPDATE on jobs with its triggers) with "out of memory". Connections opened after
+ * it work. A CEF that fails to start here is logged; the app runs on and starts it again later.
+ */
+private fun startCefBeforeDatabase(runtime: CefRuntime) {
+  if (!Platform.isMac()) return
+  runCatching { EventQueue.invokeAndWait { runtime.start() } }
+    .onFailure { LoggerFactory.getLogger("jobfinder").error("Could not start CEF early", it) }
 }
 
 /**
@@ -400,6 +417,7 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
       openExtension = { BundledExtension.open(dataDir) },
       scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
       aiSettings = { scope.get<AiService>().settings() },
+      onModelReady = { scope.get<AtsService>().retryFailed() },
     )
   } onClose { (it as? AutoCloseable)?.close() }
   single {

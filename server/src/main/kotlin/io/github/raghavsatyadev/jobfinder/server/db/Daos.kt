@@ -357,6 +357,9 @@ interface AtsReviewsDao {
 
   @Query("DELETE FROM ats_reviews") suspend fun deleteAll()
 
+  /** Drops the failed reviews, so the background scorer tries those jobs again. */
+  @Query("DELETE FROM ats_reviews WHERE failed = 1") suspend fun deleteFailed(): Int
+
   @Query("SELECT * FROM ats_reviews ORDER BY job_id") suspend fun listAll(): List<AtsReviewEntity>
 
   /** The latest usable reviews made for the resume with [hash] (accuracy samples). */

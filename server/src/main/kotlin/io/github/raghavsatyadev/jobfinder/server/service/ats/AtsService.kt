@@ -76,8 +76,9 @@ class AtsService(
     }
   }
 
-  /** Starts the worker in [scope]; new jobs wake it. */
+  /** Starts the worker in [scope]; new jobs wake it. Reviews that failed before are tried again. */
   fun start(scope: CoroutineScope) {
+    scope.launch { retryFailed() }
     scope.launch {
       events.events.collect { if (it is ServerEvent.NewJobs) wake.trySend(Unit) }
     }
@@ -128,6 +129,15 @@ class AtsService(
       events.emit(ServerEvent.ResumeChanged)
       wake.trySend(Unit)
     }
+  }
+
+  /**
+   * Scores the jobs whose review failed (the model was off, or a backup brought failed ones) again.
+   */
+  suspend fun retryFailed() {
+    val dropped = reviews.deleteFailed()
+    if (dropped > 0) log.info("Retrying {} failed ATS reviews", dropped)
+    wake.trySend(Unit)
   }
 
   override suspend fun deleteResume() {
