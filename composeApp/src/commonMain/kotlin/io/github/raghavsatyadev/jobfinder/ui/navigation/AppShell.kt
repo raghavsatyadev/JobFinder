@@ -1,4 +1,8 @@
-@file:OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalSharedTransitionApi::class)
+@file:OptIn(
+  ExperimentalMaterial3AdaptiveApi::class,
+  ExperimentalSharedTransitionApi::class,
+  KoinExperimentalAPI::class,
+)
 
 package io.github.raghavsatyadev.jobfinder.ui.navigation
 
@@ -25,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
-import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -49,7 +52,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome
@@ -64,26 +66,11 @@ import io.github.raghavsatyadev.jobfinder.resources.nav_ai_filters
 import io.github.raghavsatyadev.jobfinder.resources.nav_jobs
 import io.github.raghavsatyadev.jobfinder.resources.nav_links
 import io.github.raghavsatyadev.jobfinder.resources.nav_settings
-import io.github.raghavsatyadev.jobfinder.ui.components.HELP_KEY
-import io.github.raghavsatyadev.jobfinder.ui.components.HelpButtonCorner
-import io.github.raghavsatyadev.jobfinder.ui.components.LocalEntryVisibilityScope
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalFloatingBarSpace
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalScrollBars
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalSharedTransitionScope
 import io.github.raghavsatyadev.jobfinder.ui.components.ScrollBars
-import io.github.raghavsatyadev.jobfinder.ui.components.settingsSectionKey
-import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
-import io.github.raghavsatyadev.jobfinder.ui.filters.AiFiltersScreen
-import io.github.raghavsatyadev.jobfinder.ui.help.HelpScreen
-import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailPane
-import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailPlaceholder
-import io.github.raghavsatyadev.jobfinder.ui.jobs.JobsListPane
-import io.github.raghavsatyadev.jobfinder.ui.links.AddLinkScreen
-import io.github.raghavsatyadev.jobfinder.ui.links.LinksScreen
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
-import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsPlaceholder
-import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsScreen
-import io.github.raghavsatyadev.jobfinder.ui.settings.SettingsSection
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -93,6 +80,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
+import org.koin.compose.navigation3.koinEntryProvider
+import org.koin.core.annotation.KoinExperimentalAPI
 
 /** The top-level destinations, in the order the navigation bar or rail shows them. */
 enum class TopLevel(
@@ -243,9 +232,14 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
   val koin = getKoin()
   val desktop = remember { koin.getOrNull<DesktopFeatures>() != null }
   val instant = desktop || directive.maxHorizontalPartitions > 1
+  val entries = koinEntryProvider<NavKey>()
 
   SharedTransitionLayout {
-    CompositionLocalProvider(LocalSharedTransitionScope provides this.takeUnless { instant }) {
+    CompositionLocalProvider(
+      LocalSharedTransitionScope provides this.takeUnless { instant },
+      LocalBackStack provides backStack,
+      LocalSideBySide provides (directive.maxHorizontalPartitions > 1),
+    ) {
       NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
@@ -260,101 +254,14 @@ private fun Destinations(backStack: NavBackStack<NavKey>) {
         popTransitionSpec = { sceneTransition(instant, initialState, targetState) },
         // The system back button and gesture too, not the library's default slide and scale.
         predictivePopTransitionSpec = { sceneTransition(instant, initialState, targetState) },
-        entryProvider =
-          entryProvider {
-            entry<JobsRoute>(
-              metadata =
-                ListDetailSceneStrategy.listPane(detailPlaceholder = { JobDetailPlaceholder() })
-            ) {
-              Entry {
-                // Only side by side does the open job show as selected: on a phone the card
-                // would flash its selection border while it grows into the detail.
-                val selected =
-                  (backStack.lastOrNull() as? JobDetailRoute)?.jobId?.takeIf {
-                    directive.maxHorizontalPartitions > 1
-                  }
-                JobsListPane(
-                  selectedJobId = selected,
-                  onOpenJob = { job ->
-                    // One detail at a time: replace the open job instead of stacking details.
-                    if (backStack.lastOrNull() is JobDetailRoute) backStack.removeLastOrNull()
-                    backStack.add(JobDetailRoute(job.id, preview = job))
-                  },
-                )
-              }
-            }
-            entry<JobDetailRoute>(
-              metadata = ListDetailSceneStrategy.detailPane() + CONTAINER_TRANSFORM
-            ) { route ->
-              Entry { JobDetailPane(route, onClose = { backStack.removeLastOrNull() }) }
-            }
-            entry<LinksRoute> {
-              Entry { LinksScreen(onAddLink = { backStack.add(AddLinkRoute) }) }
-            }
-            entry<AddLinkRoute>(metadata = CONTAINER_TRANSFORM) {
-              Entry { AddLinkScreen(onDone = { backStack.removeLastOrNull() }) }
-            }
-            entry<AiFiltersRoute> { Entry { AiFiltersScreen() } }
-            entry<SettingsRoute>(
-              metadata =
-                ListDetailSceneStrategy.listPane(detailPlaceholder = { SettingsPlaceholder() })
-            ) {
-              Entry {
-                val open = (backStack.lastOrNull() as? SettingsSectionRoute)?.section
-                SettingsScreen(
-                  onOpenSection = {
-                    // Side by side, one page at a time: the new section replaces the open one.
-                    if (backStack.lastOrNull() is SettingsSectionRoute) backStack.removeLastOrNull()
-                    backStack.add(SettingsSectionRoute(it.name))
-                  },
-                  onOpenHelp = { backStack.add(HelpRoute) },
-                  selected =
-                    SettingsSection.entries
-                      .firstOrNull { it.name == open }
-                      .takeIf { directive.maxHorizontalPartitions > 1 },
-                )
-              }
-            }
-            entry<SettingsSectionRoute>(
-              metadata = ListDetailSceneStrategy.detailPane() + CONTAINER_TRANSFORM
-            ) { route ->
-              val section = SettingsSection.entries.firstOrNull { it.name == route.section }
-              Entry {
-                // The page grows out of its row in the menu, and shrinks back into it.
-                Box(
-                  Modifier.sharedContainer(settingsSectionKey(route.section), fullScreen = true)
-                ) {
-                  SettingsScreen(
-                    section = section,
-                    onBack = { backStack.removeLastOrNull() },
-                    backArrow = directive.maxHorizontalPartitions <= 1,
-                  )
-                }
-              }
-            }
-            entry<HelpRoute>(metadata = CONTAINER_TRANSFORM) {
-              Entry {
-                Box(
-                  Modifier.sharedContainer(HELP_KEY, fullScreen = true, corner = HelpButtonCorner)
-                ) {
-                  HelpScreen(onBack = { backStack.removeLastOrNull() })
-                }
-              }
-            }
-          },
+        entryProvider = entries,
       )
     }
   }
 }
 
-/**
- * Marks an inner screen that grows out of what opened it (a job card, a settings row, a button) and
- * shrinks back into it; its screen change waits for that container transform.
- */
-private val CONTAINER_TRANSFORM = mapOf("jobfinder.containerTransform" to true)
-
 private fun Scene<NavKey>.growsFromContainer() = entries.any {
-  it.metadata["jobfinder.containerTransform"] == true
+  it.metadata[CONTAINER_TRANSFORM_KEY] == true
 }
 
 /**
@@ -374,12 +281,3 @@ private fun sceneTransition(
       fadeIn(tween(500), initialAlpha = 0.99f) togetherWith fadeOut(tween(120, delayMillis = 380))
     else -> fadeIn(tween(150)) togetherWith fadeOut(tween(90))
   }
-
-/** Gives the entry's content the visibility scope its shared elements animate in. */
-@Composable
-private fun Entry(content: @Composable () -> Unit) {
-  CompositionLocalProvider(
-    LocalEntryVisibilityScope provides LocalNavAnimatedContentScope.current,
-    content = content,
-  )
-}

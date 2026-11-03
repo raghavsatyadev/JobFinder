@@ -4,6 +4,7 @@ import io.github.raghavsatyadev.jobfinder.ui.fake.FakeBackend
 import io.github.raghavsatyadev.jobfinder.ui.filters.aiFiltersUiModule
 import io.github.raghavsatyadev.jobfinder.ui.jobs.jobsUiModule
 import io.github.raghavsatyadev.jobfinder.ui.links.linksUiModule
+import io.github.raghavsatyadev.jobfinder.ui.navigation.navigationModule
 import io.github.raghavsatyadev.jobfinder.ui.pairing.pairingUiModule
 import io.github.raghavsatyadev.jobfinder.ui.settings.settingsUiModule
 import io.github.raghavsatyadev.jobfinder.ui.setup.setupUiModule
@@ -25,6 +26,7 @@ val appModule: Module = module {
     settingsUiModule,
     pairingUiModule,
     setupUiModule,
+    navigationModule,
   )
 }
 
