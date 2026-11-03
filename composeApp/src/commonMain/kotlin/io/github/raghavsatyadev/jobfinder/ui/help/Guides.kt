@@ -22,22 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Login
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Computer
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.Pin
-import androidx.compose.material.icons.rounded.Restore
-import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.SettingsBackupRestore
-import androidx.compose.material.icons.rounded.Smartphone
-import androidx.compose.material.icons.rounded.TouchApp
-import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,7 +41,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -97,12 +80,29 @@ import io.github.raghavsatyadev.jobfinder.resources.help_guide_phone_pick_title
 import io.github.raghavsatyadev.jobfinder.resources.help_guide_phone_title
 import io.github.raghavsatyadev.jobfinder.resources.help_guide_phone_wifi
 import io.github.raghavsatyadev.jobfinder.resources.help_guide_phone_wifi_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_computer_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_expand_more_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_link_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_lock_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_login_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_notifications_active_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_pin_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_restore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_security_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_settings_backup_restore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_smartphone_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_touch_app_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_wifi_filled
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The device the app runs on, which decides the order of the guides. */
 enum class GuideDevice {
@@ -134,14 +134,14 @@ private enum class Frame {
 }
 
 /** A drawn device with an icon on its screen. */
-@Immutable private data class Screen(val frame: Frame, val icon: ImageVector)
+@Immutable private data class Screen(val frame: Frame, val icon: DrawableResource)
 
 /** One or two devices; with two, a dashed line joins them, with [link] in the middle. */
 @Immutable
 private data class Scene(
   val first: Screen,
   val second: Screen? = null,
-  val link: ImageVector? = null,
+  val link: DrawableResource? = null,
 )
 
 private enum class StepAction {
@@ -161,7 +161,7 @@ private data class GuideStep(
 @Immutable
 private data class Guide(
   val id: GuideId,
-  val icon: ImageVector,
+  val icon: DrawableResource,
   val title: StringResource,
   val steps: ImmutableList<GuideStep>,
 )
@@ -169,39 +169,39 @@ private data class Guide(
 private val COMPUTER_GUIDE =
   Guide(
     GuideId.COMPUTER,
-    Icons.Rounded.Computer,
+    Res.drawable.ic_computer_filled,
     Res.string.help_guide_computer_title,
     persistentListOf(
       GuideStep(
         Res.string.help_guide_computer_install_title,
         Res.string.help_guide_computer_install,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.CheckCircle)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_check_circle_filled)),
       ),
       GuideStep(
         Res.string.help_guide_computer_network_title,
         Res.string.help_guide_computer_network,
         Scene(
-          Screen(Frame.COMPUTER, Icons.Rounded.Security),
-          Screen(Frame.PHONE, Icons.Rounded.CheckCircle),
-          Icons.Rounded.Wifi,
+          Screen(Frame.COMPUTER, Res.drawable.ic_security_filled),
+          Screen(Frame.PHONE, Res.drawable.ic_check_circle_filled),
+          Res.drawable.ic_wifi_filled,
         ),
         StepAction.OPEN_SETUP,
       ),
       GuideStep(
         Res.string.help_guide_computer_ai_title,
         Res.string.help_guide_computer_ai,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.AutoAwesome)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_auto_awesome_filled)),
         StepAction.OPEN_SETUP,
       ),
       GuideStep(
         Res.string.help_guide_computer_search_title,
         Res.string.help_guide_computer_search,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.Link)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_link_filled)),
       ),
       GuideStep(
         Res.string.help_guide_computer_sign_in_title,
         Res.string.help_guide_computer_sign_in,
-        Scene(Screen(Frame.COMPUTER, Icons.AutoMirrored.Rounded.Login)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_login_filled)),
         StepAction.OPEN_SETUP,
       ),
     ),
@@ -210,38 +210,38 @@ private val COMPUTER_GUIDE =
 private val PHONE_GUIDE =
   Guide(
     GuideId.PHONE,
-    Icons.Rounded.Smartphone,
+    Res.drawable.ic_smartphone_filled,
     Res.string.help_guide_phone_title,
     persistentListOf(
       GuideStep(
         Res.string.help_guide_phone_wifi_title,
         Res.string.help_guide_phone_wifi,
         Scene(
-          Screen(Frame.COMPUTER, Icons.Rounded.Wifi),
-          Screen(Frame.PHONE, Icons.Rounded.Wifi),
-          Icons.Rounded.Wifi,
+          Screen(Frame.COMPUTER, Res.drawable.ic_wifi_filled),
+          Screen(Frame.PHONE, Res.drawable.ic_wifi_filled),
+          Res.drawable.ic_wifi_filled,
         ),
         StepAction.CHECK_CONNECTION,
       ),
       GuideStep(
         Res.string.help_guide_phone_pick_title,
         Res.string.help_guide_phone_pick,
-        Scene(Screen(Frame.PHONE, Icons.Rounded.TouchApp)),
+        Scene(Screen(Frame.PHONE, Res.drawable.ic_touch_app_filled)),
         StepAction.ADD_COMPUTER,
       ),
       GuideStep(
         Res.string.help_guide_phone_allow_title,
         Res.string.help_guide_phone_allow,
         Scene(
-          Screen(Frame.PHONE, Icons.Rounded.Pin),
-          Screen(Frame.COMPUTER, Icons.Rounded.Pin),
-          Icons.Rounded.CheckCircle,
+          Screen(Frame.PHONE, Res.drawable.ic_pin_filled),
+          Screen(Frame.COMPUTER, Res.drawable.ic_pin_filled),
+          Res.drawable.ic_check_circle_filled,
         ),
       ),
       GuideStep(
         Res.string.help_guide_phone_jobs_title,
         Res.string.help_guide_phone_jobs,
-        Scene(Screen(Frame.PHONE, Icons.Rounded.NotificationsActive)),
+        Scene(Screen(Frame.PHONE, Res.drawable.ic_notifications_active_filled)),
       ),
     ),
   )
@@ -249,32 +249,32 @@ private val PHONE_GUIDE =
 private val BACKUP_GUIDE =
   Guide(
     GuideId.BACKUP,
-    Icons.Rounded.SettingsBackupRestore,
+    Res.drawable.ic_settings_backup_restore_filled,
     Res.string.help_guide_backup_title,
     persistentListOf(
       GuideStep(
         Res.string.help_guide_backup_export_title,
         Res.string.help_guide_backup_export,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.SettingsBackupRestore)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_settings_backup_restore_filled)),
       ),
       GuideStep(
         Res.string.help_guide_backup_keep_title,
         Res.string.help_guide_backup_keep,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.Lock)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_lock_filled)),
       ),
       GuideStep(
         Res.string.help_guide_backup_restore_title,
         Res.string.help_guide_backup_restore,
-        Scene(Screen(Frame.COMPUTER, Icons.Rounded.Restore)),
+        Scene(Screen(Frame.COMPUTER, Res.drawable.ic_restore_filled)),
         StepAction.OPEN_SETUP,
       ),
       GuideStep(
         Res.string.help_guide_backup_pair_title,
         Res.string.help_guide_backup_pair,
         Scene(
-          Screen(Frame.PHONE, Icons.Rounded.Pin),
-          Screen(Frame.COMPUTER, Icons.Rounded.Pin),
-          Icons.Rounded.CheckCircle,
+          Screen(Frame.PHONE, Res.drawable.ic_pin_filled),
+          Screen(Frame.COMPUTER, Res.drawable.ic_pin_filled),
+          Res.drawable.ic_check_circle_filled,
         ),
         StepAction.ADD_COMPUTER,
       ),
@@ -282,9 +282,9 @@ private val BACKUP_GUIDE =
         Res.string.help_guide_backup_phone_title,
         Res.string.help_guide_backup_phone,
         Scene(
-          Screen(Frame.PHONE, Icons.Rounded.SettingsBackupRestore),
-          Screen(Frame.COMPUTER, Icons.Rounded.CheckCircle),
-          Icons.Rounded.Wifi,
+          Screen(Frame.PHONE, Res.drawable.ic_settings_backup_restore_filled),
+          Screen(Frame.COMPUTER, Res.drawable.ic_check_circle_filled),
+          Res.drawable.ic_wifi_filled,
         ),
       ),
     ),
@@ -371,7 +371,7 @@ private fun GuideCard(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
       Icon(
-        guide.icon,
+        vectorResource(guide.icon),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.primary,
       )
@@ -381,7 +381,7 @@ private fun GuideCard(
         modifier = Modifier.weight(1f).semantics { heading() },
       )
       Icon(
-        Icons.Rounded.ExpandMore,
+        vectorResource(Res.drawable.ic_expand_more_filled),
         contentDescription = null,
         modifier = Modifier.graphicsLayer { rotationZ = rotation },
       )
@@ -528,12 +528,12 @@ private fun Device(screen: Screen) {
 }
 
 @Composable
-private fun ScreenIcon(icon: ImageVector) {
-  Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+private fun ScreenIcon(icon: DrawableResource) {
+  Icon(vectorResource(icon), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
 }
 
 @Composable
-private fun Link(icon: ImageVector?, modifier: Modifier) {
+private fun Link(icon: DrawableResource?, modifier: Modifier) {
   val color = MaterialTheme.colorScheme.onSecondaryContainer
   Box(modifier.padding(horizontal = 6.dp), contentAlignment = Alignment.Center) {
     Canvas(Modifier.fillMaxWidth().height(4.dp)) {
@@ -555,7 +555,11 @@ private fun Link(icon: ImageVector?, modifier: Modifier) {
     }
     if (icon != null) {
       Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape) {
-        Icon(icon, contentDescription = null, modifier = Modifier.padding(4.dp).size(20.dp))
+        Icon(
+          vectorResource(icon),
+          contentDescription = null,
+          modifier = Modifier.padding(4.dp).size(20.dp),
+        )
       }
     }
   }

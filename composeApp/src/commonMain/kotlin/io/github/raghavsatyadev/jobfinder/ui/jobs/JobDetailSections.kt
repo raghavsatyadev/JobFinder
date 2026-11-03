@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -36,6 +34,7 @@ import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.markdownPadding
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_empty
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_failed
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description_loading
@@ -47,6 +46,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.label
 import io.github.raghavsatyadev.jobfinder.ui.components.stale
 import io.github.raghavsatyadev.jobfinder.ui.translate.shownTranslation
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 internal fun ExcludedReason(reason: String) {
@@ -105,7 +105,13 @@ internal fun LabelChip(text: String, selected: Boolean, onClick: () -> Unit) {
     label = { Text(text) },
     leadingIcon =
       if (selected) {
-        { Icon(Icons.Rounded.Check, null, Modifier.size(FilterChipDefaults.IconSize)) }
+        {
+          Icon(
+            vectorResource(Res.drawable.ic_check_filled),
+            null,
+            Modifier.size(FilterChipDefaults.IconSize),
+          )
+        }
       } else null,
   )
 }

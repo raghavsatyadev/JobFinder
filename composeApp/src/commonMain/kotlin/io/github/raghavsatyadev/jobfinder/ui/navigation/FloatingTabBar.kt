@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The height of [FloatingTabBar], without the gap below it. */
 val FloatingTabBarHeight = 64.dp
@@ -83,7 +84,7 @@ fun FloatingTabBar(
               .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
           Icon(
-            if (isSelected) tab.selectedIcon else tab.icon,
+            vectorResource(if (isSelected) tab.selectedIcon else tab.icon),
             // The label reads the name when it shows; an icon alone carries it.
             contentDescription = if (isSelected) null else label,
             tint = content,

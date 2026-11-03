@@ -1,7 +1,5 @@
 package io.github.raghavsatyadev.jobfinder.ui.pairing
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -11,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_settings_backup_restore_filled
 import io.github.raghavsatyadev.jobfinder.resources.restore_request_allow
 import io.github.raghavsatyadev.jobfinder.resources.restore_request_deny
 import io.github.raghavsatyadev.jobfinder.resources.restore_request_text
@@ -18,6 +17,7 @@ import io.github.raghavsatyadev.jobfinder.resources.restore_request_title
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupManifest
 import io.github.raghavsatyadev.jobfinder.ui.settings.isoDate
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * Asks the user to allow a phone's request to replace everything here with its backup. Only the two
@@ -33,7 +33,12 @@ fun RestoreApprovalDialog(
   val m = manifest
   AlertDialog(
     onDismissRequest = {},
-    icon = { Icon(Icons.Rounded.SettingsBackupRestore, contentDescription = null) },
+    icon = {
+      Icon(
+        vectorResource(Res.drawable.ic_settings_backup_restore_filled),
+        contentDescription = null,
+      )
+    },
     title = { Text(stringResource(Res.string.restore_request_title)) },
     text = {
       Text(

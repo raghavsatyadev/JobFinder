@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,8 +47,10 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
 import io.github.raghavsatyadev.jobfinder.resources.common_loading
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
+import io.github.raghavsatyadev.jobfinder.resources.ic_error_outline_filled
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** How long a load must take before the indicator shows; a local load usually finishes sooner. */
 private const val LOADING_DELAY_MILLIS = 400L
@@ -140,7 +140,7 @@ fun ErrorState(message: String, onRetry: () -> Unit, modifier: Modifier = Modifi
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Icon(
-      Icons.Rounded.ErrorOutline,
+      vectorResource(Res.drawable.ic_error_outline_filled),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.error,
       modifier = Modifier.size(48.dp),

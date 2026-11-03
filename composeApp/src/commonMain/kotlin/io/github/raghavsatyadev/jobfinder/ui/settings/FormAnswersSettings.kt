@@ -7,12 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -57,6 +51,11 @@ import io.github.raghavsatyadev.jobfinder.resources.form_answers_more
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_none_found
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_refresh
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_search
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_edit_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_refresh_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_filled
 import io.github.raghavsatyadev.jobfinder.shared.model.FormAnswer
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
@@ -67,6 +66,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Immutable
@@ -221,7 +221,7 @@ fun FormAnswersContent(state: FormAnswersUiState, onEvent: (FormAnswersEvent) ->
   state.editing?.let { EditDialog(it, state.draft, onEvent) }
   state.confirmDelete?.let { answer ->
     ConfirmDialog(
-      icon = Icons.Rounded.Delete,
+      icon = vectorResource(Res.drawable.ic_delete_filled),
       title = stringResource(Res.string.form_answers_delete_title),
       text =
         stringResource(Res.string.form_answers_delete_text, answer.value.take(80), answer.question),
@@ -260,14 +260,16 @@ private fun AnswerList(
       value = query,
       onValueChange = { onEvent(FormAnswersEvent.Query(it)) },
       placeholder = { Text(stringResource(Res.string.form_answers_search)) },
-      leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+      leadingIcon = {
+        Icon(vectorResource(Res.drawable.ic_search_filled), contentDescription = null)
+      },
       trailingIcon =
         if (query.isEmpty()) null
         else {
           {
             IconButton(onClick = { onEvent(FormAnswersEvent.Query("")) }) {
               Icon(
-                Icons.Rounded.Close,
+                vectorResource(Res.drawable.ic_close_filled),
                 contentDescription = stringResource(Res.string.common_cancel),
               )
             }
@@ -283,7 +285,7 @@ private fun AnswerList(
       modifier = Modifier.padding(start = 8.dp),
     ) {
       Icon(
-        Icons.Rounded.Refresh,
+        vectorResource(Res.drawable.ic_refresh_filled),
         contentDescription = stringResource(Res.string.form_answers_refresh),
       )
     }
@@ -348,14 +350,17 @@ private fun AnswerRow(answer: FormAnswer, onEvent: (FormAnswersEvent) -> Unit) {
       onClick = { onEvent(FormAnswersEvent.Edit(answer)) },
       shapes = IconButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.Edit, contentDescription = stringResource(Res.string.form_answers_edit))
+      Icon(
+        vectorResource(Res.drawable.ic_edit_filled),
+        contentDescription = stringResource(Res.string.form_answers_edit),
+      )
     }
     IconButton(
       onClick = { onEvent(FormAnswersEvent.AskDelete(answer)) },
       shapes = IconButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.Rounded.Delete,
+        vectorResource(Res.drawable.ic_delete_filled),
         contentDescription = stringResource(Res.string.form_answers_delete),
         tint = MaterialTheme.colorScheme.error,
       )
@@ -367,7 +372,7 @@ private fun AnswerRow(answer: FormAnswer, onEvent: (FormAnswersEvent) -> Unit) {
 private fun EditDialog(answer: FormAnswer, draft: String, onEvent: (FormAnswersEvent) -> Unit) {
   AlertDialog(
     onDismissRequest = { onEvent(FormAnswersEvent.CancelEdit) },
-    icon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
+    icon = { Icon(vectorResource(Res.drawable.ic_edit_filled), contentDescription = null) },
     title = { Text(answer.question, maxLines = 3, overflow = TextOverflow.Ellipsis) },
     text = {
       OutlinedTextField(

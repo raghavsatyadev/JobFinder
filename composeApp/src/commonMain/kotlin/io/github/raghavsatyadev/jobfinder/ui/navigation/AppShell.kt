@@ -19,15 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.TravelExplore
-import androidx.compose.material.icons.outlined.WorkOutline
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.TravelExplore
-import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -49,7 +40,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -62,6 +52,14 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_settings
+import io.github.raghavsatyadev.jobfinder.resources.ic_settings_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_work_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_work_outline
 import io.github.raghavsatyadev.jobfinder.resources.nav_ai_filters
 import io.github.raghavsatyadev.jobfinder.resources.nav_jobs
 import io.github.raghavsatyadev.jobfinder.resources.nav_links
@@ -90,31 +88,43 @@ import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 
 /** The top-level destinations, in the order the navigation bar or rail shows them. */
 enum class TopLevel(
   val root: NavKey,
   val label: StringResource,
-  val icon: ImageVector,
-  val selectedIcon: ImageVector,
+  val icon: DrawableResource,
+  val selectedIcon: DrawableResource,
 ) {
-  Jobs(JobsRoute, Res.string.nav_jobs, Icons.Outlined.WorkOutline, Icons.Rounded.Work),
+  Jobs(
+    JobsRoute,
+    Res.string.nav_jobs,
+    Res.drawable.ic_work_outline,
+    Res.drawable.ic_work_filled,
+  ),
   Links(
     LinksRoute,
     Res.string.nav_links,
-    Icons.Outlined.TravelExplore,
-    Icons.Rounded.TravelExplore,
+    Res.drawable.ic_travel_explore,
+    Res.drawable.ic_travel_explore_filled,
   ),
   AiFilters(
     AiFiltersRoute,
     Res.string.nav_ai_filters,
-    Icons.Outlined.AutoAwesome,
-    Icons.Rounded.AutoAwesome,
+    Res.drawable.ic_auto_awesome,
+    Res.drawable.ic_auto_awesome_filled,
   ),
-  Settings(SettingsRoute, Res.string.nav_settings, Icons.Outlined.Settings, Icons.Rounded.Settings),
+  Settings(
+    SettingsRoute,
+    Res.string.nav_settings,
+    Res.drawable.ic_settings,
+    Res.drawable.ic_settings_filled,
+  ),
 }
 
 private val TABS = TopLevel.entries.toImmutableList()
@@ -158,7 +168,7 @@ fun AppShell(initial: TopLevel = TopLevel.Jobs, navigation: Flow<TopLevel> = emp
             onClick = { select(destination) },
             icon = {
               Icon(
-                if (selected) destination.selectedIcon else destination.icon,
+                vectorResource(if (selected) destination.selectedIcon else destination.icon),
                 contentDescription = null,
               )
             },

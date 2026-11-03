@@ -19,12 +19,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.LinkOff
-import androidx.compose.material.icons.rounded.LockReset
-import androidx.compose.material.icons.rounded.Wifi
-import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -49,6 +43,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_link_off_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_lock_reset_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_wifi_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_wifi_off_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_add
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_check
 import io.github.raghavsatyadev.jobfinder.resources.settings_desktop_connected
@@ -65,6 +64,7 @@ import io.github.raghavsatyadev.jobfinder.resources.settings_rotate_button
 import io.github.raghavsatyadev.jobfinder.resources.settings_unpair_description
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingInfo
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -88,7 +88,7 @@ internal fun ComputersSection(state: SettingsUiState, onEvent: (SettingsUiEvent)
       trailingContent = {
         IconButton(onClick = { onEvent(SettingsUiEvent.RequestForget(computer)) }) {
           Icon(
-            Icons.Rounded.LinkOff,
+            vectorResource(Res.drawable.ic_link_off_filled),
             stringResource(Res.string.settings_unpair_description, computer.label),
           )
         }
@@ -112,7 +112,8 @@ internal fun ComputersSection(state: SettingsUiState, onEvent: (SettingsUiEvent)
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        if (state.phoneConnected) Icons.Rounded.Wifi else Icons.Rounded.WifiOff,
+        if (state.phoneConnected) vectorResource(Res.drawable.ic_wifi_filled)
+        else vectorResource(Res.drawable.ic_wifi_off_filled),
         contentDescription = null,
         modifier = Modifier.size(ButtonDefaults.IconSize),
       )
@@ -126,7 +127,7 @@ internal fun ComputersSection(state: SettingsUiState, onEvent: (SettingsUiEvent)
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.Rounded.Add,
+        vectorResource(Res.drawable.ic_add_filled),
         contentDescription = null,
         modifier = Modifier.size(ButtonDefaults.IconSize),
       )
@@ -149,7 +150,7 @@ internal fun PairingSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -
         horizontalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         Icon(
-          Icons.Rounded.WifiOff,
+          vectorResource(Res.drawable.ic_wifi_off_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.error,
         )
@@ -191,7 +192,7 @@ internal fun PairingSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -
           shapes = ButtonDefaults.shapes(),
         ) {
           Icon(
-            Icons.Rounded.LockReset,
+            vectorResource(Res.drawable.ic_lock_reset_filled),
             contentDescription = null,
             modifier = Modifier.size(ButtonDefaults.IconSize),
           )

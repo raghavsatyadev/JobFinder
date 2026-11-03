@@ -13,11 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material.icons.outlined.FileUpload
-import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -82,6 +77,10 @@ import io.github.raghavsatyadev.jobfinder.resources.backup_saved_partial
 import io.github.raghavsatyadev.jobfinder.resources.backup_working
 import io.github.raghavsatyadev.jobfinder.resources.backup_working_allow
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
+import io.github.raghavsatyadev.jobfinder.resources.ic_file_download
+import io.github.raghavsatyadev.jobfinder.resources.ic_file_upload
+import io.github.raghavsatyadev.jobfinder.resources.ic_inventory_2
+import io.github.raghavsatyadev.jobfinder.resources.ic_table_chart
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiFailure
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupCrypto
 import io.github.raghavsatyadev.jobfinder.shared.backup.BackupFiles
@@ -112,6 +111,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -637,7 +637,11 @@ fun BackupContent(state: BackupUiState, onEvent: (BackupUiEvent) -> Unit) {
           enabled = !state.working,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.FileDownload, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_file_download),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(Res.string.backup_export_settings),
             Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -648,7 +652,11 @@ fun BackupContent(state: BackupUiState, onEvent: (BackupUiEvent) -> Unit) {
           enabled = !state.working,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.Inventory2, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_inventory_2),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(Res.string.backup_export_all),
             Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -659,7 +667,11 @@ fun BackupContent(state: BackupUiState, onEvent: (BackupUiEvent) -> Unit) {
           enabled = !state.working,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.FileUpload, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_file_upload),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(Res.string.backup_import),
             Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -670,7 +682,11 @@ fun BackupContent(state: BackupUiState, onEvent: (BackupUiEvent) -> Unit) {
           enabled = !state.working,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.TableChart, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_table_chart),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(Res.string.backup_export_csv),
             Modifier.padding(start = ButtonDefaults.IconSpacing),

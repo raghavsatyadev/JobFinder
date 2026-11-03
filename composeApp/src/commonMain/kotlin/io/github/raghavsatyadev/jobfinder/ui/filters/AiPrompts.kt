@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -42,6 +39,8 @@ import androidx.lifecycle.viewModelScope
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
+import io.github.raghavsatyadev.jobfinder.resources.ic_expand_more_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_amber_filled
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
 import io.github.raghavsatyadev.jobfinder.resources.offline_saved_later
 import io.github.raghavsatyadev.jobfinder.resources.prompt_ats_review_hint
@@ -111,6 +110,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** A save waiting for the user: its warnings, and whether the second confirmation is showing. */
@@ -361,7 +361,7 @@ private fun PromptItem(
       }
       if (prompt.edited) StatusPill(stringResource(Res.string.prompt_edited), StatusTone.Neutral)
       Icon(
-        Icons.Rounded.ExpandMore,
+        vectorResource(Res.drawable.ic_expand_more_filled),
         contentDescription = null,
         modifier = Modifier.graphicsLayer { rotationZ = if (open) 180f else 0f },
       )
@@ -550,7 +550,9 @@ private fun ConfirmPromptDialog(confirm: PromptConfirm, onEvent: (AiPromptsEvent
   val error = MaterialTheme.colorScheme.error
   AlertDialog(
     onDismissRequest = { onEvent(AiPromptsEvent.CancelSave) },
-    icon = { Icon(Icons.Rounded.WarningAmber, contentDescription = null) },
+    icon = {
+      Icon(vectorResource(Res.drawable.ic_warning_amber_filled), contentDescription = null)
+    },
     title = {
       Text(
         stringResource(

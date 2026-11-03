@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_expand_more_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_source_close
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_source_open
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_source_searches
@@ -44,6 +43,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * Sources as an accordion: each job board with its saved searches under it. Ticking a board picks
@@ -144,7 +144,7 @@ private fun BoardRow(
     if (searches.isNotEmpty()) {
       IconButton(onClick = onExpand) {
         Icon(
-          Icons.Rounded.ExpandMore,
+          vectorResource(Res.drawable.ic_expand_more_filled),
           contentDescription =
             stringResource(
               if (expanded) Res.string.jobs_filter_source_close

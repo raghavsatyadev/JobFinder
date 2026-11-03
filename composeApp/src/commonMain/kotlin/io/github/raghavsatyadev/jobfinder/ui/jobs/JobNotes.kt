@@ -12,10 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AttachFile
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -40,6 +36,9 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
 import io.github.raghavsatyadev.jobfinder.resources.common_delete
 import io.github.raghavsatyadev.jobfinder.resources.common_save
+import io.github.raghavsatyadev.jobfinder.resources.ic_attach_file
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_edit
 import io.github.raghavsatyadev.jobfinder.resources.jobs_note_add
 import io.github.raghavsatyadev.jobfinder.resources.jobs_note_delete
 import io.github.raghavsatyadev.jobfinder.resources.jobs_note_delete_text
@@ -54,6 +53,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
 import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The notes on a job: add one, edit or delete each. Attachments show by file name only. */
 @Composable
@@ -119,7 +119,7 @@ internal fun JobNotesSection(
   }
   pendingDelete?.let { id ->
     ConfirmDialog(
-      icon = Icons.Outlined.DeleteOutline,
+      icon = vectorResource(Res.drawable.ic_delete_outline),
       title = stringResource(Res.string.jobs_note_delete_title),
       text = stringResource(Res.string.jobs_note_delete_text),
       confirmLabel = stringResource(Res.string.common_delete),
@@ -178,7 +178,7 @@ private fun NoteCard(
           FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             note.files.forEach { file ->
               Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.AttachFile, null, Modifier.size(16.dp))
+                Icon(vectorResource(Res.drawable.ic_attach_file), null, Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text(
                   file.substringAfterLast('/').substringAfterLast('\\'),
@@ -201,10 +201,13 @@ private fun NoteCard(
             enabled = online,
             shapes = IconButtonDefaults.shapes(),
           ) {
-            Icon(Icons.Outlined.Edit, stringResource(Res.string.jobs_note_edit))
+            Icon(vectorResource(Res.drawable.ic_edit), stringResource(Res.string.jobs_note_edit))
           }
           IconButton(onClick = onDelete, enabled = online, shapes = IconButtonDefaults.shapes()) {
-            Icon(Icons.Outlined.DeleteOutline, stringResource(Res.string.jobs_note_delete))
+            Icon(
+              vectorResource(Res.drawable.ic_delete_outline),
+              stringResource(Res.string.jobs_note_delete),
+            )
           }
         }
       }

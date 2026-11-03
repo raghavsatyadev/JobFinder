@@ -16,10 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
@@ -54,6 +50,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
+import io.github.raghavsatyadev.jobfinder.resources.ic_archive
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete_all
@@ -92,6 +90,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -329,7 +328,9 @@ fun JobsListContent(
     val tab = stringResource(state.status.label)
     val delete = to == JobStatus.DELETED
     ConfirmDialog(
-      icon = if (delete) Icons.Outlined.DeleteOutline else Icons.Outlined.Archive,
+      icon =
+        if (delete) vectorResource(Res.drawable.ic_delete_outline)
+        else vectorResource(Res.drawable.ic_archive),
       title =
         stringResource(
           if (delete) Res.string.jobs_delete_all_title else Res.string.jobs_archive_all_title,
@@ -353,7 +354,7 @@ fun JobsListContent(
 
   pendingDelete?.let { job ->
     ConfirmDialog(
-      icon = Icons.Outlined.DeleteOutline,
+      icon = vectorResource(Res.drawable.ic_delete_outline),
       title = stringResource(Res.string.jobs_delete_title),
       text = stringResource(Res.string.jobs_delete_text),
       confirmLabel = stringResource(Res.string.jobs_action_delete),

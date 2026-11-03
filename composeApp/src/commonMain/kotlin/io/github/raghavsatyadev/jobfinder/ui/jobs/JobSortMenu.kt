@@ -3,10 +3,6 @@
 package io.github.raghavsatyadev.jobfinder.ui.jobs
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.RadioButtonChecked
-import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -27,6 +23,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_checked_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_unchecked_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_sort_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_sort
 import io.github.raghavsatyadev.jobfinder.resources.jobs_sort_ats
 import io.github.raghavsatyadev.jobfinder.resources.jobs_sort_ats_lowest
@@ -35,6 +34,7 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_sort_oldest
 import io.github.raghavsatyadev.jobfinder.shared.model.JobSort
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The menu's choices, in order, with their labels. */
 private val SORTS =
@@ -57,7 +57,7 @@ internal fun SortMenu(sort: JobSort, onPick: (JobSort) -> Unit) {
       modifier = Modifier.semantics { contentDescription = label },
     ) {
       BadgedBox(badge = { if (sort != JobSort.LATEST) Badge() }) {
-        Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null)
+        Icon(vectorResource(Res.drawable.ic_sort_filled), contentDescription = null)
       }
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
@@ -74,7 +74,8 @@ internal fun SortMenu(sort: JobSort, onPick: (JobSort) -> Unit) {
 @Composable
 private fun SortItem(text: StringResource, on: Boolean, onClick: () -> Unit) {
   val icon: ImageVector =
-    if (on) Icons.Rounded.RadioButtonChecked else Icons.Rounded.RadioButtonUnchecked
+    if (on) vectorResource(Res.drawable.ic_radio_button_checked_filled)
+    else vectorResource(Res.drawable.ic_radio_button_unchecked_filled)
   DropdownMenuItem(
     text = { Text(stringResource(text)) },
     leadingIcon = {

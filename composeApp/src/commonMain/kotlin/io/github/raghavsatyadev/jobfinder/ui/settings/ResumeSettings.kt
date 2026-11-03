@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -27,6 +24,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_file_upload
 import io.github.raghavsatyadev.jobfinder.resources.settings_resume_flags_none
 import io.github.raghavsatyadev.jobfinder.resources.settings_resume_formats
 import io.github.raghavsatyadev.jobfinder.resources.settings_resume_hint
@@ -59,6 +58,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -210,7 +210,11 @@ fun ResumeContent(state: ResumeUiState, now: Long, onEvent: (ResumeUiEvent) -> U
           enabled = !state.uploading && !offline,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.FileUpload, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_file_upload),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(
               if (resume == null) Res.string.settings_resume_upload
@@ -226,7 +230,11 @@ fun ResumeContent(state: ResumeUiState, now: Long, onEvent: (ResumeUiEvent) -> U
           enabled = !state.uploading && !offline,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Outlined.DeleteOutline, null, Modifier.size(ButtonDefaults.IconSize))
+          Icon(
+            vectorResource(Res.drawable.ic_delete_outline),
+            null,
+            Modifier.size(ButtonDefaults.IconSize),
+          )
           Text(
             stringResource(Res.string.settings_resume_remove),
             Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -244,7 +252,7 @@ fun ResumeContent(state: ResumeUiState, now: Long, onEvent: (ResumeUiEvent) -> U
   }
   if (state.confirmRemove) {
     ConfirmDialog(
-      icon = Icons.Outlined.DeleteOutline,
+      icon = vectorResource(Res.drawable.ic_delete_outline),
       title = stringResource(Res.string.settings_resume_remove_title),
       text = stringResource(Res.string.settings_resume_remove_text),
       confirmLabel = stringResource(Res.string.settings_resume_remove),

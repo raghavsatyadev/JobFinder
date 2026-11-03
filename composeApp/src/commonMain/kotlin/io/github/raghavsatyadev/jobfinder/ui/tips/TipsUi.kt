@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -21,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome_filled
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
 import io.github.raghavsatyadev.jobfinder.resources.tips_failed
 import io.github.raghavsatyadev.jobfinder.resources.tips_intro
@@ -41,6 +40,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.StatusPill
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusTone
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The job detail's negotiation tips: written only when asked, then kept. */
 @Composable
@@ -108,7 +108,7 @@ private fun Tips(tips: NegotiationTips) {
 @Composable
 private fun WriteButton(text: String, onClick: () -> Unit) {
   FilledTonalButton(onClick = onClick, shapes = ButtonDefaults.shapes()) {
-    Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
+    Icon(vectorResource(Res.drawable.ic_auto_awesome_filled), contentDescription = null)
     Text(text, Modifier.padding(start = 8.dp))
   }
 }

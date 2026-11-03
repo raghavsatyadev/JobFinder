@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.allDrawableResources
+import io.github.raghavsatyadev.jobfinder.resources.ic_language_filled
 import io.github.raghavsatyadev.jobfinder.resources.links_error_url_invalid
 import io.github.raghavsatyadev.jobfinder.resources.links_error_url_other_host
 import io.github.raghavsatyadev.jobfinder.resources.links_time_days_ago
@@ -29,6 +28,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 private const val MINUTE = 60_000L
 private const val HOUR = 60 * MINUTE
@@ -79,7 +79,7 @@ fun SiteLogo(site: Site?, modifier: Modifier = Modifier, size: Dp = 48.dp) {
         )
       } else {
         Icon(
-          Icons.Rounded.Language,
+          vectorResource(Res.drawable.ic_language_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.onSecondaryContainer,
           modifier = Modifier.size(size / 2),

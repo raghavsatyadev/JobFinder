@@ -12,21 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.Login
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Backup
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Computer
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.QrCode2
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.SmartToy
-import androidx.compose.material.icons.rounded.TouchApp
-import androidx.compose.material.icons.rounded.TravelExplore
-import androidx.compose.material.icons.rounded.ViewAgenda
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -46,12 +31,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_backup_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_computer_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_description_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_edit_note_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_keyboard_arrow_right_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_login_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_qr_code_2_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_smart_toy_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_touch_app_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_view_agenda_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_agents
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_ai
 import io.github.raghavsatyadev.jobfinder.resources.settings_keywords_backup
@@ -92,75 +90,77 @@ import io.github.raghavsatyadev.jobfinder.ui.components.EmptyState
 import io.github.raghavsatyadev.jobfinder.ui.components.scrollBottom
 import io.github.raghavsatyadev.jobfinder.ui.components.settingsSectionKey
 import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** A settings section: its menu row (icon, title, one-line summary) and its search words. */
 enum class SettingsSection(
   val title: StringResource,
   val summary: StringResource,
   val keywords: StringResource,
-  val icon: ImageVector,
+  val icon: DrawableResource,
 ) {
   SCANNING(
     Res.string.settings_section_scanning,
     Res.string.settings_summary_scanning,
     Res.string.settings_keywords_scanning,
-    Icons.Rounded.TravelExplore,
+    Res.drawable.ic_travel_explore_filled,
   ),
   LAYOUT(
     Res.string.settings_section_layout,
     Res.string.settings_summary_layout,
     Res.string.settings_keywords_layout,
-    Icons.Rounded.ViewAgenda,
+    Res.drawable.ic_view_agenda_filled,
   ),
   AI(
     Res.string.settings_section_ai,
     Res.string.settings_summary_ai,
     Res.string.settings_keywords_ai,
-    Icons.Rounded.AutoAwesome,
+    Res.drawable.ic_auto_awesome_filled,
   ),
   RESUME(
     Res.string.settings_section_resume,
     Res.string.settings_summary_resume,
     Res.string.settings_keywords_resume,
-    Icons.Rounded.Description,
+    Res.drawable.ic_description_filled,
   ),
   BACKUP(
     Res.string.settings_section_backup,
     Res.string.settings_summary_backup,
     Res.string.settings_keywords_backup,
-    Icons.Rounded.Backup,
+    Res.drawable.ic_backup_filled,
   ),
   FORM_ANSWERS(
     Res.string.settings_section_form_answers,
     Res.string.settings_summary_form_answers,
     Res.string.settings_keywords_form_answers,
-    Icons.Rounded.EditNote,
+    Res.drawable.ic_edit_note_filled,
   ),
   AGENTS(
     Res.string.settings_section_agents,
     Res.string.settings_summary_agents,
     Res.string.settings_keywords_agents,
-    Icons.Rounded.SmartToy,
+    Res.drawable.ic_smart_toy_filled,
   ),
   COMPUTERS(
     Res.string.settings_section_desktop,
     Res.string.settings_summary_computers,
     Res.string.settings_keywords_computers,
-    Icons.Rounded.Computer,
+    Res.drawable.ic_computer_filled,
   ),
   PAIRING(
     Res.string.settings_section_pairing,
     Res.string.settings_summary_pairing,
     Res.string.settings_keywords_pairing,
-    Icons.Rounded.QrCode2,
+    Res.drawable.ic_qr_code_2_filled,
   ),
   LOGIN(
     Res.string.settings_section_login,
     Res.string.settings_summary_login,
     Res.string.settings_keywords_login,
-    Icons.AutoMirrored.Rounded.Login,
+    Res.drawable.ic_login_filled,
   ),
 }
 
@@ -244,7 +244,7 @@ internal fun SettingsMenu(
 @Composable
 fun SettingsPlaceholder() {
   EmptyState(
-    icon = Icons.Rounded.TouchApp,
+    icon = vectorResource(Res.drawable.ic_touch_app_filled),
     title = stringResource(Res.string.settings_pick_title),
     hint = stringResource(Res.string.settings_pick_hint),
   )
@@ -293,12 +293,16 @@ private fun MenuRow(section: SettingsSection, chosen: Boolean, onOpen: (Settings
           modifier = Modifier.size(40.dp),
         ) {
           Box(contentAlignment = Alignment.Center) {
-            Icon(section.icon, contentDescription = null, modifier = Modifier.size(22.dp))
+            Icon(
+              vectorResource(section.icon),
+              contentDescription = null,
+              modifier = Modifier.size(22.dp),
+            )
           }
         }
       },
       trailingContent = {
-        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null)
+        Icon(vectorResource(Res.drawable.ic_keyboard_arrow_right_filled), contentDescription = null)
       },
       colors = ListItemDefaults.colors(containerColor = Color.Transparent),
       modifier = Modifier.clickable(role = Role.Button) { onOpen(section) },
@@ -327,14 +331,16 @@ private fun SearchField(query: String, onChange: (String) -> Unit, modifier: Mod
     value = query,
     onValueChange = onChange,
     placeholder = { Text(stringResource(Res.string.settings_search)) },
-    leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+    leadingIcon = {
+      Icon(vectorResource(Res.drawable.ic_search_filled), contentDescription = null)
+    },
     trailingIcon =
       if (query.isEmpty()) null
       else {
         {
           IconButton(onClick = { onChange("") }) {
             Icon(
-              Icons.Rounded.Close,
+              vectorResource(Res.drawable.ic_close_filled),
               contentDescription = stringResource(Res.string.settings_search_clear),
             )
           }

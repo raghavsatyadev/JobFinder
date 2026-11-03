@@ -18,11 +18,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -51,6 +46,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_download_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_memory_filled
 import io.github.raghavsatyadev.jobfinder.resources.models_add
 import io.github.raghavsatyadev.jobfinder.resources.models_add_button
 import io.github.raghavsatyadev.jobfinder.resources.models_add_suggested
@@ -142,6 +141,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.ModelTier
 import io.github.raghavsatyadev.jobfinder.ui.platform.PcProfile
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * The local models part of Settings → AI model: the PC's tier, the models Ollama has with their
@@ -178,7 +178,11 @@ fun LocalModelsSection(
       enabled = state.ollamaRunning && !state.busy,
       shapes = ButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.Add, contentDescription = null, Modifier.size(ButtonDefaults.IconSize))
+      Icon(
+        vectorResource(Res.drawable.ic_add_filled),
+        contentDescription = null,
+        Modifier.size(ButtonDefaults.IconSize),
+      )
       Spacer(Modifier.size(ButtonDefaults.IconSpacing))
       Text(stringResource(Res.string.models_add))
     }
@@ -187,7 +191,7 @@ fun LocalModelsSection(
   state.confirmDownload?.let { DownloadDialog(it, onEvent) }
   state.confirmRemove?.let { model ->
     ConfirmDialog(
-      icon = Icons.Rounded.Delete,
+      icon = vectorResource(Res.drawable.ic_delete_filled),
       title = stringResource(Res.string.models_remove_title, model),
       text = stringResource(Res.string.models_remove_text),
       confirmLabel = stringResource(Res.string.models_remove),
@@ -219,7 +223,11 @@ private fun Profile(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
-    Icon(Icons.Rounded.Memory, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+    Icon(
+      vectorResource(Res.drawable.ic_memory_filled),
+      contentDescription = null,
+      tint = MaterialTheme.colorScheme.primary,
+    )
     Text(
       stringResource(Res.string.models_pc, parts.joinToString(", ")),
       style = MaterialTheme.typography.bodyMedium,
@@ -249,7 +257,7 @@ private fun Profile(
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.Rounded.Download,
+        vectorResource(Res.drawable.ic_download_filled),
         contentDescription = null,
         Modifier.size(ButtonDefaults.IconSize),
       )
@@ -535,7 +543,7 @@ private fun Result(
 private fun AddDialog(add: AddModelState, onEvent: (LocalModelsEvent) -> Unit) {
   AlertDialog(
     onDismissRequest = { onEvent(LocalModelsEvent.CloseAdd) },
-    icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+    icon = { Icon(vectorResource(Res.drawable.ic_add_filled), contentDescription = null) },
     title = { Text(stringResource(Res.string.models_add_title)) },
     text = {
       Column(
@@ -712,7 +720,7 @@ private fun DownloadDialog(pending: PendingDownload, onEvent: (LocalModelsEvent)
     append("\n\n").append(stringResource(Res.string.models_download_note))
   }
   ConfirmDialog(
-    icon = Icons.Rounded.Download,
+    icon = vectorResource(Res.drawable.ic_download_filled),
     title = stringResource(Res.string.models_download_title),
     text = text,
     confirmLabel = stringResource(Res.string.models_download_confirm),

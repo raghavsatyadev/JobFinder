@@ -23,11 +23,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,6 +95,10 @@ import io.github.raghavsatyadev.jobfinder.resources.help_shortcut_select
 import io.github.raghavsatyadev.jobfinder.resources.help_shortcut_select_keys
 import io.github.raghavsatyadev.jobfinder.resources.help_shortcuts_title
 import io.github.raghavsatyadev.jobfinder.resources.help_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_back_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_expand_more_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_filled
 import io.github.raghavsatyadev.jobfinder.resources.nav_back
 import io.github.raghavsatyadev.jobfinder.ui.components.paddingAbove
 import io.github.raghavsatyadev.jobfinder.ui.components.screenInsets
@@ -113,6 +112,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 
 private data class Faq(val question: StringResource, val answer: StringResource)
@@ -217,7 +217,7 @@ fun HelpContent(
           if (onBack != null) {
             IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
               Icon(
-                Icons.AutoMirrored.Rounded.ArrowBack,
+                vectorResource(Res.drawable.ic_arrow_back_filled),
                 contentDescription = stringResource(Res.string.nav_back),
               )
             }
@@ -302,11 +302,16 @@ private fun HelpSearchField(query: String, onChange: (String) -> Unit) {
     value = query,
     onValueChange = onChange,
     placeholder = { Text(stringResource(Res.string.help_search)) },
-    leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+    leadingIcon = {
+      Icon(vectorResource(Res.drawable.ic_search_filled), contentDescription = null)
+    },
     trailingIcon = {
       if (query.isNotEmpty()) {
         IconButton(onClick = { onChange("") }, shapes = IconButtonDefaults.shapes()) {
-          Icon(Icons.Rounded.Close, stringResource(Res.string.help_search_clear))
+          Icon(
+            vectorResource(Res.drawable.ic_close_filled),
+            stringResource(Res.string.help_search_clear),
+          )
         }
       }
     },
@@ -383,7 +388,7 @@ private fun FaqItem(faq: Faq, expanded: Boolean, onToggle: () -> Unit) {
         modifier = Modifier.weight(1f),
       )
       Icon(
-        Icons.Rounded.ExpandMore,
+        vectorResource(Res.drawable.ic_expand_more_filled),
         contentDescription = null,
         modifier = Modifier.graphicsLayer { rotationZ = rotation },
       )

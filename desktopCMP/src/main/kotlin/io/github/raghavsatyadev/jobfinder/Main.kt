@@ -3,7 +3,6 @@ package io.github.raghavsatyadev.jobfinder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +19,7 @@ import androidx.compose.ui.window.WindowExceptionHandlerFactory
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sun.jna.Platform
 import io.github.raghavsatyadev.jobfinder.desktop.browser.AppPaths
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefBrowserPool
@@ -279,7 +279,7 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
             RestoreApproval(restores, windows, tray)
           }
         }
-        val loginRequest by login.request.collectAsState()
+        val loginRequest by login.request.collectAsStateWithLifecycle()
         loginRequest?.let { LoginBrowserWindow(runtime, it, onDone = login::close) }
       }
     }
@@ -311,7 +311,7 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
  */
 @Composable
 private fun PairingApproval(pairing: PairingRequests, windows: MainWindowRequests, tray: TrayIcon) {
-  val request by pairing.pending.collectAsState()
+  val request by pairing.pending.collectAsStateWithLifecycle()
   val current = request ?: return
   LaunchedEffect(current.id) {
     windows.show()
@@ -340,7 +340,7 @@ private fun RestoreApproval(
   windows: MainWindowRequests,
   tray: TrayIcon,
 ) {
-  val request by restores.pending.collectAsState()
+  val request by restores.pending.collectAsStateWithLifecycle()
   val current = request ?: return
   LaunchedEffect(current.id) {
     windows.show()

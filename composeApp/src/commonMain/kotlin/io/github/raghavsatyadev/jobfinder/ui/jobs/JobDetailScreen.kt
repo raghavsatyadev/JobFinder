@@ -17,15 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.automirrored.rounded.Send
-import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Unarchive
-import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -61,6 +52,14 @@ import io.github.raghavsatyadev.jobfinder.resources.ats_section_title
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
 import io.github.raghavsatyadev.jobfinder.resources.common_stale
 import io.github.raghavsatyadev.jobfinder.resources.ghost_section_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_archive
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_back_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_refresh
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_off_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_send_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_unarchive
 import io.github.raghavsatyadev.jobfinder.resources.insights_section_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_applied
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive
@@ -110,6 +109,7 @@ import io.github.raghavsatyadev.jobfinder.ui.tips.TipsSection
 import io.github.raghavsatyadev.jobfinder.ui.translate.TranslationBar
 import io.github.raghavsatyadev.jobfinder.ui.translate.shownTranslation
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -166,7 +166,7 @@ fun JobDetailContent(
       when {
         state.notFound ->
           EmptyState(
-            icon = Icons.Rounded.SearchOff,
+            icon = vectorResource(Res.drawable.ic_search_off_filled),
             title = stringResource(Res.string.jobs_detail_not_found),
             hint = "",
           )
@@ -191,7 +191,7 @@ fun JobDetailContent(
         modifier = Modifier.align(Alignment.TopStart).padding(4.dp),
       ) {
         Icon(
-          Icons.AutoMirrored.Rounded.ArrowBack,
+          vectorResource(Res.drawable.ic_arrow_back_filled),
           stringResource(Res.string.jobs_detail_close),
         )
       }
@@ -199,7 +199,7 @@ fun JobDetailContent(
   }
   if (confirmDelete) {
     ConfirmDialog(
-      icon = Icons.Outlined.DeleteOutline,
+      icon = vectorResource(Res.drawable.ic_delete_outline),
       title = stringResource(Res.string.jobs_delete_title),
       text = stringResource(Res.string.jobs_delete_text),
       confirmLabel = stringResource(Res.string.jobs_action_delete),
@@ -316,7 +316,10 @@ private fun MovableSection(
             enabled = !state.descriptionLoading,
             shapes = IconButtonDefaults.shapes(),
           ) {
-            Icon(Icons.Outlined.Refresh, stringResource(Res.string.jobs_detail_refresh_description))
+            Icon(
+              vectorResource(Res.drawable.ic_refresh),
+              stringResource(Res.string.jobs_detail_refresh_description),
+            )
           }
         },
       ) {
@@ -412,7 +415,11 @@ private fun Actions(
       onClick = { runCatching { uriHandler.openUri(job.externalUrl) } },
       shapes = ButtonDefaults.shapes(),
     ) {
-      Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.size(ButtonDefaults.IconSize))
+      Icon(
+        vectorResource(Res.drawable.ic_open_in_new_filled),
+        null,
+        Modifier.size(ButtonDefaults.IconSize),
+      )
       Spacer(Modifier.size(ButtonDefaults.IconSpacing))
       Text(stringResource(Res.string.jobs_action_view))
     }
@@ -423,7 +430,11 @@ private fun Actions(
         enabled = !busy,
         shapes = ButtonDefaults.shapes(),
       ) {
-        Icon(Icons.AutoMirrored.Rounded.Send, null, Modifier.size(ButtonDefaults.IconSize))
+        Icon(
+          vectorResource(Res.drawable.ic_send_filled),
+          null,
+          Modifier.size(ButtonDefaults.IconSize),
+        )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text(stringResource(Res.string.jobs_action_applied))
       }
@@ -434,7 +445,7 @@ private fun Actions(
         enabled = !busy,
         shapes = ButtonDefaults.shapes(),
       ) {
-        Icon(Icons.Outlined.Archive, null, Modifier.size(ButtonDefaults.IconSize))
+        Icon(vectorResource(Res.drawable.ic_archive), null, Modifier.size(ButtonDefaults.IconSize))
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text(stringResource(Res.string.jobs_action_archive))
       }
@@ -445,7 +456,11 @@ private fun Actions(
         enabled = !busy,
         shapes = ButtonDefaults.shapes(),
       ) {
-        Icon(Icons.Outlined.Unarchive, null, Modifier.size(ButtonDefaults.IconSize))
+        Icon(
+          vectorResource(Res.drawable.ic_unarchive),
+          null,
+          Modifier.size(ButtonDefaults.IconSize),
+        )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text(stringResource(Res.string.jobs_action_restore))
       }
@@ -456,7 +471,11 @@ private fun Actions(
       shapes = ButtonDefaults.shapes(),
       colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
     ) {
-      Icon(Icons.Outlined.DeleteOutline, null, Modifier.size(ButtonDefaults.IconSize))
+      Icon(
+        vectorResource(Res.drawable.ic_delete_outline),
+        null,
+        Modifier.size(ButtonDefaults.IconSize),
+      )
       Spacer(Modifier.size(ButtonDefaults.IconSpacing))
       Text(stringResource(Res.string.jobs_action_delete))
     }

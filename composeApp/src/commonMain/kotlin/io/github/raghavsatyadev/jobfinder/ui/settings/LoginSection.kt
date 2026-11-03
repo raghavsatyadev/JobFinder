@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Login
-import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -23,6 +20,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.help_setup_open
+import io.github.raghavsatyadev.jobfinder.resources.ic_content_copy_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_login_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_all_ok
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_button
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_checking
@@ -42,6 +41,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCheck
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 
 @Composable
@@ -58,7 +58,7 @@ internal fun LoginSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -> 
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.AutoMirrored.Rounded.Login,
+        vectorResource(Res.drawable.ic_login_filled),
         contentDescription = null,
         modifier = Modifier.size(ButtonDefaults.IconSize),
       )
@@ -83,7 +83,7 @@ internal fun LoginSection(state: SettingsUiState, onEvent: (SettingsUiEvent) -> 
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.Rounded.ContentCopy,
+        vectorResource(Res.drawable.ic_content_copy_filled),
         contentDescription = null,
         modifier = Modifier.size(ButtonDefaults.IconSize),
       )

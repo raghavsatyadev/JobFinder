@@ -18,15 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
@@ -61,6 +52,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_archive
+import io.github.raghavsatyadev.jobfinder.resources.ic_clear_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_filter_list_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_more_vert_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_refresh
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_star_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete_all
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_refresh
@@ -83,6 +82,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 internal fun ListHeader(
@@ -100,12 +100,17 @@ internal fun ListHeader(
       value = state.searchText,
       onValueChange = { onEvent(JobsListEvent.Search(it)) },
       placeholder = { Text(stringResource(Res.string.jobs_search_hint), maxLines = 1) },
-      leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+      leadingIcon = {
+        Icon(vectorResource(Res.drawable.ic_search_filled), contentDescription = null)
+      },
       trailingIcon =
         if (state.searchText.isNotEmpty()) {
           {
             IconButton(onClick = { onEvent(JobsListEvent.Search("")) }) {
-              Icon(Icons.Rounded.Clear, stringResource(Res.string.jobs_search_clear))
+              Icon(
+                vectorResource(Res.drawable.ic_clear_filled),
+                stringResource(Res.string.jobs_search_clear),
+              )
             }
           }
         } else null,
@@ -128,7 +133,7 @@ internal fun ListHeader(
           if (state.activeFilterCount > 0) Badge { Text("${state.activeFilterCount}") }
         }
       ) {
-        Icon(Icons.Rounded.FilterList, contentDescription = null)
+        Icon(vectorResource(Res.drawable.ic_filter_list_filled), contentDescription = null)
       }
     }
     SortMenu(state.filter.sort) { onEvent(JobsListEvent.SetSort(it)) }
@@ -147,12 +152,15 @@ private fun OverflowMenu(
   val online = !LocalComputerOffline.current
   Box {
     IconButton(onClick = { open = true }, shapes = IconButtonDefaults.shapes()) {
-      Icon(Icons.Rounded.MoreVert, stringResource(Res.string.jobs_more_actions))
+      Icon(
+        vectorResource(Res.drawable.ic_more_vert_filled),
+        stringResource(Res.string.jobs_more_actions),
+      )
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
       DropdownMenuItem(
         text = { Text(stringResource(Res.string.jobs_action_refresh)) },
-        leadingIcon = { Icon(Icons.Outlined.Refresh, null) },
+        leadingIcon = { Icon(vectorResource(Res.drawable.ic_refresh), null) },
         onClick = {
           open = false
           onEvent(JobsListEvent.Refresh)
@@ -163,7 +171,7 @@ private fun OverflowMenu(
       if (state.status != JobStatus.ARCHIVED && !state.starred) {
         DropdownMenuItem(
           text = { Text(stringResource(Res.string.jobs_action_archive_all)) },
-          leadingIcon = { Icon(Icons.Outlined.Archive, null) },
+          leadingIcon = { Icon(vectorResource(Res.drawable.ic_archive), null) },
           enabled = online && (state.counts[state.status] ?: 0) > 0,
           onClick = {
             open = false
@@ -180,7 +188,11 @@ private fun OverflowMenu(
             )
           },
           leadingIcon = {
-            Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error)
+            Icon(
+              vectorResource(Res.drawable.ic_delete_outline),
+              null,
+              tint = MaterialTheme.colorScheme.error,
+            )
           },
           enabled = online && (state.counts[state.status] ?: 0) > 0,
           onClick = {
@@ -236,7 +248,7 @@ internal fun StatusTabs(state: JobsListUiState, onSelect: (JobStatus?) -> Unit) 
             horizontalArrangement = Arrangement.spacedBy(8.dp),
           ) {
             Icon(
-              status?.icon ?: Icons.Rounded.Star,
+              status?.icon ?: vectorResource(Res.drawable.ic_star_filled),
               contentDescription = null,
               Modifier.size(18.dp),
             )

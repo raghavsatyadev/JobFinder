@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -26,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
+import io.github.raghavsatyadev.jobfinder.resources.ic_flag
 import io.github.raghavsatyadev.jobfinder.resources.jobs_report
 import io.github.raghavsatyadev.jobfinder.resources.jobs_report_checking
 import io.github.raghavsatyadev.jobfinder.resources.jobs_report_close
@@ -39,6 +38,7 @@ import io.github.raghavsatyadev.jobfinder.resources.jobs_report_wrong
 import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
 import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** "Shouldn't be in New", under the actions of a job in New. */
 @Composable
@@ -48,7 +48,7 @@ fun ReportButton(onClick: () -> Unit) {
     enabled = !LocalComputerOffline.current,
     shapes = ButtonDefaults.shapes(),
   ) {
-    Icon(Icons.Outlined.Flag, null, Modifier.size(ButtonDefaults.IconSize))
+    Icon(vectorResource(Res.drawable.ic_flag), null, Modifier.size(ButtonDefaults.IconSize))
     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
     Text(stringResource(Res.string.jobs_report))
   }
@@ -61,7 +61,7 @@ fun ReportDialog(report: ReportUi, onEvent: (JobDetailEvent) -> Unit) {
   val offline = LocalComputerOffline.current
   AlertDialog(
     onDismissRequest = { if (!report.checking) onEvent(JobDetailEvent.CloseReport) },
-    icon = { Icon(Icons.Outlined.Flag, null) },
+    icon = { Icon(vectorResource(Res.drawable.ic_flag), null) },
     title = { Text(stringResource(Res.string.jobs_report)) },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

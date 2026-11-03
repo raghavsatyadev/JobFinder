@@ -9,12 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.FileUpload
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -37,6 +31,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_file_upload
+import io.github.raghavsatyadev.jobfinder.resources.ic_keyboard_arrow_down
+import io.github.raghavsatyadev.jobfinder.resources.ic_keyboard_arrow_up
+import io.github.raghavsatyadev.jobfinder.resources.ic_picture_as_pdf
 import io.github.raghavsatyadev.jobfinder.resources.linkedin_how
 import io.github.raghavsatyadev.jobfinder.resources.linkedin_import
 import io.github.raghavsatyadev.jobfinder.resources.linkedin_import_again
@@ -70,6 +69,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import io.github.raghavsatyadev.jobfinder.ui.jobs.relativeTime
 import io.github.raghavsatyadev.jobfinder.ui.platform.FilePicker
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -140,7 +140,11 @@ fun ResumePdfContent(state: ResumePdfUiState, now: Long, onEvent: (ResumePdfEven
       enabled = idle && (state.status.hasResume || state.status.linkedIn != null),
       shapes = ButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Outlined.PictureAsPdf, null, Modifier.size(ButtonDefaults.IconSize))
+      Icon(
+        vectorResource(Res.drawable.ic_picture_as_pdf),
+        null,
+        Modifier.size(ButtonDefaults.IconSize),
+      )
       Text(
         stringResource(Res.string.pdf_save),
         Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -195,7 +199,11 @@ private fun LinkedInPart(
       enabled = idle,
       shapes = ButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Outlined.FileUpload, null, Modifier.size(ButtonDefaults.IconSize))
+      Icon(
+        vectorResource(Res.drawable.ic_file_upload),
+        null,
+        Modifier.size(ButtonDefaults.IconSize),
+      )
       Text(
         stringResource(
           if (linkedIn == null) Res.string.linkedin_import else Res.string.linkedin_import_again
@@ -209,7 +217,11 @@ private fun LinkedInPart(
         enabled = idle,
         shapes = ButtonDefaults.shapes(),
       ) {
-        Icon(Icons.Outlined.DeleteOutline, null, Modifier.size(ButtonDefaults.IconSize))
+        Icon(
+          vectorResource(Res.drawable.ic_delete_outline),
+          null,
+          Modifier.size(ButtonDefaults.IconSize),
+        )
         Text(
           stringResource(Res.string.linkedin_remove),
           Modifier.padding(start = ButtonDefaults.IconSpacing),
@@ -248,13 +260,19 @@ private fun SectionOrder(
           onClick = { onEvent(ResumePdfEvent.Move(section, up = true)) },
           enabled = enabled && i > 0,
         ) {
-          Icon(Icons.Outlined.KeyboardArrowUp, stringResource(Res.string.pdf_section_up, name))
+          Icon(
+            vectorResource(Res.drawable.ic_keyboard_arrow_up),
+            stringResource(Res.string.pdf_section_up, name),
+          )
         }
         IconButton(
           onClick = { onEvent(ResumePdfEvent.Move(section, up = false)) },
           enabled = enabled && i < order.lastIndex,
         ) {
-          Icon(Icons.Outlined.KeyboardArrowDown, stringResource(Res.string.pdf_section_down, name))
+          Icon(
+            vectorResource(Res.drawable.ic_keyboard_arrow_down),
+            stringResource(Res.string.pdf_section_down, name),
+          )
         }
       }
     }

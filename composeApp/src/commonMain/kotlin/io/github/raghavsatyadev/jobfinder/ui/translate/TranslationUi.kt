@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +36,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_translate_filled
 import io.github.raghavsatyadev.jobfinder.resources.language_da
 import io.github.raghavsatyadev.jobfinder.resources.language_de
 import io.github.raghavsatyadev.jobfinder.resources.language_en
@@ -69,6 +68,7 @@ import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailEvent
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobDetailUiState
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The translation the detail shows: none while the user looks at the original. */
 fun JobDetailUiState.shownTranslation(): JobTranslation? =
@@ -138,7 +138,7 @@ private fun Bar(
       if (busy) LoadingIndicator(Modifier.size(24.dp))
       else
         Icon(
-          Icons.Rounded.Translate,
+          vectorResource(Res.drawable.ic_translate_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
           modifier = Modifier.size(20.dp),
@@ -165,7 +165,7 @@ fun TranslatedMark(from: String) {
     modifier = Modifier.padding(vertical = 2.dp),
   ) {
     Icon(
-      Icons.Rounded.Translate,
+      vectorResource(Res.drawable.ic_translate_filled),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.primary,
       modifier = Modifier.size(14.dp),

@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.LockReset
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -19,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +25,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.agents_address
 import io.github.raghavsatyadev.jobfinder.resources.agents_client_claude
@@ -50,6 +47,8 @@ import io.github.raghavsatyadev.jobfinder.resources.agents_where_claude
 import io.github.raghavsatyadev.jobfinder.resources.agents_where_codex
 import io.github.raghavsatyadev.jobfinder.resources.agents_where_gemini
 import io.github.raghavsatyadev.jobfinder.resources.agents_where_other
+import io.github.raghavsatyadev.jobfinder.resources.ic_content_copy_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_lock_reset_filled
 import io.github.raghavsatyadev.jobfinder.ui.components.ConfirmDialog
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgentAccess
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgentClient
@@ -58,6 +57,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.AgentSetups
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
 
 /** What the section last did, shown under its buttons for a while. */
@@ -70,7 +70,7 @@ enum class AgentNotice {
 @Composable
 fun AgentAccessSettings() {
   val access = koinInject<AgentAccess>()
-  val endpoint by access.endpoint.collectAsState()
+  val endpoint by access.endpoint.collectAsStateWithLifecycle()
   @Suppress("DEPRECATION") val clipboard = LocalClipboardManager.current
   var notice by remember { mutableStateOf<Pair<AgentNotice, AgentClient?>?>(null) }
   LaunchedEffect(notice) {
@@ -145,7 +145,7 @@ fun AgentAccessContent(
           shapes = ButtonDefaults.shapes(),
         ) {
           Icon(
-            Icons.Rounded.ContentCopy,
+            vectorResource(Res.drawable.ic_content_copy_filled),
             contentDescription = null,
             modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
           )
@@ -178,7 +178,7 @@ fun AgentAccessContent(
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.Rounded.LockReset,
+        vectorResource(Res.drawable.ic_lock_reset_filled),
         contentDescription = null,
         modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
       )
@@ -187,7 +187,7 @@ fun AgentAccessContent(
   }
   if (confirmRotate) {
     ConfirmDialog(
-      icon = Icons.Rounded.LockReset,
+      icon = vectorResource(Res.drawable.ic_lock_reset_filled),
       title = stringResource(Res.string.agents_rotate_title),
       text = stringResource(Res.string.agents_rotate_text),
       confirmLabel = stringResource(Res.string.agents_rotate_confirm),

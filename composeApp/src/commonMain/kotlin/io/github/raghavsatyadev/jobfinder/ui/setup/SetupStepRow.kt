@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -35,6 +31,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_error_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_unchecked_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_copied
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_copied_missing
 import io.github.raghavsatyadev.jobfinder.resources.settings_login_copy_failed
@@ -98,6 +97,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.SetupStepState
 import io.github.raghavsatyadev.jobfinder.ui.platform.SignInCopy
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** On the sign-in step: copy the sign-ins from the user's own browser through the extension. */
 @Composable
@@ -323,10 +323,17 @@ private fun StateIcon(state: SetupStepState) {
   when (state) {
     SetupStepState.CHECKING,
     SetupStepState.WORKING -> LoadingIndicator(size)
-    SetupStepState.DONE -> Icon(Icons.Rounded.CheckCircle, null, size, tint = state.color())
+    SetupStepState.DONE ->
+      Icon(vectorResource(Res.drawable.ic_check_circle_filled), null, size, tint = state.color())
     SetupStepState.TODO ->
-      Icon(Icons.Rounded.RadioButtonUnchecked, null, size, tint = state.color())
-    SetupStepState.FAILED -> Icon(Icons.Rounded.Error, null, size, tint = state.color())
+      Icon(
+        vectorResource(Res.drawable.ic_radio_button_unchecked_filled),
+        null,
+        size,
+        tint = state.color(),
+      )
+    SetupStepState.FAILED ->
+      Icon(vectorResource(Res.drawable.ic_error_filled), null, size, tint = state.color())
   }
 }
 

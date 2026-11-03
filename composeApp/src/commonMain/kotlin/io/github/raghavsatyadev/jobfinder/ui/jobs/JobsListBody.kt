@@ -12,13 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Celebration
-import androidx.compose.material.icons.rounded.Inbox
-import androidx.compose.material.icons.rounded.Radar
-import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material.icons.rounded.StarOutline
-import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -41,6 +34,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_stale
+import io.github.raghavsatyadev.jobfinder.resources.ic_celebration_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_inbox_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radar_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_off_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_star_outline_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_touch_app_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_caught_up_hint
 import io.github.raghavsatyadev.jobfinder.resources.jobs_caught_up_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_clear_filters
@@ -71,6 +70,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** How close to the end of the list the next page starts loading. */
 private const val LOAD_MORE_THRESHOLD = 5
@@ -88,7 +88,7 @@ internal fun EmptyJobs(
   when {
     state.isFiltered ->
       EmptyState(
-        icon = Icons.Rounded.SearchOff,
+        icon = vectorResource(Res.drawable.ic_search_off_filled),
         title = stringResource(Res.string.jobs_empty_filtered_title),
         hint = stringResource(Res.string.jobs_empty_filtered_hint),
         action = {
@@ -102,14 +102,14 @@ internal fun EmptyJobs(
       )
     state.starred ->
       EmptyState(
-        icon = Icons.Rounded.StarOutline,
+        icon = vectorResource(Res.drawable.ic_star_outline_filled),
         title = stringResource(Res.string.jobs_empty_starred_title),
         hint = stringResource(Res.string.jobs_empty_starred_hint),
       )
     state.status == JobStatus.NEW && caughtUp != null ->
       Box(Modifier.fillMaxSize()) {
         EmptyState(
-          icon = Icons.Rounded.Celebration,
+          icon = vectorResource(Res.drawable.ic_celebration_filled),
           title = stringResource(Res.string.jobs_caught_up_title),
           hint = stringResource(Res.string.jobs_caught_up_hint),
         )
@@ -117,13 +117,13 @@ internal fun EmptyJobs(
       }
     state.status == JobStatus.NEW ->
       EmptyState(
-        icon = Icons.Rounded.Radar,
+        icon = vectorResource(Res.drawable.ic_radar_filled),
         title = stringResource(Res.string.jobs_empty_new_title),
         hint = stringResource(Res.string.jobs_empty_new_hint),
       )
     else ->
       EmptyState(
-        icon = Icons.Rounded.Inbox,
+        icon = vectorResource(Res.drawable.ic_inbox_filled),
         title = stringResource(Res.string.jobs_empty_tab_title),
         hint = stringResource(Res.string.jobs_empty_tab_hint),
       )
@@ -221,7 +221,7 @@ internal fun JobList(
 @Composable
 internal fun JobDetailPlaceholderContent() {
   EmptyState(
-    icon = Icons.Rounded.TouchApp,
+    icon = vectorResource(Res.drawable.ic_touch_app_filled),
     title = stringResource(Res.string.jobs_detail_placeholder_title),
     hint = stringResource(Res.string.jobs_detail_placeholder_hint),
   )

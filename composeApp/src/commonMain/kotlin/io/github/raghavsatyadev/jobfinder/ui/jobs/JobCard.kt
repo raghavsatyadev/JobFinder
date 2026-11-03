@@ -19,14 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Payments
-import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.icons.outlined.Work
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +46,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_archive
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_payments
+import io.github.raghavsatyadev.jobfinder.resources.ic_place
+import io.github.raghavsatyadev.jobfinder.resources.ic_star_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_star_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_work
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_archive
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_delete
 import io.github.raghavsatyadev.jobfinder.resources.jobs_action_star
@@ -77,6 +76,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.tone
 import io.github.raghavsatyadev.jobfinder.ui.translate.TranslatedMark
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** Test tag on every job card; Android exposes it as the resource id for Maestro. */
 const val JOB_CARD_TAG = "job_card"
@@ -175,11 +175,17 @@ internal fun JobCard(
         StarButton(job.starred, onStar)
         if (job.status != JobStatus.ARCHIVED) {
           IconButton(onClick = onArchive, shapes = IconButtonDefaults.shapes()) {
-            Icon(Icons.Outlined.Archive, stringResource(Res.string.jobs_action_archive))
+            Icon(
+              vectorResource(Res.drawable.ic_archive),
+              stringResource(Res.string.jobs_action_archive),
+            )
           }
         }
         IconButton(onClick = onDelete, shapes = IconButtonDefaults.shapes()) {
-          Icon(Icons.Outlined.DeleteOutline, stringResource(Res.string.jobs_action_delete))
+          Icon(
+            vectorResource(Res.drawable.ic_delete_outline),
+            stringResource(Res.string.jobs_action_delete),
+          )
         }
       }
     }
@@ -190,8 +196,12 @@ internal fun JobCard(
 @Composable
 internal fun JobMeta(job: Job, modifier: Modifier = Modifier) {
   val items = buildList {
-    job.location?.takeIf { it.isNotBlank() }?.let { add(Icons.Outlined.Place to it) }
-    job.salary?.takeIf { it.isNotBlank() }?.let { add(Icons.Outlined.Payments to it) }
+    job.location
+      ?.takeIf { it.isNotBlank() }
+      ?.let { add(vectorResource(Res.drawable.ic_place) to it) }
+    job.salary
+      ?.takeIf { it.isNotBlank() }
+      ?.let { add(vectorResource(Res.drawable.ic_payments) to it) }
   }
   val workMode = job.workMode?.let { stringResource(it.label) }
   if (items.isEmpty() && workMode == null) return
@@ -201,7 +211,7 @@ internal fun JobMeta(job: Job, modifier: Modifier = Modifier) {
     verticalArrangement = Arrangement.spacedBy(4.dp),
   ) {
     items.forEach { (icon, text) -> MetaItem(icon, text) }
-    workMode?.let { MetaItem(Icons.Outlined.Work, it) }
+    workMode?.let { MetaItem(vectorResource(Res.drawable.ic_work), it) }
   }
 }
 
@@ -299,12 +309,15 @@ internal fun StarButton(starred: Boolean, onClick: () -> Unit, modifier: Modifie
   IconButton(onClick = onClick, shapes = IconButtonDefaults.shapes(), modifier = modifier) {
     if (starred) {
       Icon(
-        Icons.Rounded.Star,
+        vectorResource(Res.drawable.ic_star_filled),
         stringResource(Res.string.jobs_action_unstar),
         tint = MaterialTheme.colorScheme.tertiary,
       )
     } else {
-      Icon(Icons.Outlined.StarOutline, stringResource(Res.string.jobs_action_star))
+      Icon(
+        vectorResource(Res.drawable.ic_star_outline),
+        stringResource(Res.string.jobs_action_star),
+      )
     }
   }
 }

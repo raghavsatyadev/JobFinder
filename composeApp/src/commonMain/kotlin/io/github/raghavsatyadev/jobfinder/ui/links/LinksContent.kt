@@ -32,14 +32,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.OpenInBrowser
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.TravelExplore
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -89,6 +81,13 @@ import io.github.raghavsatyadev.jobfinder.resources.common_delete
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
 import io.github.raghavsatyadev.jobfinder.resources.common_save
 import io.github.raghavsatyadev.jobfinder.resources.common_stale
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_outline_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_edit_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_browser_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_refresh_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_amber_filled
 import io.github.raghavsatyadev.jobfinder.resources.links_add
 import io.github.raghavsatyadev.jobfinder.resources.links_added
 import io.github.raghavsatyadev.jobfinder.resources.links_broken
@@ -143,6 +142,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.stale
 import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The Searches screen for [state]; stateless, so previews and screenshots can show any state. */
 @Composable
@@ -175,7 +175,7 @@ fun LinksContent(
       if (!state.links.isNullOrEmpty() && !offline) {
         SmallExtendedFloatingActionButton(
           onClick = onAddLink,
-          icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+          icon = { Icon(vectorResource(Res.drawable.ic_add_filled), contentDescription = null) },
           text = { Text(stringResource(Res.string.links_add)) },
           modifier = Modifier.sharedContainer(ADD_LINK_KEY, corner = FabCorner),
         )
@@ -271,7 +271,7 @@ private fun EmptyLinks(sites: ImmutableList<Site>, onAddLink: () -> Unit) {
     Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = scrollBottom())
   ) {
     EmptyState(
-      icon = Icons.Rounded.TravelExplore,
+      icon = vectorResource(Res.drawable.ic_travel_explore_filled),
       title = stringResource(Res.string.links_empty_title),
       hint = stringResource(Res.string.links_empty_hint),
       action = {
@@ -286,7 +286,7 @@ private fun EmptyLinks(sites: ImmutableList<Site>, onAddLink: () -> Unit) {
             shapes = ButtonDefaults.shapes(),
             modifier = Modifier.sharedContainer(ADD_LINK_KEY, corner = FabCorner),
           ) {
-            Icon(Icons.Rounded.Add, contentDescription = null)
+            Icon(vectorResource(Res.drawable.ic_add_filled), contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(Res.string.links_add))
           }
@@ -507,7 +507,7 @@ private fun BrokenWarning(
     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-          Icons.Rounded.WarningAmber,
+          vectorResource(Res.drawable.ic_warning_amber_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.onErrorContainer,
         )
@@ -528,7 +528,7 @@ private fun BrokenWarning(
         }
         if (canOpenPage) {
           TextButton(onClick = { onEvent(LinksEvent.OpenPage(link)) }, colors = onWarning) {
-            Icon(Icons.Rounded.OpenInBrowser, contentDescription = null)
+            Icon(vectorResource(Res.drawable.ic_open_in_browser_filled), contentDescription = null)
             Spacer(Modifier.width(6.dp))
             Text(stringResource(Res.string.links_open_in_browser))
           }
@@ -538,7 +538,7 @@ private fun BrokenWarning(
           enabled = !scanning && !LocalComputerOffline.current,
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Rounded.Refresh, contentDescription = null)
+          Icon(vectorResource(Res.drawable.ic_refresh_filled), contentDescription = null)
           Spacer(Modifier.width(6.dp))
           Text(stringResource(Res.string.links_scan_now))
         }
@@ -564,18 +564,24 @@ private fun CardActions(
     if (showOpenPage) {
       IconButton(onClick = { onEvent(LinksEvent.OpenPage(link)) }) {
         Icon(
-          Icons.Rounded.OpenInBrowser,
+          vectorResource(Res.drawable.ic_open_in_browser_filled),
           contentDescription = stringResource(Res.string.links_open_in_browser),
         )
       }
     }
     if (!link.isBroken) {
       IconButton(onClick = { onEvent(LinksEvent.ScanLink(link)) }, enabled = !scanning && online) {
-        Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.links_scan_now))
+        Icon(
+          vectorResource(Res.drawable.ic_refresh_filled),
+          contentDescription = stringResource(Res.string.links_scan_now),
+        )
       }
     }
     IconButton(onClick = { onEvent(LinksEvent.StartEdit(link)) }, enabled = online) {
-      Icon(Icons.Rounded.Edit, contentDescription = stringResource(Res.string.links_edit))
+      Icon(
+        vectorResource(Res.drawable.ic_edit_filled),
+        contentDescription = stringResource(Res.string.links_edit),
+      )
     }
     IconButton(
       onClick = { onEvent(LinksEvent.AskDelete(link)) },
@@ -583,7 +589,7 @@ private fun CardActions(
       colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error),
     ) {
       Icon(
-        Icons.Rounded.DeleteOutline,
+        vectorResource(Res.drawable.ic_delete_outline_filled),
         contentDescription = stringResource(Res.string.links_delete),
       )
     }
@@ -595,7 +601,7 @@ private fun Dialogs(state: LinksUiState, onEvent: (LinksEvent) -> Unit) {
   state.edit?.let { EditLinkDialog(it, onEvent) }
   state.pendingDelete?.let { link ->
     ConfirmDialog(
-      icon = Icons.Rounded.DeleteOutline,
+      icon = vectorResource(Res.drawable.ic_delete_outline_filled),
       title = stringResource(Res.string.links_delete_title),
       text = stringResource(Res.string.links_delete_text, link.title),
       confirmLabel = stringResource(Res.string.common_delete),
@@ -606,7 +612,9 @@ private fun Dialogs(state: LinksUiState, onEvent: (LinksEvent) -> Unit) {
   state.explaining?.let { link ->
     AlertDialog(
       onDismissRequest = { onEvent(LinksEvent.CloseExplain) },
-      icon = { Icon(Icons.Rounded.WarningAmber, contentDescription = null) },
+      icon = {
+        Icon(vectorResource(Res.drawable.ic_warning_amber_filled), contentDescription = null)
+      },
       title = { Text(stringResource(Res.string.links_broken_explain_title)) },
       text = {
         Text(stringResource(Res.string.links_broken_explain, ServerEvent.BROKEN_LINK_THRESHOLD))
@@ -636,7 +644,7 @@ private fun Dialogs(state: LinksUiState, onEvent: (LinksEvent) -> Unit) {
 private fun EditLinkDialog(edit: LinkEditState, onEvent: (LinksEvent) -> Unit) {
   AlertDialog(
     onDismissRequest = { if (!edit.saving) onEvent(LinksEvent.CancelEdit) },
-    icon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
+    icon = { Icon(vectorResource(Res.drawable.ic_edit_filled), contentDescription = null) },
     title = { Text(stringResource(Res.string.links_edit_title)) },
     text = {
       Column(

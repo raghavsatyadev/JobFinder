@@ -17,14 +17,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.RadioButtonUnchecked
-import androidx.compose.material.icons.rounded.RemoveCircleOutline
-import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -85,12 +77,20 @@ import io.github.raghavsatyadev.jobfinder.resources.doctor_state_skipped
 import io.github.raghavsatyadev.jobfinder.resources.doctor_state_waiting
 import io.github.raghavsatyadev.jobfinder.resources.doctor_state_warning
 import io.github.raghavsatyadev.jobfinder.resources.doctor_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_error_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_unchecked_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_remove_circle_outline_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_wifi_off_filled
 import io.github.raghavsatyadev.jobfinder.ui.platform.DoctorCheck
 import io.github.raghavsatyadev.jobfinder.ui.platform.DoctorCheckKind
 import io.github.raghavsatyadev.jobfinder.ui.platform.DoctorCheckState
 import io.github.raghavsatyadev.jobfinder.ui.platform.DoctorProblem
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** The connection doctor, full screen over the app. Runs the checks when it opens. */
@@ -133,7 +133,10 @@ fun ConnectionDoctorContent(
             modifier = Modifier.weight(1f).semantics { heading() },
           )
           IconButton(onClick = { onEvent(DoctorUiEvent.Close) }) {
-            Icon(Icons.Rounded.Close, stringResource(Res.string.doctor_close))
+            Icon(
+              vectorResource(Res.drawable.ic_close_filled),
+              stringResource(Res.string.doctor_close),
+            )
           }
         }
         Text(
@@ -229,12 +232,25 @@ private fun StateIcon(state: DoctorCheckState) {
   when (state) {
     DoctorCheckState.RUNNING -> LoadingIndicator(size)
     DoctorCheckState.WAITING ->
-      Icon(Icons.Rounded.RadioButtonUnchecked, null, size, tint = state.color())
-    DoctorCheckState.PASSED -> Icon(Icons.Rounded.CheckCircle, null, size, tint = state.color())
-    DoctorCheckState.WARNING -> Icon(Icons.Rounded.Warning, null, size, tint = state.color())
-    DoctorCheckState.FAILED -> Icon(Icons.Rounded.Error, null, size, tint = state.color())
+      Icon(
+        vectorResource(Res.drawable.ic_radio_button_unchecked_filled),
+        null,
+        size,
+        tint = state.color(),
+      )
+    DoctorCheckState.PASSED ->
+      Icon(vectorResource(Res.drawable.ic_check_circle_filled), null, size, tint = state.color())
+    DoctorCheckState.WARNING ->
+      Icon(vectorResource(Res.drawable.ic_warning_filled), null, size, tint = state.color())
+    DoctorCheckState.FAILED ->
+      Icon(vectorResource(Res.drawable.ic_error_filled), null, size, tint = state.color())
     DoctorCheckState.SKIPPED ->
-      Icon(Icons.Rounded.RemoveCircleOutline, null, size, tint = state.color())
+      Icon(
+        vectorResource(Res.drawable.ic_remove_circle_outline_filled),
+        null,
+        size,
+        tint = state.color(),
+      )
   }
 }
 
@@ -311,7 +327,7 @@ fun ConnectionBanner(computer: String, onFix: () -> Unit, modifier: Modifier = M
       horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
       Icon(
-        Icons.Rounded.WifiOff,
+        vectorResource(Res.drawable.ic_wifi_off_filled),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onErrorContainer,
         modifier = Modifier.size(18.dp),

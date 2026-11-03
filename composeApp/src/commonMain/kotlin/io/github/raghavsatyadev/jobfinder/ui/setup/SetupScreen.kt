@@ -18,12 +18,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.PhoneAndroid
-import androidx.compose.material.icons.rounded.TravelExplore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,6 +50,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_auto_awesome_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_phone_android_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore_filled
 import io.github.raghavsatyadev.jobfinder.resources.setup_ai_full
 import io.github.raghavsatyadev.jobfinder.resources.setup_ai_keys
 import io.github.raghavsatyadev.jobfinder.resources.setup_ai_online
@@ -99,6 +98,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.SetupPage
 import io.github.raghavsatyadev.jobfinder.ui.settings.TierRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -150,7 +150,10 @@ fun SetupContent(
               modifier = Modifier.weight(1f).semantics { heading() },
             )
             IconButton(onClick = { onEvent(SetupUiEvent.Close) }) {
-              Icon(Icons.Rounded.Close, stringResource(Res.string.setup_close))
+              Icon(
+                vectorResource(Res.drawable.ic_close_filled),
+                stringResource(Res.string.setup_close),
+              )
             }
           }
           Text(
@@ -252,7 +255,7 @@ private fun PageTabs(state: SetupUiState, onEvent: (SetupUiEvent) -> Unit) {
         label = { Text(name) },
         leadingIcon = {
           Icon(
-            if (done) Icons.Rounded.CheckCircle else page.icon,
+            if (done) vectorResource(Res.drawable.ic_check_circle_filled) else page.icon,
             contentDescription = null,
             modifier = Modifier.size(FilterChipDefaults.IconSize),
           )
@@ -309,11 +312,12 @@ private val SetupPage.intro: StringResource
     }
 
 private val SetupPage.icon: ImageVector
+  @Composable
   get() =
     when (this) {
-      SetupPage.AI -> Icons.Rounded.AutoAwesome
-      SetupPage.SEARCHES -> Icons.Rounded.TravelExplore
-      SetupPage.PHONE -> Icons.Rounded.PhoneAndroid
+      SetupPage.AI -> vectorResource(Res.drawable.ic_auto_awesome_filled)
+      SetupPage.SEARCHES -> vectorResource(Res.drawable.ic_travel_explore_filled)
+      SetupPage.PHONE -> vectorResource(Res.drawable.ic_phone_android_filled)
     }
 
 /** The page's button for its automatic steps; `null` when it has none. */

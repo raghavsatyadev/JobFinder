@@ -7,17 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,13 +22,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.desktop.browser.EmbeddedBrowser
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.browser_back
 import io.github.raghavsatyadev.jobfinder.resources.browser_forward
 import io.github.raghavsatyadev.jobfinder.resources.browser_reload
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_back_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_forward_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_refresh_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_browser_address
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * Back, forward, reload and the address field of an [EmbeddedBrowser], then [actions] at the end.
@@ -45,9 +45,9 @@ internal fun BrowserToolbar(
   modifier: Modifier = Modifier,
   actions: @Composable RowScope.() -> Unit,
 ) {
-  val url by browser.url.collectAsState()
-  val canGoBack by browser.canGoBack.collectAsState()
-  val canGoForward by browser.canGoForward.collectAsState()
+  val url by browser.url.collectAsStateWithLifecycle()
+  val canGoBack by browser.canGoBack.collectAsStateWithLifecycle()
+  val canGoForward by browser.canGoForward.collectAsStateWithLifecycle()
   var address by remember { mutableStateOf(url) }
   LaunchedEffect(url) { address = url }
 
@@ -57,13 +57,22 @@ internal fun BrowserToolbar(
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     IconButton(onClick = browser::goBack, enabled = canGoBack) {
-      Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(Res.string.browser_back))
+      Icon(
+        vectorResource(Res.drawable.ic_arrow_back_filled),
+        stringResource(Res.string.browser_back),
+      )
     }
     IconButton(onClick = browser::goForward, enabled = canGoForward) {
-      Icon(Icons.AutoMirrored.Rounded.ArrowForward, stringResource(Res.string.browser_forward))
+      Icon(
+        vectorResource(Res.drawable.ic_arrow_forward_filled),
+        stringResource(Res.string.browser_forward),
+      )
     }
     IconButton(onClick = browser::reload) {
-      Icon(Icons.Rounded.Refresh, stringResource(Res.string.browser_reload))
+      Icon(
+        vectorResource(Res.drawable.ic_refresh_filled),
+        stringResource(Res.string.browser_reload),
+      )
     }
     OutlinedTextField(
       value = address,

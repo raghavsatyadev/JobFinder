@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -37,11 +34,14 @@ import io.github.raghavsatyadev.jobfinder.resources.agy_missing
 import io.github.raghavsatyadev.jobfinder.resources.agy_model
 import io.github.raghavsatyadev.jobfinder.resources.agy_sign_in
 import io.github.raghavsatyadev.jobfinder.resources.agy_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
 import io.github.raghavsatyadev.jobfinder.shared.model.AgyChoice
 import io.github.raghavsatyadev.jobfinder.shared.model.AgyModels
 import io.github.raghavsatyadev.jobfinder.ui.platform.AgyStatus
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * The Antigravity CLI row of Settings → Free online AI: installed or not, how to install and sign
@@ -82,7 +82,7 @@ internal fun AgySection(
     if (status.installed) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-          Icons.Rounded.CheckCircle,
+          vectorResource(Res.drawable.ic_check_circle_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
           modifier = Modifier.padding(end = 6.dp),
@@ -139,7 +139,7 @@ private fun InstallHint() {
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.AutoMirrored.Rounded.OpenInNew,
+        vectorResource(Res.drawable.ic_open_in_new_filled),
         contentDescription = null,
         modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
       )

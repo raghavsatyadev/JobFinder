@@ -21,13 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Computer
-import androidx.compose.material.icons.rounded.Devices
-import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -63,6 +56,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_computer_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_devices_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_error_outline_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_link_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_qr_code_scanner_filled
 import io.github.raghavsatyadev.jobfinder.resources.pairing_approval_cancel
 import io.github.raghavsatyadev.jobfinder.resources.pairing_approval_code_description
 import io.github.raghavsatyadev.jobfinder.resources.pairing_approval_sending
@@ -95,6 +94,7 @@ import io.github.raghavsatyadev.jobfinder.resources.pairing_scan_failed
 import io.github.raghavsatyadev.jobfinder.resources.pairing_title
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingError
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -142,7 +142,7 @@ fun PairingContent(
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Icon(
-            Icons.Rounded.Devices,
+            vectorResource(Res.drawable.ic_devices_filled),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(56.dp),
@@ -150,7 +150,10 @@ fun PairingContent(
           Spacer(Modifier.weight(1f))
           if (state.canClose) {
             IconButton(onClick = { onEvent(PairingUiEvent.Close) }) {
-              Icon(Icons.Rounded.Close, stringResource(Res.string.pairing_close))
+              Icon(
+                vectorResource(Res.drawable.ic_close_filled),
+                stringResource(Res.string.pairing_close),
+              )
             }
           }
         }
@@ -209,7 +212,9 @@ private fun ComputerRow(
   ListItem(
     headlineContent = { Text(name) },
     supportingContent = { Text(detail) },
-    leadingContent = { Icon(Icons.Rounded.Computer, contentDescription = null) },
+    leadingContent = {
+      Icon(vectorResource(Res.drawable.ic_computer_filled), contentDescription = null)
+    },
     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     modifier =
       Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick).testTag(testTag),
@@ -304,7 +309,7 @@ private fun ManualSection(state: PairingUiState, onEvent: (PairingUiEvent) -> Un
       modifier = Modifier.align(Alignment.End),
     ) {
       Icon(
-        Icons.Rounded.Link,
+        vectorResource(Res.drawable.ic_link_filled),
         contentDescription = null,
         modifier = Modifier.size(ButtonDefaults.IconSize),
       )
@@ -325,7 +330,7 @@ private fun ScanButton(state: PairingUiState, onEvent: (PairingUiEvent) -> Unit)
     modifier = Modifier.fillMaxWidth(),
   ) {
     Icon(
-      Icons.Rounded.QrCodeScanner,
+      vectorResource(Res.drawable.ic_qr_code_scanner_filled),
       contentDescription = null,
       modifier = Modifier.size(ButtonDefaults.IconSize),
     )
@@ -414,7 +419,11 @@ private fun Status(state: PairingUiState) {
         style = MaterialTheme.typography.bodyLarge,
       )
     } else {
-      Icon(Icons.Rounded.ErrorOutline, null, tint = MaterialTheme.colorScheme.error)
+      Icon(
+        vectorResource(Res.drawable.ic_error_outline_filled),
+        null,
+        tint = MaterialTheme.colorScheme.error,
+      )
       Text(
         if (silent != null && message == Res.string.pairing_error_unreachable)
           stringResource(Res.string.pairing_error_silent, silent)

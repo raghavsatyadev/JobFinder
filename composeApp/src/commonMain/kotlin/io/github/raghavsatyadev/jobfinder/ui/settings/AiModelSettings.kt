@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -67,6 +64,8 @@ import io.github.raghavsatyadev.jobfinder.resources.ai_saved
 import io.github.raghavsatyadev.jobfinder.resources.ai_test
 import io.github.raghavsatyadev.jobfinder.resources.ai_test_ok
 import io.github.raghavsatyadev.jobfinder.resources.ai_testing
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_error_outline_filled
 import io.github.raghavsatyadev.jobfinder.shared.model.AiProvider
 import io.github.raghavsatyadev.jobfinder.shared.model.AiSettings
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
@@ -82,6 +81,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -452,7 +452,8 @@ private fun Notice(notice: AiNotice, model: String) {
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     Icon(
-      if (good) Icons.Rounded.CheckCircle else Icons.Rounded.ErrorOutline,
+      if (good) vectorResource(Res.drawable.ic_check_circle_filled)
+      else vectorResource(Res.drawable.ic_error_outline_filled),
       contentDescription = null,
       tint = color,
       modifier = Modifier.size(20.dp),

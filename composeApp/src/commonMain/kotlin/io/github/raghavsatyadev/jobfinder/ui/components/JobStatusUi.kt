@@ -2,18 +2,18 @@
 
 package io.github.raghavsatyadev.jobfinder.ui.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Archive
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.FiberNew
-import androidx.compose.material.icons.rounded.FilterAlt
-import androidx.compose.material.icons.rounded.HourglassTop
-import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.graphics.shapes.RoundedPolygon
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_archive_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_fiber_new_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_filter_alt_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_hourglass_top_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_send_filled
 import io.github.raghavsatyadev.jobfinder.resources.status_applied
 import io.github.raghavsatyadev.jobfinder.resources.status_archived
 import io.github.raghavsatyadev.jobfinder.resources.status_deleted
@@ -23,6 +23,7 @@ import io.github.raghavsatyadev.jobfinder.resources.status_processing
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The status tabs of the job feed, in order. */
 val JobTabs =
@@ -73,12 +74,13 @@ val JobStatus.shape: RoundedPolygon
     }
 
 val JobStatus.icon: ImageVector
+  @Composable
   get() =
     when (this) {
-      JobStatus.NEW -> Icons.Rounded.FiberNew
-      JobStatus.APPLIED -> Icons.Rounded.Send
-      JobStatus.ARCHIVED -> Icons.Rounded.Archive
-      JobStatus.EXCLUDED_BY_ADVANCED_MATCHING -> Icons.Rounded.FilterAlt
-      JobStatus.PROCESSING -> Icons.Rounded.HourglassTop
-      JobStatus.DELETED -> Icons.Rounded.Delete
+      JobStatus.NEW -> vectorResource(Res.drawable.ic_fiber_new_filled)
+      JobStatus.APPLIED -> vectorResource(Res.drawable.ic_send_filled)
+      JobStatus.ARCHIVED -> vectorResource(Res.drawable.ic_archive_filled)
+      JobStatus.EXCLUDED_BY_ADVANCED_MATCHING -> vectorResource(Res.drawable.ic_filter_alt_filled)
+      JobStatus.PROCESSING -> vectorResource(Res.drawable.ic_hourglass_top_filled)
+      JobStatus.DELETED -> vectorResource(Res.drawable.ic_delete_filled)
     }

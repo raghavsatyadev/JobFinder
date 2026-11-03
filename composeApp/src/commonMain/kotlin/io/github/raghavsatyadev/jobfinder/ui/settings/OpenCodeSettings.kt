@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -27,6 +24,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
 import io.github.raghavsatyadev.jobfinder.resources.opencode_found
 import io.github.raghavsatyadev.jobfinder.resources.opencode_found_plain
 import io.github.raghavsatyadev.jobfinder.resources.opencode_hint
@@ -41,6 +40,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.OpenCodeChoice
 import io.github.raghavsatyadev.jobfinder.shared.model.OpenCodeModels
 import io.github.raghavsatyadev.jobfinder.ui.platform.OpenCodeStatus
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * The OpenCode CLI row of Settings → Free online AI: installed or not, how to install and sign in
@@ -81,7 +81,7 @@ internal fun OpenCodeSection(
     if (status.installed) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-          Icons.Rounded.CheckCircle,
+          vectorResource(Res.drawable.ic_check_circle_filled),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
           modifier = Modifier.padding(end = 6.dp),
@@ -139,7 +139,7 @@ private fun InstallHint() {
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.AutoMirrored.Rounded.OpenInNew,
+        vectorResource(Res.drawable.ic_open_in_new_filled),
         contentDescription = null,
         modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
       )

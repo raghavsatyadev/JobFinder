@@ -10,14 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -47,6 +39,13 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.agy_chip
 import io.github.raghavsatyadev.jobfinder.resources.ai_keys_unavailable
 import io.github.raghavsatyadev.jobfinder.resources.common_cancel
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_delete_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_keyboard_arrow_down_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_keyboard_arrow_up_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_schedule_filled
 import io.github.raghavsatyadev.jobfinder.resources.keys_add
 import io.github.raghavsatyadev.jobfinder.resources.keys_added
 import io.github.raghavsatyadev.jobfinder.resources.keys_adding
@@ -122,6 +121,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** What adding a key last did. */
@@ -616,7 +616,10 @@ private fun KeyRow(key: AiKey, state: OnlineKeysUiState, onEvent: (OnlineKeysUiE
       onClick = { onEvent(OnlineKeysUiEvent.Remove(key.id)) },
       shapes = IconButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.Delete, contentDescription = stringResource(Res.string.keys_remove, name))
+      Icon(
+        vectorResource(Res.drawable.ic_delete_filled),
+        contentDescription = stringResource(Res.string.keys_remove, name),
+      )
     }
   }
   state.editingKey?.takeIf { it.id == key.id }?.let { KeyEditor(it, state.keyModels, onEvent) }
@@ -751,7 +754,7 @@ private fun ExpiryLine(key: AiKey, now: Long) {
   Row(verticalAlignment = Alignment.CenterVertically) {
     if (warn) {
       Icon(
-        Icons.Rounded.Schedule,
+        vectorResource(Res.drawable.ic_schedule_filled),
         contentDescription = null,
         tint = color,
         modifier = Modifier.padding(end = 4.dp).size(16.dp),
@@ -839,7 +842,7 @@ internal fun TierRow(tier: FreeTier) {
       shapes = ButtonDefaults.shapes(),
     ) {
       Icon(
-        Icons.AutoMirrored.Rounded.OpenInNew,
+        vectorResource(Res.drawable.ic_open_in_new_filled),
         contentDescription = null,
         modifier = Modifier.padding(end = ButtonDefaults.IconSpacing),
       )
@@ -872,7 +875,11 @@ private fun Routing(pool: AiKeysState, onEvent: (OnlineKeysUiEvent) -> Unit) {
               selected = false,
               onClick = { onEvent(OnlineKeysUiEvent.Toggle(task, route)) },
               leadingIcon = {
-                Icon(Icons.Rounded.Add, contentDescription = null, Modifier.size(18.dp))
+                Icon(
+                  vectorResource(Res.drawable.ic_add_filled),
+                  contentDescription = null,
+                  Modifier.size(18.dp),
+                )
               },
               label = { Text(routeName(route, pool)) },
             )
@@ -935,14 +942,20 @@ private fun RouteRow(
       enabled = index > 0,
       shapes = IconButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.KeyboardArrowUp, stringResource(Res.string.keys_route_up, name))
+      Icon(
+        vectorResource(Res.drawable.ic_keyboard_arrow_up_filled),
+        stringResource(Res.string.keys_route_up, name),
+      )
     }
     IconButton(
       onClick = { onEvent(OnlineKeysUiEvent.Move(task, route, 1)) },
       enabled = index < count - 1,
       shapes = IconButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.KeyboardArrowDown, stringResource(Res.string.keys_route_down, name))
+      Icon(
+        vectorResource(Res.drawable.ic_keyboard_arrow_down_filled),
+        stringResource(Res.string.keys_route_down, name),
+      )
     }
     // A task always keeps one model.
     IconButton(
@@ -950,7 +963,10 @@ private fun RouteRow(
       enabled = count > 1,
       shapes = IconButtonDefaults.shapes(),
     ) {
-      Icon(Icons.Rounded.Close, stringResource(Res.string.keys_route_remove, name))
+      Icon(
+        vectorResource(Res.drawable.ic_close_filled),
+        stringResource(Res.string.keys_route_remove, name),
+      )
     }
   }
 }

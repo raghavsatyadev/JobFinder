@@ -29,11 +29,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -99,6 +94,10 @@ import io.github.raghavsatyadev.jobfinder.resources.filters_save
 import io.github.raghavsatyadev.jobfinder.resources.filters_saved
 import io.github.raghavsatyadev.jobfinder.resources.filters_title
 import io.github.raghavsatyadev.jobfinder.resources.filters_unsaved
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_block_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_expand_more_filled
 import io.github.raghavsatyadev.jobfinder.resources.offline_saved_later
 import io.github.raghavsatyadev.jobfinder.resources.settings_section_prompts
 import io.github.raghavsatyadev.jobfinder.shared.model.AdvancedMatchingConfig
@@ -114,6 +113,7 @@ import io.github.raghavsatyadev.jobfinder.ui.theme.animationsEnabled
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModel
@@ -279,7 +279,7 @@ private fun FilterPromptItem(state: AiFiltersUiState, onEvent: (AiFiltersEvent) 
         )
       }
       Icon(
-        Icons.Rounded.ExpandMore,
+        vectorResource(Res.drawable.ic_expand_more_filled),
         contentDescription = null,
         modifier = Modifier.graphicsLayer { rotationZ = if (open) 180f else 0f },
       )
@@ -382,7 +382,10 @@ private fun CompanyInput(state: AiFiltersUiState, onEvent: (AiFiltersEvent) -> U
       enabled = editable(state),
       modifier = Modifier.padding(top = 8.dp).size(48.dp),
     ) {
-      Icon(Icons.Rounded.Add, contentDescription = stringResource(Res.string.filters_company_add))
+      Icon(
+        vectorResource(Res.drawable.ic_add_filled),
+        contentDescription = stringResource(Res.string.filters_company_add),
+      )
     }
   }
 }
@@ -414,14 +417,14 @@ private fun CompanyChips(
         label = { Text(company) },
         leadingIcon = {
           Icon(
-            Icons.Rounded.Block,
+            vectorResource(Res.drawable.ic_block_filled),
             contentDescription = null,
             modifier = Modifier.size(InputChipDefaults.IconSize),
           )
         },
         trailingIcon = {
           Icon(
-            Icons.Rounded.Close,
+            vectorResource(Res.drawable.ic_close_filled),
             contentDescription = null,
             modifier = Modifier.size(InputChipDefaults.IconSize),
           )

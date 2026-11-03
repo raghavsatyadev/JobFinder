@@ -7,10 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DragIndicator
-import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -39,6 +35,9 @@ import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.ats_section_title
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
 import io.github.raghavsatyadev.jobfinder.resources.ghost_section_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_drag_indicator_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_visibility_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_visibility_off_filled
 import io.github.raghavsatyadev.jobfinder.resources.insights_section_title
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_description
 import io.github.raghavsatyadev.jobfinder.resources.jobs_detail_labels
@@ -67,6 +66,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -249,7 +249,7 @@ private fun SectionRow(
     ListItem(
       leadingContent = {
         Icon(
-          Icons.Rounded.DragIndicator,
+          vectorResource(Res.drawable.ic_drag_indicator_filled),
           stringResource(Res.string.layout_drag, title),
           tint =
             if (enabled) MaterialTheme.colorScheme.onSurfaceVariant
@@ -274,7 +274,8 @@ private fun SectionRow(
           shapes = IconButtonDefaults.shapes(),
         ) {
           Icon(
-            if (hidden) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility,
+            if (hidden) vectorResource(Res.drawable.ic_visibility_off_filled)
+            else vectorResource(Res.drawable.ic_visibility_filled),
             stringResource(if (hidden) Res.string.layout_show else Res.string.layout_hide, title),
           )
         }

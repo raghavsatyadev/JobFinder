@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -31,6 +28,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new
+import io.github.raghavsatyadev.jobfinder.resources.ic_star_filled
 import io.github.raghavsatyadev.jobfinder.resources.insights_dislikes
 import io.github.raghavsatyadev.jobfinder.resources.insights_failed
 import io.github.raghavsatyadev.jobfinder.resources.insights_likes
@@ -66,6 +65,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.LocalComputerOffline
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The job detail's company section: ratings per site and the salary for the role. */
 @Composable
@@ -131,7 +131,7 @@ private fun Rating(rating: CompanyRating) {
           modifier = Modifier.clearAndSetSemantics { contentDescription = description },
         ) {
           Icon(
-            Icons.Rounded.Star,
+            vectorResource(Res.drawable.ic_star_filled),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(18.dp),
@@ -241,7 +241,7 @@ private fun OpenSource(url: String, source: String) {
     shapes = IconButtonDefaults.shapes(),
   ) {
     Icon(
-      Icons.AutoMirrored.Outlined.OpenInNew,
+      vectorResource(Res.drawable.ic_open_in_new),
       stringResource(Res.string.insights_open_source, source),
     )
   }

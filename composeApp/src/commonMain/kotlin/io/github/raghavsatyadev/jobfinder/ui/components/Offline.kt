@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,8 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_cloud_off_filled
 import io.github.raghavsatyadev.jobfinder.resources.offline_read_only
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * `true` on a paired phone while the computer is out of reach. Changes only the computer can make
@@ -38,7 +38,7 @@ fun OfflineNote(
     verticalAlignment = Alignment.CenterVertically,
   ) {
     Icon(
-      Icons.Rounded.CloudOff,
+      vectorResource(Res.drawable.ic_cloud_off_filled),
       contentDescription = null,
       modifier = Modifier.size(16.dp),
       tint = MaterialTheme.colorScheme.onSurfaceVariant,

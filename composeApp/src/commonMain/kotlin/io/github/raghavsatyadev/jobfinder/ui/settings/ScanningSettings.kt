@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +39,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_retry
+import io.github.raghavsatyadev.jobfinder.resources.ic_add_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_remove_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_filled
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_hint
 import io.github.raghavsatyadev.jobfinder.resources.settings_ai_paused_title
 import io.github.raghavsatyadev.jobfinder.resources.settings_excluded_cleanup_hint
@@ -68,6 +67,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.OfflineNote
 import io.github.raghavsatyadev.jobfinder.ui.translate.TranslateToPicker
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 internal fun ScanningSection(scanner: ScannerSettings?, onEvent: (SettingsUiEvent) -> Unit) {
@@ -147,13 +147,13 @@ private fun KeepDaysStepper(days: Int, enabled: Boolean, onChange: (Int) -> Unit
     val more = KEEP_DAY_STEPS.firstOrNull { it > days }
     IconButton(onClick = { fewer?.let(onChange) }, enabled = enabled && fewer != null) {
       Icon(
-        Icons.Rounded.Remove,
+        vectorResource(Res.drawable.ic_remove_filled),
         contentDescription = stringResource(Res.string.settings_excluded_keep_fewer),
       )
     }
     IconButton(onClick = { more?.let(onChange) }, enabled = enabled && more != null) {
       Icon(
-        Icons.Rounded.Add,
+        vectorResource(Res.drawable.ic_add_filled),
         contentDescription = stringResource(Res.string.settings_excluded_keep_more),
       )
     }
@@ -230,7 +230,7 @@ private fun FrequencyPicker(cronRule: String?, enabled: Boolean, onPick: (String
               if (ScannerSettings.isRisky(option.cronRule)) {
                 {
                   Icon(
-                    Icons.Rounded.Warning,
+                    vectorResource(Res.drawable.ic_warning_filled),
                     contentDescription = stringResource(Res.string.settings_frequency_risky),
                     tint = MaterialTheme.colorScheme.error,
                   )

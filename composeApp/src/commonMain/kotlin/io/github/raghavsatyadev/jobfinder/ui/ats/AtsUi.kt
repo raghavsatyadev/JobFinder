@@ -11,10 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -67,6 +63,9 @@ import io.github.raghavsatyadev.jobfinder.resources.ats_score_trajectory
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_value
 import io.github.raghavsatyadev.jobfinder.resources.ats_scores_title
 import io.github.raghavsatyadev.jobfinder.resources.ats_shortlisted
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_remove_filled
 import io.github.raghavsatyadev.jobfinder.resources.improve_open
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
 import io.github.raghavsatyadev.jobfinder.resources.resume_flag_images
@@ -96,6 +95,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** One decimal, as the scores are given: `7.6`, `10.0`. */
 fun oneDecimal(value: Double): String = ((value * 10).roundToInt() / 10.0).toString()
@@ -350,14 +350,14 @@ private fun KeywordChip(keyword: AtsKeyword) {
     KeywordMatch.EXACT -> {
       container = colors.primaryContainer
       content = colors.onPrimaryContainer
-      icon = Icons.Rounded.Check
+      icon = vectorResource(Res.drawable.ic_check_filled)
       description = stringResource(Res.string.ats_keyword_exact, keyword.term, keyword.count)
       label = keyword.term
     }
     KeywordMatch.PARTIAL -> {
       container = colors.tertiaryContainer
       content = colors.onTertiaryContainer
-      icon = Icons.Rounded.Remove
+      icon = vectorResource(Res.drawable.ic_remove_filled)
       val synonym = keyword.matchedAs.orEmpty()
       description = stringResource(Res.string.ats_keyword_partial, keyword.term, synonym)
       label = stringResource(Res.string.ats_keyword_partial_label, keyword.term, synonym)
@@ -365,7 +365,7 @@ private fun KeywordChip(keyword: AtsKeyword) {
     KeywordMatch.MISSING -> {
       container = colors.errorContainer
       content = colors.onErrorContainer
-      icon = Icons.Rounded.Close
+      icon = vectorResource(Res.drawable.ic_close_filled)
       description = stringResource(Res.string.ats_keyword_missing, keyword.term)
       label = keyword.term
     }

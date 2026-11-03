@@ -5,12 +5,6 @@ package io.github.raghavsatyadev.jobfinder.ui.settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.LinkOff
-import androidx.compose.material.icons.rounded.LockReset
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -30,6 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.help_title
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_back_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_help_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_link_off_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_lock_reset_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_filled
 import io.github.raghavsatyadev.jobfinder.resources.nav_back
 import io.github.raghavsatyadev.jobfinder.resources.settings_frequency_12_hours
 import io.github.raghavsatyadev.jobfinder.resources.settings_frequency_1_day
@@ -72,6 +71,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModel
@@ -220,7 +220,7 @@ fun SettingsContent(
           if (onBack != null && backArrow) {
             IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
               Icon(
-                Icons.AutoMirrored.Rounded.ArrowBack,
+                vectorResource(Res.drawable.ic_arrow_back_filled),
                 contentDescription = stringResource(Res.string.nav_back),
               )
             }
@@ -234,7 +234,7 @@ fun SettingsContent(
               modifier = Modifier.sharedContainer(HELP_KEY, corner = HelpButtonCorner),
             ) {
               Icon(
-                Icons.AutoMirrored.Outlined.HelpOutline,
+                vectorResource(Res.drawable.ic_help_outline),
                 contentDescription = stringResource(Res.string.help_title),
               )
             }
@@ -264,7 +264,7 @@ private fun SettingsDialogs(state: SettingsUiState, onEvent: (SettingsUiEvent) -
   val forget = state.confirmForget
   if (forget != null) {
     ConfirmDialog(
-      icon = Icons.Rounded.LinkOff,
+      icon = vectorResource(Res.drawable.ic_link_off_filled),
       title = stringResource(Res.string.settings_unpair_title, forget.label),
       text = stringResource(Res.string.settings_unpair_text),
       confirmLabel = stringResource(Res.string.settings_unpair_button),
@@ -274,7 +274,7 @@ private fun SettingsDialogs(state: SettingsUiState, onEvent: (SettingsUiEvent) -
   }
   state.confirmFrequency?.let { choice ->
     ConfirmDialog(
-      icon = Icons.Rounded.Warning,
+      icon = vectorResource(Res.drawable.ic_warning_filled),
       title = stringResource(Res.string.settings_frequency_risk_title),
       text = stringResource(Res.string.settings_frequency_risk_text, stringResource(choice.label)),
       confirmLabel = stringResource(Res.string.settings_frequency_risk_confirm),
@@ -284,7 +284,7 @@ private fun SettingsDialogs(state: SettingsUiState, onEvent: (SettingsUiEvent) -
   }
   if (state.confirmRotate) {
     ConfirmDialog(
-      icon = Icons.Rounded.LockReset,
+      icon = vectorResource(Res.drawable.ic_lock_reset_filled),
       title = stringResource(Res.string.settings_rotate_title),
       text = stringResource(Res.string.settings_rotate_text),
       confirmLabel = stringResource(Res.string.settings_rotate_confirm),

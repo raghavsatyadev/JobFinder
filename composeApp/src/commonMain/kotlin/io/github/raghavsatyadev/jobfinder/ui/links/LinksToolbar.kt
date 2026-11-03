@@ -18,17 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.CheckBox
-import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.RadioButtonChecked
-import androidx.compose.material.icons.rounded.RadioButtonUnchecked
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -66,6 +55,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_box_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_box_outline_blank_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_filter_list_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_checked_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_radio_button_unchecked_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_search_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_sort_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_filled
 import io.github.raghavsatyadev.jobfinder.resources.links_filter_boards
 import io.github.raghavsatyadev.jobfinder.resources.links_filter_done
 import io.github.raghavsatyadev.jobfinder.resources.links_filter_status
@@ -86,6 +85,7 @@ import io.github.raghavsatyadev.jobfinder.resources.links_view_sort_oldest
 import io.github.raghavsatyadev.jobfinder.shared.model.Site
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * Above the searches, in one row like the jobs list: a text search, the filter button (boards and
@@ -107,14 +107,16 @@ internal fun LinksToolbar(
       value = view.query,
       onValueChange = { onChange(view.copy(query = it)) },
       placeholder = { Text(stringResource(Res.string.links_view_search), maxLines = 1) },
-      leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+      leadingIcon = {
+        Icon(vectorResource(Res.drawable.ic_search_filled), contentDescription = null)
+      },
       trailingIcon =
         if (view.query.isEmpty()) null
         else {
           {
             IconButton(onClick = { onChange(view.copy(query = "")) }) {
               Icon(
-                Icons.Rounded.Close,
+                vectorResource(Res.drawable.ic_close_filled),
                 contentDescription = stringResource(Res.string.links_view_search_clear),
               )
             }
@@ -136,7 +138,7 @@ internal fun LinksToolbar(
       modifier = Modifier.semantics { contentDescription = filterLabel },
     ) {
       BadgedBox(badge = { if (active > 0) Badge { Text("$active") } }) {
-        Icon(Icons.Rounded.FilterList, contentDescription = null)
+        Icon(vectorResource(Res.drawable.ic_filter_list_filled), contentDescription = null)
       }
     }
     SortMenu(view, onChange)
@@ -162,7 +164,7 @@ private fun SortMenu(view: LinksView, onChange: (LinksView) -> Unit) {
       modifier = Modifier.semantics { contentDescription = label },
     ) {
       BadgedBox(badge = { if (view.sort != LinkSort.NEWEST || view.groupByBoard) Badge() }) {
-        Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null)
+        Icon(vectorResource(Res.drawable.ic_sort_filled), contentDescription = null)
       }
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
@@ -170,8 +172,8 @@ private fun SortMenu(view: LinksView, onChange: (LinksView) -> Unit) {
         MenuItem(
           text = choice.label,
           icon =
-            if (choice == view.sort) Icons.Rounded.RadioButtonChecked
-            else Icons.Rounded.RadioButtonUnchecked,
+            if (choice == view.sort) vectorResource(Res.drawable.ic_radio_button_checked_filled)
+            else vectorResource(Res.drawable.ic_radio_button_unchecked_filled),
           on = choice == view.sort,
         ) {
           open = false
@@ -182,7 +184,8 @@ private fun SortMenu(view: LinksView, onChange: (LinksView) -> Unit) {
       MenuItem(
         text = Res.string.links_view_group,
         icon =
-          if (view.groupByBoard) Icons.Rounded.CheckBox else Icons.Rounded.CheckBoxOutlineBlank,
+          if (view.groupByBoard) vectorResource(Res.drawable.ic_check_box_filled)
+          else vectorResource(Res.drawable.ic_check_box_outline_blank_filled),
         on = view.groupByBoard,
       ) {
         open = false
@@ -235,7 +238,10 @@ private fun LinksFilterSheet(
             onClick = { onChange(view.copy(brokenOnly = !view.brokenOnly)) },
             label = { Text(stringResource(Res.string.links_view_broken)) },
             leadingIcon = {
-              ChipIcon(if (view.brokenOnly) Icons.Rounded.Check else Icons.Rounded.Warning)
+              ChipIcon(
+                if (view.brokenOnly) vectorResource(Res.drawable.ic_check_filled)
+                else vectorResource(Res.drawable.ic_warning_filled)
+              )
             },
           )
         }

@@ -2,8 +2,6 @@ package io.github.raghavsatyadev.jobfinder.ui.pairing
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -17,12 +15,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_phone_android_filled
 import io.github.raghavsatyadev.jobfinder.resources.pairing_request_allow
 import io.github.raghavsatyadev.jobfinder.resources.pairing_request_code_label
 import io.github.raghavsatyadev.jobfinder.resources.pairing_request_deny
 import io.github.raghavsatyadev.jobfinder.resources.pairing_request_text
 import io.github.raghavsatyadev.jobfinder.resources.pairing_request_title
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * Asks the user to allow or deny a phone's pairing request. The code is shown large so the user can
@@ -41,7 +41,9 @@ fun PairingApprovalDialog(
   val spaced = code.chunked(3).joinToString(" ")
   AlertDialog(
     onDismissRequest = {},
-    icon = { Icon(Icons.Rounded.PhoneAndroid, contentDescription = null) },
+    icon = {
+      Icon(vectorResource(Res.drawable.ic_phone_android_filled), contentDescription = null)
+    },
     title = { Text(stringResource(Res.string.pairing_request_title)) },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

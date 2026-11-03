@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,6 +34,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_content_copy_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
 import io.github.raghavsatyadev.jobfinder.resources.setup_helper_apply
 import io.github.raghavsatyadev.jobfinder.resources.setup_helper_applying
 import io.github.raghavsatyadev.jobfinder.resources.setup_helper_boards_answer
@@ -59,6 +58,7 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.SetupPage
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** The AI-assistant cards for a setup page: job boards on Searches; filters and resume on AI. */
@@ -125,7 +125,11 @@ fun AssistantHelpCard(
           enabled = request.isNotEmpty(),
           shapes = ButtonDefaults.shapes(),
         ) {
-          Icon(Icons.Rounded.ContentCopy, null, Modifier.padding(end = 8.dp))
+          Icon(
+            vectorResource(Res.drawable.ic_content_copy_filled),
+            null,
+            Modifier.padding(end = 8.dp),
+          )
           Text(
             stringResource(
               if (copied) Res.string.setup_helper_copied else Res.string.setup_helper_copy
@@ -134,7 +138,11 @@ fun AssistantHelpCard(
         }
         Assistant.entries.forEach { assistant ->
           TextButton(onClick = { uriHandler.openUri(assistant.url) }) {
-            Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.padding(end = 8.dp))
+            Icon(
+              vectorResource(Res.drawable.ic_open_in_new_filled),
+              null,
+              Modifier.padding(end = 8.dp),
+            )
             Text(stringResource(Res.string.setup_helper_open, assistant.label))
           }
         }

@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefRuntime
 import io.github.raghavsatyadev.jobfinder.desktop.browser.EmbeddedBrowser
 import io.github.raghavsatyadev.jobfinder.resources.Res
@@ -49,7 +49,7 @@ internal fun AddLinkBrowserPanel(
 ) {
   val browser = remember(runtime) { EmbeddedBrowser(runtime, START_URL, popupsInPlace = true) }
   DisposableEffect(browser) { onDispose { browser.close() } }
-  val url by browser.url.collectAsState()
+  val url by browser.url.collectAsStateWithLifecycle()
   val scope = rememberCoroutineScope()
   var reading by remember { mutableStateOf(false) }
   var failed by remember { mutableStateOf(false) }

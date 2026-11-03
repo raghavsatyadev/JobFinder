@@ -22,11 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.TravelExplore
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
 import io.github.raghavsatyadev.jobfinder.resources.common_error_generic
+import io.github.raghavsatyadev.jobfinder.resources.ic_arrow_back_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_travel_explore_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_amber_filled
 import io.github.raghavsatyadev.jobfinder.resources.links_add_another
 import io.github.raghavsatyadev.jobfinder.resources.links_add_browse
 import io.github.raghavsatyadev.jobfinder.resources.links_add_browse_again
@@ -93,6 +92,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.sharedContainer
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * The add-search screen for [state]. On desktop ([desktop] set) the user can browse to the search
@@ -119,7 +119,7 @@ fun AddLinkContent(
         navigationIcon = {
           IconButton(onClick = onDone) {
             Icon(
-              Icons.AutoMirrored.Rounded.ArrowBack,
+              vectorResource(Res.drawable.ic_arrow_back_filled),
               contentDescription = stringResource(Res.string.nav_back),
             )
           }
@@ -170,7 +170,7 @@ private fun AddLinkForm(
       shapes = ButtonDefaults.shapes(),
       modifier = Modifier.fillMaxWidth(),
     ) {
-      Icon(Icons.Rounded.TravelExplore, contentDescription = null)
+      Icon(vectorResource(Res.drawable.ic_travel_explore_filled), contentDescription = null)
       Spacer(Modifier.width(8.dp))
       Text(
         stringResource(
@@ -279,7 +279,7 @@ private fun Notice(title: String, text: String) {
     modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
   ) {
     Row(Modifier.padding(16.dp)) {
-      Icon(Icons.Rounded.WarningAmber, contentDescription = null)
+      Icon(vectorResource(Res.drawable.ic_warning_amber_filled), contentDescription = null)
       Spacer(Modifier.width(12.dp))
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -332,7 +332,7 @@ private fun Created(created: CreateLinkResponse, onDone: () -> Unit, onAddAnothe
         size = 160.dp,
       )
       Icon(
-        Icons.Rounded.CheckCircle,
+        vectorResource(Res.drawable.ic_check_circle_filled),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier.size(56.dp),

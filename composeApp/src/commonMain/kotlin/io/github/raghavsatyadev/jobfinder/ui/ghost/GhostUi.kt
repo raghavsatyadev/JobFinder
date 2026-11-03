@@ -6,11 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -48,6 +43,10 @@ import io.github.raghavsatyadev.jobfinder.resources.ghost_retry
 import io.github.raghavsatyadev.jobfinder.resources.ghost_some_signs
 import io.github.raghavsatyadev.jobfinder.resources.ghost_unavailable
 import io.github.raghavsatyadev.jobfinder.resources.ghost_vague
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
+import io.github.raghavsatyadev.jobfinder.resources.ic_help_outline
+import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new
+import io.github.raghavsatyadev.jobfinder.resources.ic_warning_amber_filled
 import io.github.raghavsatyadev.jobfinder.resources.offline_later
 import io.github.raghavsatyadev.jobfinder.shared.model.CareersCheck
 import io.github.raghavsatyadev.jobfinder.shared.model.CareersResult
@@ -60,6 +59,7 @@ import io.github.raghavsatyadev.jobfinder.ui.components.StatusPill
 import io.github.raghavsatyadev.jobfinder.ui.components.StatusTone
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * The job detail's ghost-job check: a verdict, its reasons, and whether the company's own careers
@@ -135,7 +135,11 @@ private fun Signals(check: GhostCheck, now: Long) {
           is GhostSignal.CompanyNeverOnOwnSite ->
             stringResource(Res.string.ghost_company_never, signal.jobs)
         }
-      Line(Icons.Rounded.WarningAmber, MaterialTheme.colorScheme.error, text)
+      Line(
+        vectorResource(Res.drawable.ic_warning_amber_filled),
+        MaterialTheme.colorScheme.error,
+        text,
+      )
     }
   }
 }
@@ -148,7 +152,7 @@ private fun Careers(careers: CareersCheck) {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Line(
-            Icons.Rounded.CheckCircle,
+            vectorResource(Res.drawable.ic_check_circle_filled),
             MaterialTheme.colorScheme.primary,
             stringResource(Res.string.ghost_careers_found, host),
             Modifier.weight(1f),
@@ -162,7 +166,7 @@ private fun Careers(careers: CareersCheck) {
     CareersResult.NOT_FOUND ->
       Row(verticalAlignment = Alignment.CenterVertically) {
         Line(
-          Icons.Rounded.WarningAmber,
+          vectorResource(Res.drawable.ic_warning_amber_filled),
           MaterialTheme.colorScheme.error,
           stringResource(Res.string.ghost_careers_not_found, careers.openJobs ?: 0, host),
           Modifier.weight(1f),
@@ -171,7 +175,7 @@ private fun Careers(careers: CareersCheck) {
       }
     CareersResult.UNKNOWN ->
       Line(
-        Icons.AutoMirrored.Outlined.HelpOutline,
+        vectorResource(Res.drawable.ic_help_outline),
         MaterialTheme.colorScheme.onSurfaceVariant,
         stringResource(Res.string.ghost_careers_unknown),
       )
@@ -197,7 +201,7 @@ private fun Open(url: String, label: String) {
     onClick = { runCatching { uriHandler.openUri(url) } },
     shapes = IconButtonDefaults.shapes(),
   ) {
-    Icon(Icons.AutoMirrored.Outlined.OpenInNew, label)
+    Icon(vectorResource(Res.drawable.ic_open_in_new), label)
   }
 }
 

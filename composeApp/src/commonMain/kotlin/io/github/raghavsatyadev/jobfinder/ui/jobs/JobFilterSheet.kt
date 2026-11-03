@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +39,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.raghavsatyadev.jobfinder.resources.Res
+import io.github.raghavsatyadev.jobfinder.resources.ic_check_filled
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_apply
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_apply_method
 import io.github.raghavsatyadev.jobfinder.resources.jobs_filter_clear
@@ -56,6 +55,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.WorkMode
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 
 /** The filter sheet over the job feed. Changes apply when the user taps "Show jobs". */
 @Composable
@@ -188,7 +188,13 @@ private fun Chip(text: String, selected: Boolean, onClick: () -> Unit) {
     label = { Text(text) },
     leadingIcon =
       if (selected) {
-        { Icon(Icons.Rounded.Check, null, Modifier.size(FilterChipDefaults.IconSize)) }
+        {
+          Icon(
+            vectorResource(Res.drawable.ic_check_filled),
+            null,
+            Modifier.size(FilterChipDefaults.IconSize),
+          )
+        }
       } else null,
     colors = FilterChipDefaults.filterChipColors(),
   )
