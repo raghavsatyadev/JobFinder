@@ -3,6 +3,7 @@ package io.github.raghavsatyadev.jobfinder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -279,7 +280,8 @@ private fun runApp(runtime: CefRuntime, startHidden: Boolean) {
             RestoreApproval(restores, windows, tray)
           }
         }
-        val loginRequest by login.request.collectAsStateWithLifecycle()
+        // Outside any Window there is no LocalLifecycleOwner, so plain collectAsState.
+        val loginRequest by login.request.collectAsState()
         loginRequest?.let { LoginBrowserWindow(runtime, it, onDone = login::close) }
       }
     }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.raghavsatyadev.jobfinder.desktop.browser.CefRuntime
 import io.github.raghavsatyadev.jobfinder.desktop.browser.EmbeddedBrowser
 import io.github.raghavsatyadev.jobfinder.resources.Res
@@ -75,7 +75,7 @@ fun LoginBrowserWindow(
       Thread(runtime::flushCookies, "flush-cookies").start()
     }
   }
-  val pageTitle by browser.title.collectAsStateWithLifecycle()
+  val pageTitle by browser.title.collectAsState() // outside the Window: no lifecycle owner yet
   val baseTitle = stringResource(Res.string.login_window_title)
   val state =
     rememberWindowState(
