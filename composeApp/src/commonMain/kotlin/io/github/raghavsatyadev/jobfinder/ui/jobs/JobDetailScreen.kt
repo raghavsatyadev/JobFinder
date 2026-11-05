@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -228,22 +229,23 @@ private fun DetailBody(
       .padding(start = 24.dp, end = 24.dp, top = 56.dp, bottom = 32.dp + scrollBottom()),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
-    Column(
-      Modifier.widthIn(max = ReadingWidth).fillMaxWidth(),
-      verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-      Header(state, job, now)
-      TranslationBar(state, onEvent)
-      job.excludeReason
-        ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
-        ?.let { ExcludedReason(it) }
-      Actions(job, busy = state.busy, onEvent = onEvent, onDelete = onDelete)
-      if (state.canReport && job.status == JobStatus.NEW) {
-        ReportButton(onClick = { onEvent(JobDetailEvent.OpenReport) })
-      }
-      state.report?.let { ReportDialog(it, onEvent) }
-      for (section in state.layout.shown) {
-        key(section) { MovableSection(section, state, job, now, onEvent) }
+    // Every text on the page can be selected and copied; buttons and fields keep their own
+    // behavior.
+    SelectionContainer(Modifier.widthIn(max = ReadingWidth).fillMaxWidth()) {
+      Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+        Header(state, job, now)
+        TranslationBar(state, onEvent)
+        job.excludeReason
+          ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
+          ?.let { ExcludedReason(it) }
+        Actions(job, busy = state.busy, onEvent = onEvent, onDelete = onDelete)
+        if (state.canReport && job.status == JobStatus.NEW) {
+          ReportButton(onClick = { onEvent(JobDetailEvent.OpenReport) })
+        }
+        state.report?.let { ReportDialog(it, onEvent) }
+        for (section in state.layout.shown) {
+          key(section) { MovableSection(section, state, job, now, onEvent) }
+        }
       }
     }
   }
