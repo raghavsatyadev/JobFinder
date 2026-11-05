@@ -9,7 +9,8 @@ desktop app is open. Every request needs the agent token.
 
 ## Connect an agent
 
-1. Open **Settings → AI agents (MCP)** and turn the server on.
+1. Open the desktop app; the server starts with it. **Settings → AI agents (MCP)** shows its
+   address.
 2. Copy the setup for your agent; it has the token in it. Or use one of these, with your token in
    place of `<token>`:
 
