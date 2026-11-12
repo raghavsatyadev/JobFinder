@@ -26,6 +26,7 @@ base branch `master`. Values also live in `agent-kit.env`.
 
 | Rule | Read it when |
 | --- | --- |
+| [project.md](.agents/rules/project.md) | *always* — this app's overrides of the shared rules and skills (theme, build, git, device notes); wins over them |
 | [shared-code-first.md](.agents/rules/shared-code-first.md) | *always* — UI and logic in common code; platform modules only implement interfaces (Linux, macOS, iOS planned) |
 | [no-unit-tests.md](.agents/rules/no-unit-tests.md) | *always* — no unit tests in any module; verify on device, desktop and screenshots |
 | [android-build.md](.agents/rules/android-build.md) | before calling any task done — the code must compile |

@@ -29,7 +29,7 @@ if [ "${1:-}" = "--release" ]; then
 fi
 flows=("$@")
 if [ ${#flows[@]} -eq 0 ]; then
-  flows=("$pair" feed.yaml status.yaml refresh.yaml "$kit/.agents/skills/android-device-test/flows/tabs.yaml")
+  flows=("$pair" feed.yaml status.yaml refresh.yaml "$kit/.agents/flows/tabs.yaml")
 fi
 
 db="${JOBFINDER_DB:-${LOCALAPPDATA:-$HOME/AppData/Local}/jobfinder-data/jobfinder.db}"
