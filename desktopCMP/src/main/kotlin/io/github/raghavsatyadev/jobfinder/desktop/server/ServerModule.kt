@@ -2,6 +2,7 @@ package io.github.raghavsatyadev.jobfinder.desktop.server
 
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DesktopDeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DpapiSecretStore
+import io.github.raghavsatyadev.jobfinder.server.ai.AiService
 import io.github.raghavsatyadev.jobfinder.server.ai.JobReports
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.ai.PromptBook
@@ -234,6 +235,13 @@ fun serverModule(dataDir: File) = module {
             }
           },
           appVersion = System.getProperty(APP_VERSION_PROPERTY).orEmpty(),
+          // The UI's settings move the API server when the port changes; tests have none.
+          serverSettings = {
+            koin.getOrNull<SettingsRepository>() ?: koin.get<LocalSettingsRepository>()
+          },
+          ai = { koin.getOrNull<AiService>() },
+          resumePdf = { koin.getOrNull<ResumePdfRepository>() },
+          formAnswers = { koin.getOrNull<FormAnswersRepository>() },
         )
       ),
       get(),
