@@ -374,16 +374,17 @@ interface AtsReviewsDao {
   suspend fun insertAll(reviews: List<AtsReviewEntity>)
 
   /**
-   * The newest job in [status] with a description and no review for [hash]: what the background
-   * scorer does next.
+   * The newest job in [status] with a description and no review for [hash] that the AI filter
+   * [filterKey] (or the user) let through: what the background scorer does next.
    */
   @Query(
     """SELECT j.id FROM jobs j
        WHERE j.status = :status AND j.description IS NOT NULL AND trim(j.description) != ''
+       AND (j.labels != '[]' OR j.matched_with IN (:filterKey, 'user'))
        AND NOT EXISTS (SELECT 1 FROM ats_reviews a WHERE a.job_id = j.id AND a.resume_hash = :hash)
        ORDER BY j.created_at DESC, j.id DESC LIMIT 1"""
   )
-  suspend fun nextUnscored(status: String, hash: String): Long?
+  suspend fun nextUnscored(status: String, hash: String, filterKey: String): Long?
 }
 
 @Dao

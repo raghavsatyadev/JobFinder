@@ -135,8 +135,11 @@ class JobDetailViewModel(
       changes.flow.collect { change ->
         when (change) {
           is JobChange.StatusChanged ->
-            if (change.jobId == jobId)
+            if (change.jobId == jobId) {
               _state.update { s -> s.copy(job = s.job?.copy(status = change.to)) }
+              // Restored from Filtered out: its review is now worth writing.
+              if (_state.value.ats?.state == AtsState.SKIPPED) loadAts()
+            }
           is JobChange.Updated ->
             if (change.jobId == jobId)
               _state.update { s ->
@@ -159,6 +162,7 @@ class JobDetailViewModel(
         _state.value.job?.let { saveLabels(it.labelsStarred(!it.starred)) }
       JobDetailEvent.RefreshDescription -> refreshDescription()
       JobDetailEvent.RetryAts -> viewModelScope.launch { loadAts() }
+      JobDetailEvent.ScoreAtsAnyway -> viewModelScope.launch { loadAts(anyway = true) }
       JobDetailEvent.RetryInsights -> viewModelScope.launch { loadInsights(retry = true) }
       JobDetailEvent.RetryGhost -> viewModelScope.launch { loadGhost(retry = true) }
       JobDetailEvent.WriteTips -> viewModelScope.launch { loadTips(write = true) }
@@ -238,10 +242,10 @@ class JobDetailViewModel(
   }
 
   /** Asks for the review; a queued one arrives later as an `AtsScored` event. */
-  private suspend fun loadAts() {
+  private suspend fun loadAts(anyway: Boolean = false) {
     _state.update { it.copy(atsFailed = false) }
     try {
-      val status = ats.requestReview(jobId)
+      val status = ats.requestReview(jobId, anyway)
       _state.update { s ->
         s.copy(ats = status, job = s.job?.copy(ats = status.review?.summary))
       }

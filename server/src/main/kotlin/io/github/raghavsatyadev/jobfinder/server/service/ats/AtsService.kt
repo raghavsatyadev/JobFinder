@@ -26,6 +26,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.ResumeFlag
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeInfo
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import java.security.MessageDigest
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -33,12 +34,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.slf4j.LoggerFactory
 
 /**
  * The resume and the ATS reviews. One worker scores a job at a time on the shared model: jobs
- * someone opened first, then every new job with a description, newest first. Changing the resume
- * drops every review, so all jobs are scored again against the new one.
+ * someone opened first, then every new job with a description the AI filter kept, newest first.
+ * Changing the resume drops every review, so all jobs are scored again against the new one.
  */
 class AtsService(
   private val resumes: ResumeDao,
@@ -48,9 +50,14 @@ class AtsService(
   private val events: ServerEvents,
   private val clock: () -> Long = System::currentTimeMillis,
   private val pause: AiWorkPause = AiWorkPause.NEVER,
+  /** The AI filter's current key: new jobs are scored once the filter has let them through. */
+  private val filterKey: suspend () -> String,
 ) : AtsRepository, JobAiRider {
   private val wake = Channel<Unit>(Channel.CONFLATED)
   private val asked = ConcurrentLinkedDeque<Long>()
+
+  /** Filtered-out jobs the user asked to score anyway. */
+  private val anyway: MutableSet<Long> = ConcurrentHashMap.newKeySet()
 
   /**
    * Reviews that came in the AI filter's merged call, by job and resume hash, until the worker
@@ -87,7 +94,8 @@ class AtsService(
     scope.launch {
       while (true) {
         val next = next()
-        if (next == null) wake.receive() else score(next)
+        // The filter's second check lets jobs through without an event: look again now and then.
+        if (next == null) withTimeoutOrNull(IDLE_LOOK_MS) { wake.receive() } else score(next)
       }
     }
   }
@@ -147,7 +155,7 @@ class AtsService(
     events.emit(ServerEvent.ResumeChanged)
   }
 
-  override suspend fun requestReview(jobId: Long): AtsStatus {
+  override suspend fun requestReview(jobId: Long, anyway: Boolean): AtsStatus {
     val job = jobs.get(jobId) ?: notFound("Job")
     val resume = resumes.get() ?: return AtsStatus(AtsState.NO_RESUME)
     if (job.description.isNullOrBlank()) return AtsStatus(AtsState.NO_DESCRIPTION)
@@ -155,6 +163,10 @@ class AtsService(
     if (stored != null && !stored.failed) {
       val review = stored.review?.let { ApiJson.decodeFromString(AtsReview.serializer(), it) }
       if (review != null) return AtsStatus(AtsState.READY, review)
+    }
+    if (job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING.wire) {
+      if (!anyway) return AtsStatus(AtsState.SKIPPED)
+      this.anyway += jobId
     }
     // Missing or failed: this job goes next.
     if (stored != null) reviews.delete(jobId)
@@ -189,7 +201,7 @@ class AtsService(
       if (reviews.get(id, hash) == null) return id
     }
     if (pause.paused.value) return null
-    return reviews.nextUnscored(JobStatus.NEW.wire, hash)
+    return reviews.nextUnscored(JobStatus.NEW.wire, hash, filterKey())
   }
 
   internal suspend fun score(jobId: Long) {
@@ -197,6 +209,11 @@ class AtsService(
     val job = jobs.get(jobId)?.toModel() ?: return
     val description = job.description
     if (description.isNullOrBlank()) return
+    // Filtered out after it was picked (the AI filter's second check): not worth the model's time.
+    if (job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING && !anyway.remove(jobId)) {
+      synchronized(readyMade) { readyMade.remove(jobId to resume.hash) }
+      return
+    }
     val now = clock()
     val entity =
       try {
@@ -248,6 +265,7 @@ class AtsService(
     val log = LoggerFactory.getLogger("jobfinder.ats")
 
     const val MAX_READY_MADE = 200
+    const val IDLE_LOOK_MS = 60_000L
 
     fun sha256(text: String): String =
       MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") {

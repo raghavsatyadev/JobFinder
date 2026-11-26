@@ -100,6 +100,8 @@ enum class AtsState {
   @SerialName("ready") READY,
   /** The model gave no usable answer; asking again retries. */
   @SerialName("failed") FAILED,
+  /** The AI filter moved the job to Filtered out: no review unless asked for anyway. */
+  @SerialName("skipped") SKIPPED,
 }
 
 /** Where one job's ATS review stands; [review] is set when [state] is `READY`. */

@@ -148,7 +148,8 @@ class NewJobsRecheck(
     val IDLE = 5.minutes
     val BUSY_WAIT = 1.minutes
     val FAILED_WAIT = 1.hours
-    const val ANNOUNCE_EVERY = 5
+    /** Each job that leaves New leaves the open list at once. */
+    const val ANNOUNCE_EVERY = 1
     const val CHECKS_AT_ONCE = 6
   }
 }

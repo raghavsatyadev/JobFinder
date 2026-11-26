@@ -55,6 +55,7 @@ import io.github.raghavsatyadev.jobfinder.resources.ats_pill_description
 import io.github.raghavsatyadev.jobfinder.resources.ats_queued
 import io.github.raghavsatyadev.jobfinder.resources.ats_retry
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_achievements
+import io.github.raghavsatyadev.jobfinder.resources.ats_score_anyway
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_education
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_experience
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_formatting
@@ -63,6 +64,7 @@ import io.github.raghavsatyadev.jobfinder.resources.ats_score_trajectory
 import io.github.raghavsatyadev.jobfinder.resources.ats_score_value
 import io.github.raghavsatyadev.jobfinder.resources.ats_scores_title
 import io.github.raghavsatyadev.jobfinder.resources.ats_shortlisted
+import io.github.raghavsatyadev.jobfinder.resources.ats_skipped
 import io.github.raghavsatyadev.jobfinder.resources.ic_check_filled
 import io.github.raghavsatyadev.jobfinder.resources.ic_close_filled
 import io.github.raghavsatyadev.jobfinder.resources.ic_remove_filled
@@ -139,6 +141,7 @@ fun AtsSection(
   loadFailed: Boolean,
   onRetry: () -> Unit,
   onImprove: (() -> Unit)? = null,
+  onScoreAnyway: () -> Unit = onRetry,
 ) {
   when {
     loadFailed && LocalComputerOffline.current -> Notice(stringResource(Res.string.offline_later))
@@ -155,6 +158,12 @@ fun AtsSection(
           }
         }
         AtsState.FAILED -> Notice(stringResource(Res.string.ats_failed), onRetry)
+        AtsState.SKIPPED ->
+          Notice(
+            stringResource(Res.string.ats_skipped),
+            onScoreAnyway,
+            stringResource(Res.string.ats_score_anyway),
+          )
         AtsState.READY ->
           status.review?.let {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -176,7 +185,11 @@ private fun Progress() {
 }
 
 @Composable
-private fun Notice(text: String, onRetry: (() -> Unit)? = null) {
+private fun Notice(
+  text: String,
+  onRetry: (() -> Unit)? = null,
+  action: String = stringResource(Res.string.ats_retry),
+) {
   Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
     Text(
       text,
@@ -185,7 +198,7 @@ private fun Notice(text: String, onRetry: (() -> Unit)? = null) {
     )
     if (onRetry != null) {
       FilledTonalButton(onClick = onRetry, shapes = ButtonDefaults.shapes()) {
-        Text(stringResource(Res.string.ats_retry))
+        Text(action)
       }
     }
   }

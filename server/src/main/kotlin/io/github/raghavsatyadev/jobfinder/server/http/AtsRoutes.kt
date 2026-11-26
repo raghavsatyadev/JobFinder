@@ -54,7 +54,10 @@ fun Route.atsRoutes(deps: ApiDependencies) {
       call.respondOk(Unit)
     }
   }
-  post("/jobs/{id}/ats") { call.respondOk(ats().requestReview(call.idParam())) }
+  post("/jobs/{id}/ats") {
+    val anyway = call.request.queryParameters["anyway"] == "true"
+    call.respondOk(ats().requestReview(call.idParam(), anyway))
+  }
 }
 
 /** `POST /jobs/{id}/tips[?write=true]`: the negotiation tips, or new ones queued. */

@@ -343,7 +343,7 @@ class OfflineAtsRepository(private val remote: AtsRepository, private val cache:
     cache.dropAll(PhoneCache.REVIEWS)
   }
 
-  override suspend fun requestReview(jobId: Long): AtsStatus {
+  override suspend fun requestReview(jobId: Long, anyway: Boolean): AtsStatus {
     // An imported job the computer doesn't have yet: only the review from the backup.
     if (jobId < 0) {
       return cache.kept("${PhoneCache.REVIEWS}$jobId", AtsStatus.serializer())
@@ -354,7 +354,7 @@ class OfflineAtsRepository(private val remote: AtsRepository, private val cache:
       AtsStatus.serializer(),
       { it.state == AtsState.READY },
     ) {
-      remote.requestReview(jobId)
+      remote.requestReview(jobId, anyway)
     }
   }
 }

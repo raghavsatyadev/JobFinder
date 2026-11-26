@@ -202,8 +202,11 @@ interface AtsRepository {
 
   suspend fun deleteResume()
 
-  /** Where [jobId]'s review stands. Queues it first, and retries a failed one. */
-  suspend fun requestReview(jobId: Long): AtsStatus
+  /**
+   * Where [jobId]'s review stands. Queues it first, and retries a failed one. A filtered-out job is
+   * [AtsState.SKIPPED] unless [anyway].
+   */
+  suspend fun requestReview(jobId: Long, anyway: Boolean = false): AtsStatus
 
   companion object {
     /** Largest resume file accepted. */

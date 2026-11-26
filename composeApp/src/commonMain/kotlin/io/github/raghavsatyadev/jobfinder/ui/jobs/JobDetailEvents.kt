@@ -29,6 +29,9 @@ sealed interface JobDetailEvent {
   /** Ask for the ATS review again (after a failure). */
   data object RetryAts : JobDetailEvent
 
+  /** Scores a filtered-out job's resume match after all. */
+  data object ScoreAtsAnyway : JobDetailEvent
+
   /** Read the company's ratings and salary again (after a failure). */
   data object RetryInsights : JobDetailEvent
 

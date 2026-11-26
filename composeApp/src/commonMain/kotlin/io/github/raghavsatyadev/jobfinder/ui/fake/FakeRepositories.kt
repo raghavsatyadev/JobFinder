@@ -126,7 +126,7 @@ internal class FakeAtsRepository(private val b: FakeBackend) : AtsRepository {
     b.events.tryEmit(ServerEvent.ResumeChanged)
   }
 
-  override suspend fun requestReview(jobId: Long): AtsStatus {
+  override suspend fun requestReview(jobId: Long, anyway: Boolean): AtsStatus {
     b.call()
     if (b.resume.value == null) return AtsStatus(AtsState.NO_RESUME)
     val job = b.jobs.value.firstOrNull { it.id == jobId }

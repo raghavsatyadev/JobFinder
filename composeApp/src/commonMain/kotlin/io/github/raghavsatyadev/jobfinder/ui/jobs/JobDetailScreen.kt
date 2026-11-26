@@ -273,6 +273,7 @@ private fun MovableSection(
           state.atsFailed,
           onRetry = { onEvent(JobDetailEvent.RetryAts) },
           onImprove = if (resumeImproveAvailable()) ({ improving = true }) else null,
+          onScoreAnyway = { onEvent(JobDetailEvent.ScoreAtsAnyway) },
         )
       }
       // Outside the selectable section: a dialog over selectable text crashes on a press.

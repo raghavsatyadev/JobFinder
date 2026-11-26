@@ -10,6 +10,8 @@
     <string name="ats_no_resume">Add your resume in Settings to see how it scores for this job.</string>
     <string name="ats_no_description">This job has no description to compare your resume with.</string>
     <string name="ats_queued">Scoring your resume against this job. The AI model on your computer takes a minute or two.</string>
+    <string name="ats_skipped">Not scored: the AI filter skipped this job.</string>
+    <string name="ats_score_anyway">Score anyway</string>
     <string name="ats_failed">The AI model gave no usable answer for this job.</string>
     <string name="ats_load_failed">The ATS review could not be loaded.</string>
     <string name="ats_retry">Try again</string>

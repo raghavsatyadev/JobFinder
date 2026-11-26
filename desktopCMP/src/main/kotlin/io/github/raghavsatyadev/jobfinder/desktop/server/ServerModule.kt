@@ -252,6 +252,7 @@ fun serverModule(dataDir: File) = module {
         OllamaAtsModel(get(), get()) { get<PromptBook>().instructions(PromptId.ATS_REVIEW) },
         get(),
         pause = get(),
+        filterKey = { get<AdvancedMatchingFilter>().key() },
       )
       .also { it.start(get(ATS_SCOPE)) }
   } bind AtsRepository::class

@@ -353,8 +353,8 @@ class RemoteAtsRepository(private val api: RemoteApi) : AtsRepository {
 
   override suspend fun deleteResume() = api.delete("/resume")
 
-  override suspend fun requestReview(jobId: Long): AtsStatus =
-    api.post("/jobs/$jobId/ats", AtsStatus.serializer())
+  override suspend fun requestReview(jobId: Long, anyway: Boolean): AtsStatus =
+    api.post("/jobs/$jobId/ats" + if (anyway) "?anyway=true" else "", AtsStatus.serializer())
 }
 
 /** Company ratings and salary over `/v1/jobs/{id}/insights`. */
