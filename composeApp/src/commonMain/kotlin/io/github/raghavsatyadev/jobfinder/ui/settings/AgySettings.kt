@@ -33,6 +33,7 @@ import io.github.raghavsatyadev.jobfinder.resources.agy_level_medium
 import io.github.raghavsatyadev.jobfinder.resources.agy_missing
 import io.github.raghavsatyadev.jobfinder.resources.agy_model
 import io.github.raghavsatyadev.jobfinder.resources.agy_sign_in
+import io.github.raghavsatyadev.jobfinder.resources.agy_terms_warning
 import io.github.raghavsatyadev.jobfinder.resources.agy_title
 import io.github.raghavsatyadev.jobfinder.resources.ic_check_circle_filled
 import io.github.raghavsatyadev.jobfinder.resources.ic_open_in_new_filled
@@ -70,6 +71,12 @@ internal fun AgySection(
           stringResource(Res.string.agy_hint),
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        // Google's Antigravity terms (§6) forbid using agy from other apps; off by default.
+        Text(
+          stringResource(Res.string.agy_terms_warning),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.error,
         )
       }
       Switch(

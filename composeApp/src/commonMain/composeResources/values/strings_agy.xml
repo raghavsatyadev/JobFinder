@@ -2,6 +2,7 @@
     <!-- Settings → AI → Free online keys: the Antigravity CLI (agy) on this computer -->
     <string name="agy_title">Antigravity (this computer’s CLI)</string>
     <string name="agy_hint">Gemini Flash through the Antigravity CLI on this computer, on your Google sign-in. No key needed. Only public job text goes to it unless you turn it on for your resume below. Each answer takes about 15 seconds.</string>
+    <string name="agy_terms_warning">Risk: Google’s Antigravity terms do not allow its use from other apps such as JobFinder. Google can suspend your account. Use a free Google AI Studio key instead.</string>
     <string name="agy_found">Installed: agy %1$s</string>
     <string name="agy_found_plain">Installed</string>
     <string name="agy_missing">Not installed. Install the Antigravity CLI, then open this page again.</string>
