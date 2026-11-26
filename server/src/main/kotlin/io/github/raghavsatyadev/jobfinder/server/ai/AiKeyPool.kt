@@ -227,11 +227,20 @@ class AiKeyPool(
     return routing.forTask(task, all).mapNotNull { route ->
       if (route.local) return@mapNotNull LlmTarget(main, null)
       // No key: LlmClient hands it to the OpenCode CLI, which keeps its own quota.
+      // A bad route is skipped, never allowed to sink every other one.
       if (route.openCode) {
-        return@mapNotNull OpenCodeClient.target(route.model.ifBlank { routing.openCode.model })
+        return@mapNotNull runCatching {
+          OpenCodeClient.target(route.model.ifBlank { routing.openCode.model })
+        }
+          .getOrNull()
       }
       // No key either: LlmClient hands it to agy, which rests on its own limits.
-      if (route.agy) return@mapNotNull AgyClient.target(route.model.ifBlank { routing.agy.model })
+      if (route.agy) {
+        return@mapNotNull runCatching {
+          AgyClient.target(route.model.ifBlank { routing.agy.model })
+        }
+          .getOrNull()
+      }
       val key = all.firstOrNull { it.id == route.keyId } ?: return@mapNotNull null
       val name = key.label ?: LlmWire.name(key.provider)
       // The site no longer takes it.

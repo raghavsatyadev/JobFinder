@@ -70,7 +70,7 @@ class OpenCodeClient(
   ): ChatCompletion = semaphore.withPermit {
     val prompt = prompt(system, user, schema)
     var last: Exception? = null
-    val models = catalog.order(preferred)
+    val models = catalog.order(preferred.takeUnless { it == ANY_FREE }.orEmpty())
     for (model in models) {
       if ((restUntil[model] ?: 0) > clock()) continue
       var tries = 0
@@ -222,13 +222,19 @@ class OpenCodeClient(
     private val QUOTA_WORDS = listOf("free usage", "freeusage", "rate limit", "too many requests")
     private val FREE_USE_WORDS = listOf("free usage", "freeusage")
 
+    /**
+     * Stands in for "any free model" (a blank choice): [LlmConfig] needs a name, and [chat] reads
+     * it back as no preference.
+     */
+    private const val ANY_FREE = "any-free"
+
     /** The [LlmTarget] for [model] in a task's list; [LlmClient] sends it here. */
     fun target(model: String): LlmTarget =
       LlmTarget(
         LlmConfig(
           provider = AiProvider.CUSTOM,
           baseUrl = "opencode",
-          model = model.trim(),
+          model = model.trim().ifEmpty { ANY_FREE },
         ),
         AiRoute.OPEN_CODE_ID,
         "OpenCode",

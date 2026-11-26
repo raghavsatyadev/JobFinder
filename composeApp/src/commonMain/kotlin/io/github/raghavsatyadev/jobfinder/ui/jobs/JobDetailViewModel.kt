@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
+import io.github.raghavsatyadev.jobfinder.shared.model.AtsState
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.DetailLayout
 import io.github.raghavsatyadev.jobfinder.shared.model.GhostStatus
@@ -112,7 +113,12 @@ class JobDetailViewModel(
     viewModelScope.launch {
       scan.events.collect { event ->
         when (event) {
-          is ServerEvent.AtsScored -> if (event.jobId == jobId) loadAts()
+          // A failed review shows Retry; asking again here would loop on a broken model.
+          is ServerEvent.AtsScored ->
+            if (event.jobId == jobId) {
+              if (event.summary != null) loadAts()
+              else _state.update { it.copy(ats = AtsStatus(AtsState.FAILED)) }
+            }
           ServerEvent.ResumeChanged -> loadAts()
           is ServerEvent.InsightsReady -> if (jobId in event.jobIds) loadInsights()
           is ServerEvent.GhostChecked -> if (jobId in event.jobIds) loadGhost()
