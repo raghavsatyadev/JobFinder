@@ -2,6 +2,8 @@ package io.github.raghavsatyadev.jobfinder.desktop.nativehost
 
 import io.github.raghavsatyadev.jobfinder.server.nativehost.NativeProtocol
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
@@ -60,9 +62,25 @@ object NativeHostRegistration {
   }
     .toString()
 
-  /** The installer's launcher, or `null` when the app runs from the build. */
-  private fun installedExe(): File? =
-    System.getProperty("jpackage.app-path")?.let(::File)?.takeIf { it.isFile }
+  /**
+   * The installer's launcher, or `null` when the app runs from the build. From the MSIX (installed
+   * under `WindowsApps`, which browsers may not start), its app alias, `jobfinder.exe`.
+   */
+  private fun installedExe(): File? {
+    val exe =
+      (System.getProperty("jpackage.app-path")
+          ?: ProcessHandle.current().info().command().orElse(null)?.takeIf {
+            it.endsWith("JobFinder.exe", ignoreCase = true)
+          })
+        ?.let(::File)
+        ?.takeIf { it.isFile }
+    if (exe == null || !exe.path.contains("\\WindowsApps\\", ignoreCase = true)) return exe
+    // The alias is a reparse point that File.exists() can't follow: test the link itself.
+    val alias = File(System.getenv("LOCALAPPDATA"), "Microsoft/WindowsApps/$MSIX_ALIAS")
+    if (Files.exists(alias.toPath(), LinkOption.NOFOLLOW_LINKS)) return alias
+    log.warn("The app alias {} is missing; the browser extension can't start the app", alias)
+    return null
+  }
 
   private fun reg(vararg args: String): Int {
     val process =
@@ -78,6 +96,8 @@ object NativeHostRegistration {
   }
 
   private const val MANIFEST_DIR = "native-messaging"
+  /** The MSIX manifest's `desktop:ExecutionAlias`. */
+  private const val MSIX_ALIAS = "jobfinder.exe"
   private const val DESCRIPTION = "JobFinder native host"
   private const val REG_TIMEOUT_S = 10L
   /** The JobFinder Helper extension ids the host accepts. */

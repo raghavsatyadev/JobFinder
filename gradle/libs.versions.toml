@@ -65,6 +65,7 @@ jcefmaven = "152.0.6"
 # ignores the bundled natives and downloads them on first run.
 jcef-natives = "jcef-17e805a+cef-152.0.6+g708dc14+chromium-152.0.7977.83"
 jna = "5.19.1"
+filekit = "0.17.1"
 jmdns = "3.6.4"
 jsoup = "1.23.2"
 pdfbox = "3.0.8"
@@ -161,6 +162,7 @@ cron-utils = { module = "com.cronutils:cron-utils", version.ref = "cron-utils" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 jmdns = { module = "org.jmdns:jmdns", version.ref = "jmdns" }
 jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 jcefmaven = { module = "me.friwi:jcefmaven", version.ref = "jcefmaven" }
 jcef-natives-windows-amd64 = { module = "me.friwi:jcef-natives-windows-amd64", version.ref = "jcef-natives" }
 jcef-natives-linux-amd64 = { module = "me.friwi:jcef-natives-linux-amd64", version.ref = "jcef-natives" }

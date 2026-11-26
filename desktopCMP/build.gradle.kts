@@ -28,6 +28,7 @@ dependencies {
   implementation(libs.jcefmaven)
   // Windows calls: keep the PC awake during scans, and the notification-area icon.
   implementation(libs.jna.platform)
+  implementation(libs.filekit.dialogs)
   // Announces the API server on the LAN so phones find it without typing an address.
   implementation(libs.jmdns)
   // Bundled CEF natives for the OS that builds the package: jcefmaven extracts them from the
@@ -291,3 +292,6 @@ afterEvaluate {
       )
     }
 }
+
+// The Windows Store package of the release build (`packageMsix`).
+apply(from = "msix.gradle.kts")

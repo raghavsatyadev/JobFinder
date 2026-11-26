@@ -11,6 +11,11 @@
 -keep class me.friwi.jcefmaven.** { *; }
 -keep class com.sun.jna.** { *; }
 -keep class * implements com.sun.jna.** { *; }
+# FileKit: JNA COM dialogs (Windows), Objective-C (macOS) and D-Bus portal (Linux) bindings.
+-keep class io.github.vinceglb.filekit.** { *; }
+-keep class org.freedesktop.dbus.** { *; }
+-dontwarn org.freedesktop.dbus.**
+-dontwarn jnr.**
 -keep class androidx.sqlite.** { *; }
 -keep class org.jetbrains.skiko.** { *; }
 -keep class org.jetbrains.skia.** { *; }
