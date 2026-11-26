@@ -2,7 +2,7 @@
 import { READ_LIMITS } from '../shared/constants';
 import { errorMsg, type CookieData, type CookiesOut, type ErrorMsg, type GetCookiesIn } from '../shared/protocol';
 import { areSignInsShared } from '../shared/signInSharing';
-import { originsFor } from '../shared/sites';
+import { isSiteOn } from '../shared/sites';
 
 /** More sites than this in one request is a bad request. */
 const MAX_SITES = 200;
@@ -22,7 +22,7 @@ export async function readSignIns(req: Partial<GetCookiesIn>): Promise<CookiesOu
   const missing: string[] = [];
   try {
     for (const site of new Set(sites)) {
-      if (!(await chrome.permissions.contains({ origins: originsFor(site) }))) {
+      if (!(await isSiteOn(site))) {
         missing.push(site);
         continue;
       }

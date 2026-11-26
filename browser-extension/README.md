@@ -21,7 +21,7 @@ page data nowhere else. The message format is in [PROTOCOL.md](PROTOCOL.md).
 
 ## Build
 
-Needs Node.js 20 or newer.
+Needs Node.js 20.15 or newer.
 
 ```sh
 npm install
@@ -64,8 +64,19 @@ npm run dev-key   # creates dev-key.pem if missing, prints the manifest key and 
 Put the printed key in `static/manifest.json` and add the printed id to the host manifest. The id is
 the first 32 hex digits of the SHA-256 of the public key (DER), with digits 0–f mapped to a–p.
 
-The Chrome Web Store and Edge Add-ons assign their own ids and ignore `key`. Remove `key` before
-uploading, and add the store ids to `allowed_origins`.
+## Store package
+
+```sh
+npm run package                # build, then dist-zip/jobfinder-helper-<version>.zip (no `key`)
+npm run package:first-upload   # also ...-first-upload.zip with dev-key.pem as key.pem
+```
+
+Or `./gradlew :desktopCMP:packageExtension`; CI: `.github/workflows/browser-extension.yml`. The
+Chrome Web Store rejects a manifest with `key`, so the zip drops it. A `key.pem` at the zip root of
+the **first** upload of a new item makes the store keep this id; never put a `.pem` in a later
+upload. Edge Add-ons assigns its own id: add it to `allowed_origins` (`NativeHostRegistration.kt`).
+Raise `version` in `package.json` before every upload. Listing text, privacy policy and images:
+[store/](store/).
 
 ## Native host registration (done by the MSI)
 

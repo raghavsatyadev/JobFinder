@@ -9,7 +9,10 @@
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
     "test:e2e": "node build.mjs --e2e && playwright test",
-    "dev-key": "node scripts/dev-key.mjs"
+    "dev-key": "node scripts/dev-key.mjs",
+    "package": "node build.mjs && node scripts/package.mjs",
+    "package:zip": "node scripts/package.mjs",
+    "package:first-upload": "node build.mjs && node scripts/package.mjs --first-upload"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

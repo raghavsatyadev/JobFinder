@@ -205,6 +205,7 @@ val buildExtension by
     environment("PATH", File(npm()).parent + File.pathSeparator + System.getenv("PATH").orEmpty())
     inputs.dir(extensionDir.dir("src"))
     inputs.dir(extensionDir.dir("static"))
+    inputs.file(extensionDir.file("package.json"))
     inputs.file(extensionDir.file("build.mjs"))
     outputs.dir(extensionDir.dir("dist"))
   }
@@ -216,6 +217,18 @@ val extensionResources by
   }
 
 tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(extensionResources) }
+
+// The extension zip for the Chrome Web Store and Edge Add-ons:
+// browser-extension/dist-zip/jobfinder-helper-<version>.zip (scripts/package.mjs).
+tasks.register<Exec>("packageExtension") {
+  group = "build"
+  dependsOn(buildExtension)
+  workingDir = extensionDir.asFile
+  commandLine(npm(), "run", "package:zip")
+  environment("PATH", File(npm()).parent + File.pathSeparator + System.getenv("PATH").orEmpty())
+  inputs.dir(extensionDir.dir("dist"))
+  outputs.dir(extensionDir.dir("dist-zip"))
+}
 
 // Dev tool: records the app on sample data for the README (DemoTour). `-PtourScript=<file>
 // -PtourOut=<dir>`; needs ffmpeg on the PATH.

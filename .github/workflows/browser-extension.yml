@@ -1,0 +1,41 @@
+name: Browser extension .zip
+
+# Manual or on a release tag: the JobFinder Helper zip for the Chrome Web Store and Edge Add-ons
+# (manifest `key` removed). Locally: `npm run package` in browser-extension, or
+# `./gradlew :desktopCMP:packageExtension`. The first-upload zip with key.pem is never built here.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: browser-extension
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build the .zip
+        run: npm run package
+
+      - name: Upload the .zip
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: jobfinder-helper-zip
+          path: browser-extension/dist-zip/*.zip
+          if-no-files-found: error

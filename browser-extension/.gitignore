@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-e2e/
+dist-zip/
 test-results/
 playwright-report/
 # Private half of the dev key pair: never commit.
