@@ -113,7 +113,7 @@ internal fun AgySection(
       FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         AgyModels.LEVELS.forEach { model ->
           FilterChip(
-            selected = choice.model == model,
+            selected = AgyModels.current(choice.model) == model,
             onClick = { onEvent(OnlineKeysUiEvent.SetAgyModel(model)) },
             label = { Text(levelName(model)?.let { stringResource(it) } ?: model) },
           )

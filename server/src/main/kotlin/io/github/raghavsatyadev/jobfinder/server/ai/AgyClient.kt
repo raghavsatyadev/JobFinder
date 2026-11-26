@@ -93,7 +93,7 @@ class AgyClient(
   ): ChatCompletion {
     if (restUntil > clock()) throw LlmException("agy is resting after a limit")
     val exe = command() ?: throw LlmException("The Antigravity CLI (agy) is not installed")
-    val level = model.trim().ifEmpty { AgyModels.DEFAULT }
+    val level = AgyModels.current(model)
     val prompt = prompt(system, user, schema)
     return semaphore.withPermit {
       var last: Exception? = null
@@ -257,7 +257,7 @@ class AgyClient(
         LlmConfig(
           provider = AiProvider.CUSTOM,
           baseUrl = "agy",
-          model = model.ifBlank { AgyModels.DEFAULT },
+          model = AgyModels.current(model),
         ),
         AiRoute.AGY_ID,
         "Antigravity",

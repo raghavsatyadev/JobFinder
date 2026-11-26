@@ -135,17 +135,28 @@ object OpenCodeModels {
 
 /**
  * The Antigravity CLI (`agy`) as a model source: no key, the user's signed-in `agy` answers with
- * Gemini Flash at the thinking level in [model].
+ * Gemini 4 Hydrogen at the thinking level in [model].
  */
 @Serializable
 data class AgyChoice(val enabled: Boolean = false, val model: String = AgyModels.DEFAULT)
 
-/** The Antigravity CLI models the app offers (October 2026, agy 1.4): Gemini Flash by level. */
+/** The Antigravity CLI models the app offers (November 2026): Gemini 4 Hydrogen by level. */
 object AgyModels {
   val LEVELS: List<String> =
-    listOf("gemini-3.8-flash-low", "gemini-3.8-flash-medium", "gemini-3.8-flash-high")
+    listOf("gemini-4-hydrogen-low", "gemini-4-hydrogen-medium", "gemini-4-hydrogen-high")
 
   val DEFAULT: String = LEVELS.first()
+
+  /**
+   * The offered model for a saved [model]: an older one (Gemini 3.8 Flash) moves to the same level
+   * of [LEVELS]; blank or unknown gives [DEFAULT].
+   */
+  fun current(model: String): String {
+    val level = model.trim().substringAfterLast('-')
+    return LEVELS.firstOrNull { it == model.trim() }
+      ?: LEVELS.firstOrNull { it.endsWith("-$level") }
+      ?: DEFAULT
+  }
 }
 
 /** Which models do which work, tried in order; a model out of quota hands the work to the next. */
