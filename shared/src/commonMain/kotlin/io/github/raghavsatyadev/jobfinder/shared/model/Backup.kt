@@ -16,7 +16,10 @@ enum class SettingsPart {
   @SerialName("resume") RESUME,
   /** The port and network: another PC may need others, so it is off by default. */
   @SerialName("server") SERVER,
-  /** The AI provider and model; never the API key, which is typed again on the new computer. */
+  /**
+   * The AI provider and model, and which AI does which work in what order; never the API keys,
+   * which only "Export everything" carries.
+   */
   @SerialName("ai") AI,
   /** The AI instructions the user edited. */
   @SerialName("prompts") PROMPTS,
@@ -72,6 +75,11 @@ data class SettingsBackup(
   val resumeProfile: BackupResumeProfile? = null,
   val server: ServerSettings? = null,
   val ai: AiSettings? = null,
+  /**
+   * Which AI does which work, in order, and the OpenCode and Antigravity choices; part of
+   * [SettingsPart.AI]. Its key ids match the keys only when they come back too (Export everything).
+   */
+  val aiRouting: AiRouting? = null,
   /** The edited AI instructions; a prompt not listed uses the app's own text. */
   val prompts: Map<PromptId, String>? = null,
   val detailLayout: DetailLayout? = null,
@@ -84,7 +92,7 @@ data class SettingsBackup(
       if (scanner != null) add(SettingsPart.SCANNER)
       if (resume != null || resumeProfile != null) add(SettingsPart.RESUME)
       if (server != null) add(SettingsPart.SERVER)
-      if (ai != null) add(SettingsPart.AI)
+      if (ai != null || aiRouting != null) add(SettingsPart.AI)
       if (prompts != null) add(SettingsPart.PROMPTS)
       if (detailLayout != null) add(SettingsPart.DETAIL_LAYOUT)
     }
@@ -99,6 +107,7 @@ data class SettingsBackup(
       resumeProfile = resumeProfile.takeIf { SettingsPart.RESUME in keep },
       server = server.takeIf { SettingsPart.SERVER in keep },
       ai = ai.takeIf { SettingsPart.AI in keep },
+      aiRouting = aiRouting.takeIf { SettingsPart.AI in keep },
       prompts = prompts.takeIf { SettingsPart.PROMPTS in keep },
       detailLayout = detailLayout.takeIf { SettingsPart.DETAIL_LAYOUT in keep },
     )

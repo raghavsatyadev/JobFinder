@@ -188,6 +188,7 @@ class BackupService(
         resumeProfile = db.resumeProfileDao().get()?.toBackup(),
         server = settings().getServerSettings(),
         ai = db.settingsDao().get()?.toAiSettings(),
+        aiRouting = db.backupRouting(),
         prompts = PromptBook(db.aiPromptsDao()).edits(),
         detailLayout = settings().getDetailLayout(),
       )
@@ -311,6 +312,10 @@ class BackupService(
         dao.upsert(row)
         add(SettingsPart.AI)
       }
+    }
+    backup.aiRouting?.let {
+      db.restoreRouting(it)
+      add(SettingsPart.AI)
     }
     backup.prompts?.let { if (restorePrompts(it)) add(SettingsPart.PROMPTS) }
     backup.detailLayout?.let {
@@ -522,7 +527,10 @@ class BackupService(
       .toMap()
   }
 
-  /** Saves [bytes] to [backupDir], locked with this computer's key when it has one. */
+  /**
+   * Saves [bytes] to [backupDir], locked with this computer's key when it has one. Never with the
+   * API keys: files left on disk every day must not carry them; "Export everything" does.
+   */
   private suspend fun write(prefix: String, bytes: ByteArray): Path {
     val key = deviceKeys?.get()
     val (content, extension) =

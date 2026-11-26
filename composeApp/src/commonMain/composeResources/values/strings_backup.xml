@@ -6,7 +6,7 @@
     <string name="backup_export_all">Export everything</string>
     <string name="backup_import">Import a backup</string>
     <string name="backup_export_csv">Export jobs as CSV</string>
-    <string name="backup_auto_hint">The computer also saves everything once a day, locked so only this computer can open it, and keeps the last 7 days.</string>
+    <string name="backup_auto_hint">The computer also saves everything except your API keys once a day, locked so only this computer can open it, and keeps the last 7 days.</string>
     <string name="backup_dialog_open">Open a JobFinder backup</string>
     <string name="backup_dialog_save">Save the backup</string>
     <string name="backup_export_title">Export settings</string>
@@ -17,7 +17,7 @@
     <string name="backup_part_matching">AI filter: your prompt and excluded companies</string>
     <string name="backup_part_scanner">Scanning: how often, sleep and sound</string>
     <string name="backup_part_resume">Resume, for the ATS scores</string>
-    <string name="backup_part_ai">AI model choice</string>
+    <string name="backup_part_ai">AI model choice and order</string>
     <string name="backup_part_prompts">AI instructions you changed</string>
     <string name="backup_part_detail_layout">Job detail layout</string>
     <string name="backup_part_server">Port and network (they may differ on another computer)</string>
