@@ -26,7 +26,7 @@ val desktopUiModule = module {
   single { LoginBrowserState() }
   single<FilePicker> { DesktopFilePicker() }
   single<AiChoice> { DesktopAiChoice(get(), get()) }
-  single<AiKeys> { DesktopAiKeys(get(), get(), getOrNull(), getOrNull(), getOrNull()) }
+  single<AiKeys> { DesktopAiKeys(get(), get(), getOrNull(), getOrNull(), getOrNull(), getOrNull()) }
   single<AgentAccess> { DesktopAgentAccess(get()) }
   single<ScanRepository> { DesktopScanRepository(get(), get(), get(), get()) }
   single<SettingsRepository> {

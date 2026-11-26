@@ -4,6 +4,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AddKeyResult
 import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
 import io.github.raghavsatyadev.jobfinder.server.ai.AiHealth
 import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
+import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeCatalog
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.SecretStore
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
@@ -23,6 +24,7 @@ class DesktopAiKeys(
   private val openCode: OpenCodeServer? = null,
   private val agy: AgyClient? = null,
   private val health: AiHealth? = null,
+  private val catalog: OpenCodeCatalog? = null,
 ) : AiKeys {
   override suspend fun load(): AiKeysState =
     AiKeysState(
@@ -39,7 +41,13 @@ class DesktopAiKeys(
   private suspend fun openCodeStatus(): OpenCodeStatus {
     val server = openCode ?: return OpenCodeStatus()
     if (server.command() == null) return OpenCodeStatus()
-    return OpenCodeStatus(installed = true, version = server.version())
+    val models = catalog?.let { c -> c.known().ifEmpty { c.freeModels() } }.orEmpty()
+    return OpenCodeStatus(
+      installed = true,
+      version = server.version(),
+      models = models,
+      paused = catalog?.paused().orEmpty(),
+    )
   }
 
   private suspend fun agyStatus(): AgyStatus {

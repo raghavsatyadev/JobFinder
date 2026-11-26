@@ -116,21 +116,17 @@ data class AiRoute(
 
 /**
  * The OpenCode CLI as a free model source: no key, the user's installed `opencode` runs its free
- * models. [model] is tried first; the other [OpenCodeModels.FREE] follow when it is out of quota.
+ * models. [model] is tried first; the other free models OpenCode lists follow when it fails.
  */
 @Serializable
 data class OpenCodeChoice(val enabled: Boolean = false, val model: String = OpenCodeModels.DEFAULT)
 
-/** The OpenCode free models the app uses, in fallback order (October 2026, opencode v2). */
+/** The OpenCode model choice; the free models themselves are listed by OpenCode at run time. */
 object OpenCodeModels {
-  /** Zero retention and no training (DeepSeek, GLM), then Beam (kept 30 days). */
-  val FREE: List<String> = listOf("deepseek-v4.1-flash-free", "glm-5.3-flash-free", "beam-free")
+  /** No model picked: the app uses every free model OpenCode lists, in its order. */
+  const val AUTO: String = ""
 
-  val DEFAULT: String = FREE.first()
-
-  /** [preferred] first, then the rest of [FREE]. */
-  fun order(preferred: String): List<String> =
-    (listOf(preferred.trim()).filter { it.isNotEmpty() } + FREE).distinct()
+  val DEFAULT: String = AUTO
 }
 
 /**

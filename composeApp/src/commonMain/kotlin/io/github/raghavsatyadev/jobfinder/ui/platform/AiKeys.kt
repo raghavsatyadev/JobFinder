@@ -24,7 +24,14 @@ data class AiKeysState(
 )
 
 /** The OpenCode CLI on this computer: [version] as it reports it, e.g. "v2.0.31". */
-data class OpenCodeStatus(val installed: Boolean = false, val version: String? = null)
+data class OpenCodeStatus(
+  val installed: Boolean = false,
+  val version: String? = null,
+  /** The free models OpenCode lists now; empty until it was asked. */
+  val models: List<String> = emptyList(),
+  /** The models paused after failing again and again, and until when (epoch ms). */
+  val paused: Map<String, Long> = emptyMap(),
+)
 
 /** The Antigravity CLI (`agy`) on this computer: [version] as it reports it, e.g. "1.4.0". */
 data class AgyStatus(val installed: Boolean = false, val version: String? = null)

@@ -2,7 +2,6 @@ package io.github.raghavsatyadev.jobfinder.server.ai
 
 import io.github.raghavsatyadev.jobfinder.shared.model.AiProvider
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRoute
-import io.github.raghavsatyadev.jobfinder.shared.model.OpenCodeModels
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.timeout
@@ -44,14 +43,17 @@ import org.slf4j.LoggerFactory
  * free tier refuses a session with no tools at all), and `read` only sees that empty folder. The
  * prompt says to answer from the text only. The session and the folder are deleted afterwards.
  *
- * Models go in [OpenCodeModels.order]; one out of free use or rate-limited rests a while and the
- * next one takes the call. A model that times out or answers 5xx gets one more try after a pause.
+ * Models go in [OpenCodeCatalog.order]: the chosen one, then every free model OpenCode lists. One
+ * out of free use or rate-limited rests a while and the next one takes the call. A model that times
+ * out or answers 5xx gets one more try after a pause. Three failures in a row pause a model for a
+ * day ([OpenCodeCatalog]).
  */
 class OpenCodeClient(
   private val server: OpenCodeServer,
   private val http: HttpClient,
   private val clock: () -> Long = System::currentTimeMillis,
   private val semaphore: Semaphore = Semaphore(PARALLEL_CALLS),
+  private val catalog: OpenCodeCatalog = OpenCodeCatalog(server, http, clock = clock),
 ) {
   private val log = LoggerFactory.getLogger(OpenCodeClient::class.java)
   private val restUntil = ConcurrentHashMap<String, Long>()
@@ -68,29 +70,41 @@ class OpenCodeClient(
   ): ChatCompletion = semaphore.withPermit {
     val prompt = prompt(system, user, schema)
     var last: Exception? = null
-    for (model in OpenCodeModels.order(preferred)) {
+    val models = catalog.order(preferred)
+    for (model in models) {
       if ((restUntil[model] ?: 0) > clock()) continue
       var tries = 0
       while (true) {
         try {
-          return@withPermit ask(model, prompt)
+          val answer = ask(model, prompt)
+          catalog.succeeded(model)
+          return@withPermit answer
         } catch (e: CancellationException) {
           throw e
         } catch (e: QuotaException) {
           restUntil[model] = clock() + e.restMs
           log.info("OpenCode model {} rests {} min: {}", model, e.restMs / 60_000, e.message)
+          // Out of free use counts toward the day's pause; a short rate limit does not.
+          if (e.restMs >= FREE_USE_REST_MS) catalog.failed(model, e.message)
           last = e
           break
         } catch (e: PassingException) {
           last = e
-          if (++tries > RETRIES) break
+          if (++tries > RETRIES) {
+            catalog.failed(model, e.message)
+            break
+          }
           delay(BACKOFF_MS * tries)
           server.restartIfDead()
         } catch (e: LlmException) {
+          catalog.failed(model, e.message)
           last = e
           break
         }
       }
+    }
+    if (models.isEmpty()) {
+      throw LlmException("Every free OpenCode model failed 3 times; they are tried again in a day")
     }
     // Only limits (or every model already resting): busy, not broken.
     if (last == null || last is QuotaException) {
@@ -214,7 +228,7 @@ class OpenCodeClient(
         LlmConfig(
           provider = AiProvider.CUSTOM,
           baseUrl = "opencode",
-          model = model.ifBlank { OpenCodeModels.DEFAULT },
+          model = model.trim(),
         ),
         AiRoute.OPEN_CODE_ID,
         "OpenCode",

@@ -34,6 +34,8 @@ import io.github.raghavsatyadev.jobfinder.resources.opencode_install_command
 import io.github.raghavsatyadev.jobfinder.resources.opencode_keeps_prompts
 import io.github.raghavsatyadev.jobfinder.resources.opencode_missing
 import io.github.raghavsatyadev.jobfinder.resources.opencode_model
+import io.github.raghavsatyadev.jobfinder.resources.opencode_model_auto
+import io.github.raghavsatyadev.jobfinder.resources.opencode_model_paused
 import io.github.raghavsatyadev.jobfinder.resources.opencode_sign_in
 import io.github.raghavsatyadev.jobfinder.resources.opencode_title
 import io.github.raghavsatyadev.jobfinder.shared.model.OpenCodeChoice
@@ -103,11 +105,21 @@ internal fun OpenCodeSection(
     if (choice.enabled) {
       Text(stringResource(Res.string.opencode_model), style = MaterialTheme.typography.bodyMedium)
       FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OpenCodeModels.FREE.forEach { model ->
+        FilterChip(
+          selected = choice.model == OpenCodeModels.AUTO,
+          onClick = { onEvent(OnlineKeysUiEvent.SetOpenCodeModel(OpenCodeModels.AUTO)) },
+          label = { Text(stringResource(Res.string.opencode_model_auto)) },
+        )
+        // The free models OpenCode lists now, and a saved one it no longer lists.
+        (status.models + listOf(choice.model).filter { it.isNotBlank() }).distinct().forEach { model
+          ->
+          val paused = model in status.paused
           FilterChip(
             selected = choice.model == model,
             onClick = { onEvent(OnlineKeysUiEvent.SetOpenCodeModel(model)) },
-            label = { Text(model) },
+            label = {
+              Text(if (paused) stringResource(Res.string.opencode_model_paused, model) else model)
+            },
           )
         }
       }

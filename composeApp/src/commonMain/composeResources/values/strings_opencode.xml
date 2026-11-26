@@ -8,7 +8,9 @@
     <string name="opencode_install_command">npm install -g @opencode/cli</string>
     <string name="opencode_install">How to install</string>
     <string name="opencode_sign_in">To sign in, run “opencode auth login” once in a terminal. The free models also work without it.</string>
-    <string name="opencode_model">Model to try first; the others take over when it runs out</string>
+    <string name="opencode_model">Model to try first; every other free model OpenCode lists takes over when it fails</string>
+    <string name="opencode_model_auto">Any free model</string>
+    <string name="opencode_model_paused">%1$s (paused for a day after 3 failures)</string>
     <string name="opencode_keeps_prompts">Beam keeps what you send for 30 days. DeepSeek and GLM keep nothing.</string>
     <string name="opencode_chip">OpenCode</string>
 </resources>

@@ -15,6 +15,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AiLanes
 import io.github.raghavsatyadev.jobfinder.server.ai.AiService
 import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
+import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeCatalog
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.PromptBook
@@ -84,7 +85,15 @@ internal fun aiServerModule(dataDir: File) = module {
     {
       it?.close()
     }
-  single { OpenCodeClient(get(), LlmClient.defaultHttpClient()) }
+  // The free OpenCode models, listed by OpenCode itself; one failing 3 times rests for a day.
+  single {
+    OpenCodeCatalog(
+      get(),
+      LlmClient.defaultHttpClient(),
+      dataDir.resolve(OPENCODE_PAUSES_FILE).toPath(),
+    )
+  }
+  single { OpenCodeClient(get(), LlmClient.defaultHttpClient(), catalog = get()) }
   single<AiUsageRecorder> { RoomAiUsageRecorder(get<ServerDatabase>().aiUsageDao()) }
   // The AI instructions, as edited in Settings; read before every call.
   single {
@@ -102,3 +111,5 @@ internal fun aiServerModule(dataDir: File) = module {
 private const val OPENCODE_DIR = "opencode"
 private const val MODELS_DIR = "models"
 private const val MODEL_CHECKS_FILE = "model-checks.json"
+
+private const val OPENCODE_PAUSES_FILE = "opencode-paused-models.txt"
