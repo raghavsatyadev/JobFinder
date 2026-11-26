@@ -97,6 +97,7 @@ class OpenCodeServer(
     val child =
       withContext(Dispatchers.IO) {
         Files.createDirectories(configDir)
+        stopLeftover()
         ProcessBuilder(command + listOf("serve", "--port", "$port", "--hostname", LOOPBACK))
           .directory(configDir.toFile())
           .redirectInput(ProcessBuilder.Redirect.from(nullFile()))
@@ -126,6 +127,7 @@ class OpenCodeServer(
       }
       if (healthy(ready)) {
         endpoint = ready
+        rememberPids(child)
         log.info(
           "OpenCode server ready on port {} in {} ms",
           port,
@@ -163,6 +165,38 @@ class OpenCodeServer(
     process = null
     hook?.let { runCatching { Runtime.getRuntime().removeShutdownHook(it) } }
     hook = null
+    runCatching { Files.deleteIfExists(pidFile) }
+  }
+
+  private val pidFile: Path
+    get() = configDir.resolve(PID_FILE)
+
+  /** Notes the server's process ids, so a later start can stop it if the app is killed first. */
+  private fun rememberPids(child: Process) {
+    runCatching {
+      val pids = listOf(child.pid()) + child.descendants().map { it.pid() }.toList()
+      Files.writeString(pidFile, pids.joinToString("\n"))
+    }
+  }
+
+  /**
+   * Stops the server a previous run left behind: a killed app (Task Manager, an update, a
+   * reinstall) skips the JVM exit hook, and the old `opencode serve` would run on forever.
+   */
+  private fun stopLeftover() {
+    val pids =
+      runCatching { Files.readAllLines(pidFile).mapNotNull { it.trim().toLongOrNull() } }
+        .getOrNull() ?: return
+    for (pid in pids) {
+      val handle = ProcessHandle.of(pid).orElse(null) ?: continue
+      // Ids are reused: only stop a process that is still OpenCode.
+      val command = handle.info().command().orElse("")
+      if (!command.contains("opencode", ignoreCase = true)) continue
+      log.info("Stopping OpenCode server {} left by an earlier run", pid)
+      handle.descendants().forEach { it.destroyForcibly() }
+      handle.destroyForcibly()
+    }
+    runCatching { Files.deleteIfExists(pidFile) }
   }
 
   companion object {
@@ -173,6 +207,7 @@ class OpenCodeServer(
     private const val HEALTH_TIMEOUT_MS = 2_000L
     private const val VERSION_TIMEOUT_S = 10L
     private const val KILL_WAIT_S = 3L
+    private const val PID_FILE = "server.pid"
 
     private val WINDOWS = System.getProperty("os.name").orEmpty().startsWith("Windows")
 
