@@ -3,19 +3,33 @@ size 1680 1050 1.3125
 theme dark
 wait 1.5
 snap jobs
+click 408 48 0.1
+wait 2
+snap filters
+click 1500 1000 0.1
+wait 1
 click 340 280 0.1
-wait 1.5
+wait 2
 snap job
 scroll 1100 600 10 0.5
-wait 1.5
+wait 2
 snap ats
 scroll 1100 600 10 0.5
-wait 1
+wait 1.5
 click 762 606 0.1
 wait 2
 snap improve
+click 548 692 0.1
+wait 2
 click 982 980 0.1
 wait 1
+scroll 1100 600 40 0.5
+wait 2
+snap company
+click 472 49 0.1
+wait 1.2
+click 580 250 0.1
+wait 2
 click 52 120 0.1
 wait 2
 snap searches
@@ -24,17 +38,35 @@ wait 2
 snap ai-filters
 click 52 280 0.1
 wait 1.5
+click 340 250 0.1
+wait 2
 snap settings
-click 890 410 0.1
+click 340 487 0.1
 wait 2
 snap free-ai
-click 890 410 0.1
-wait 1
-click 890 770 0.1
+click 340 990 0.1
 wait 2
 snap agents
-click 890 770 0.1
-wait 1
-click 1643 42 0.1
+click 340 873 0.1
+wait 2
+snap form-answers
+click 340 745 0.1
+wait 2
+snap backup
+click 540 42 0.1
 wait 2
 snap help
+click 52 280 0.1
+wait 1.5
+click 340 615 0.1
+wait 2
+snap resume
+scroll 340 700 10 0.5
+wait 1
+click 340 830 0.1
+wait 2
+snap pairing
+setup show
+wait 2
+snap setup
+setup hide

@@ -7,6 +7,11 @@ scroll 340 600 8 2
 wait 0.6
 scroll 340 600 -8 1.2
 wait 0.5
+click 408 48                 # Filter jobs
+wait 2
+snap filters
+click 1500 1000              # close the filters
+wait 1
 click 340 280                # the first job
 wait 2
 snap job
@@ -22,6 +27,9 @@ click 548 692                # tick the GraphQL edit
 wait 2
 click 982 980                # Close
 wait 1
+scroll 1100 600 40 3         # down to the company
+wait 2
+snap company
 click 472 49                 # sort
 wait 1.2
 click 580 250                # Highest ATS score
@@ -33,21 +41,40 @@ click 52 200                 # AI filters
 wait 3
 snap ai-filters
 click 52 280                 # Settings
-wait 2
+wait 1.5
+click 340 250                # Scanning
+wait 2.5
 snap settings
-click 890 410                # Free online AI
-wait 3.5
+click 340 487                # AI: the free online keys
+wait 3
 snap free-ai
-click 890 410
-wait 1
-click 890 770                # AI agents (MCP)
-wait 3.5
+click 340 990                # AI agents (MCP)
+wait 3
 snap agents
-click 890 770
-wait 1
-click 1643 42                # Help
+click 340 873                # Form answers
+wait 2.5
+snap form-answers
+click 340 745                # Backup and move
+wait 2.5
+snap backup
+click 540 42                 # Help
 wait 3
 snap help
+click 52 280
+wait 1.5
+click 340 615                # Resume
+wait 2
+snap resume
+scroll 340 700 10 0.5
+wait 1
+click 340 830                # Phone pairing
+wait 2
+snap pairing
+setup show
+wait 2
+snap setup
+setup hide
+wait 1
 theme dark
 click 52 40                  # Jobs, in the dark theme
 wait 3
