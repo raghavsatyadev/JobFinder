@@ -67,5 +67,12 @@ open class LlmException(message: String, cause: Throwable? = null) : Exception(m
 /** The model's per-request size limit (HTTP 413), such as a free key's tokens per minute. */
 class RequestTooLargeException(message: String) : LlmException(message)
 
+/**
+ * A CLI source (OpenCode, agy) is out of quota or resting after a limit: like a rate limit, it is
+ * not a fault of the source and does not count against its health.
+ */
+class ModelRestingException(message: String, cause: Throwable? = null) :
+  LlmException(message, cause)
+
 /** The provider refused the key (HTTP 401 or 403): it is wrong, revoked or expired. */
 class AuthRefusedException(message: String) : LlmException(message)

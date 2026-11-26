@@ -91,7 +91,7 @@ class AgyClient(
     user: String,
     schema: JsonObject,
   ): ChatCompletion {
-    if (restUntil > clock()) throw LlmException("agy is resting after a limit")
+    if (restUntil > clock()) throw ModelRestingException("agy is resting after a limit")
     val exe = command() ?: throw LlmException("The Antigravity CLI (agy) is not installed")
     val level = AgyModels.current(model)
     val prompt = prompt(system, user, schema)
@@ -106,7 +106,7 @@ class AgyClient(
         } catch (e: QuotaException) {
           restUntil = clock() + e.restMs
           log.info("agy rests {} min: {}", e.restMs / 60_000, e.message)
-          throw LlmException("agy is out of quota: ${e.message}", e)
+          throw ModelRestingException("agy is out of quota: ${e.message}", e)
         } catch (e: PassingException) {
           last = e
         } catch (e: LlmException) {

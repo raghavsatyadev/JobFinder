@@ -92,7 +92,14 @@ class OpenCodeClient(
         }
       }
     }
-    throw LlmException("No OpenCode model answered: ${last?.message ?: "all are resting"}", last)
+    // Only limits (or every model already resting): busy, not broken.
+    if (last == null || last is QuotaException) {
+      throw ModelRestingException(
+        "No OpenCode model answered: ${last?.message ?: "all are resting"}",
+        last,
+      )
+    }
+    throw LlmException("No OpenCode model answered: ${last.message}", last)
   }
 
   private suspend fun ask(model: String, prompt: String): ChatCompletion {

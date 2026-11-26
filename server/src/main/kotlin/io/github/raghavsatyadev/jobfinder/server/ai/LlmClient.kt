@@ -223,6 +223,9 @@ class LlmClient(
     } catch (e: RequestTooLargeException) {
       // This job is too long for the key's limit; the key itself is fine.
       throw e
+    } catch (e: ModelRestingException) {
+      // A CLI source at its limit is busy, not broken.
+      throw e
     } catch (e: LlmException) {
       // A stuck or empty model would cost every following call the same wait.
       if (keyId != null && !cli) pool?.rest(keyId, AiKeyPool.FAILED_REST_MS)
