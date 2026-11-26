@@ -52,6 +52,7 @@ scripts/ci-local.sh                      # ktfmt + compile<APP_VARIANT>Kotlin â€
 scripts/gradle-agent.sh <tasks>          # agents: Gradle with errors only; full log in tmp/
 ./gradlew :androidCMP:assembleDebug   # build
 ./gradlew :desktopCMP:run              # computer app (macOS: :desktopCMP:packageDmg for the .app)
+scripts/crawl-app.sh [layout=desktop|phone] [minutes=20]  # click/type through every screen on sample data; crashes in tmp/crawl/report.md
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath iosApp/build build
 git config core.hooksPath .githooks  # once: hooks run the format and CI checks

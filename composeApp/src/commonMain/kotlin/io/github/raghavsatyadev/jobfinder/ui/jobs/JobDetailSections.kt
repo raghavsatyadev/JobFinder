@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -70,6 +71,7 @@ internal fun ExcludedReason(reason: String) {
 @Composable
 internal fun Section(
   title: String,
+  selectable: Boolean = false,
   action: (@Composable () -> Unit)? = null,
   content: @Composable () -> Unit,
 ) {
@@ -82,7 +84,15 @@ internal fun Section(
       )
       action?.invoke()
     }
-    content()
+    // Only reading text (description, reviews, findings) can be selected and copied; dialogs
+    // stay outside it, since a press on a dialog's text would reach the page's selection.
+    if (selectable) {
+      SelectionContainer {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { content() }
+      }
+    } else {
+      content()
+    }
   }
 }
 

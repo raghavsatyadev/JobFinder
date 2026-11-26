@@ -230,6 +230,17 @@ tasks.register<JavaExec>("demoTour") {
   )
 }
 
+// Goes through the whole app on sample data: every screen, button and text field. See
+// AppCrawler.kt.
+tasks.register<JavaExec>("crawlApp") {
+  group = "verification"
+  mainClass = "io.github.raghavsatyadev.jobfinder.desktop.dev.crawl.AppCrawlerKt"
+  classpath = sourceSets["main"].runtimeClasspath
+  workingDir = rootDir
+  jvmArgs("--enable-native-access=ALL-UNNAMED", "-Xmx3g")
+  args((providers.gradleProperty("crawlArgs").orNull ?: "").split(" ").filter { it.isNotBlank() })
+}
+
 // Resume PDFs from a made-up resume and LinkedIn export (or a real export: -PlinkedInZip=...).
 tasks.register<JavaExec>("resumePdfProbe") {
   group = "verification"

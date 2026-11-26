@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -229,23 +228,22 @@ private fun DetailBody(
       .padding(start = 24.dp, end = 24.dp, top = 56.dp, bottom = 32.dp + scrollBottom()),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
-    // Every text on the page can be selected and copied; buttons and fields keep their own
-    // behavior.
-    SelectionContainer(Modifier.widthIn(max = ReadingWidth).fillMaxWidth()) {
-      Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        Header(state, job, now)
-        TranslationBar(state, onEvent)
-        job.excludeReason
-          ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
-          ?.let { ExcludedReason(it) }
-        Actions(job, busy = state.busy, onEvent = onEvent, onDelete = onDelete)
-        if (state.canReport && job.status == JobStatus.NEW) {
-          ReportButton(onClick = { onEvent(JobDetailEvent.OpenReport) })
-        }
-        state.report?.let { ReportDialog(it, onEvent) }
-        for (section in state.layout.shown) {
-          key(section) { MovableSection(section, state, job, now, onEvent) }
-        }
+    Column(
+      Modifier.widthIn(max = ReadingWidth).fillMaxWidth(),
+      verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+      Header(state, job, now)
+      TranslationBar(state, onEvent)
+      job.excludeReason
+        ?.takeIf { job.status == JobStatus.EXCLUDED_BY_ADVANCED_MATCHING }
+        ?.let { ExcludedReason(it) }
+      Actions(job, busy = state.busy, onEvent = onEvent, onDelete = onDelete)
+      if (state.canReport && job.status == JobStatus.NEW) {
+        ReportButton(onClick = { onEvent(JobDetailEvent.OpenReport) })
+      }
+      state.report?.let { ReportDialog(it, onEvent) }
+      for (section in state.layout.shown) {
+        key(section) { MovableSection(section, state, job, now, onEvent) }
       }
     }
   }
@@ -267,20 +265,22 @@ private fun MovableSection(
           onEvent(JobDetailEvent.SetLabel(it))
         }
       }
-    DetailSection.ATS ->
-      Section(stringResource(Res.string.ats_section_title)) {
-        var improving by rememberSaveable { mutableStateOf(false) }
+    DetailSection.ATS -> {
+      var improving by rememberSaveable { mutableStateOf(false) }
+      Section(stringResource(Res.string.ats_section_title), selectable = true) {
         AtsSection(
           state.ats,
           state.atsFailed,
           onRetry = { onEvent(JobDetailEvent.RetryAts) },
           onImprove = if (resumeImproveAvailable()) ({ improving = true }) else null,
         )
-        if (improving) ResumeImproveDialog(job.id) { improving = false }
       }
+      // Outside the selectable section: a dialog over selectable text crashes on a press.
+      if (improving) ResumeImproveDialog(job.id) { improving = false }
+    }
     DetailSection.COMPANY ->
       if (state.insights != null || state.insightsFailed) {
-        Section(stringResource(Res.string.insights_section_title)) {
+        Section(stringResource(Res.string.insights_section_title), selectable = true) {
           InsightsSection(
             state.insights,
             state.insightsFailed,
@@ -290,7 +290,7 @@ private fun MovableSection(
       }
     DetailSection.GHOST ->
       if (state.ghost != null || state.ghostFailed) {
-        Section(stringResource(Res.string.ghost_section_title)) {
+        Section(stringResource(Res.string.ghost_section_title), selectable = true) {
           GhostSection(
             state.ghost,
             state.ghostFailed,
@@ -301,7 +301,7 @@ private fun MovableSection(
       }
     DetailSection.TIPS ->
       if (state.tips != null || state.tipsFailed) {
-        Section(stringResource(Res.string.tips_section_title)) {
+        Section(stringResource(Res.string.tips_section_title), selectable = true) {
           TipsSection(
             state.tips,
             state.tipsFailed,
@@ -312,6 +312,7 @@ private fun MovableSection(
     DetailSection.DESCRIPTION ->
       Section(
         stringResource(Res.string.jobs_detail_description),
+        selectable = true,
         action = {
           IconButton(
             onClick = { onEvent(JobDetailEvent.RefreshDescription) },
