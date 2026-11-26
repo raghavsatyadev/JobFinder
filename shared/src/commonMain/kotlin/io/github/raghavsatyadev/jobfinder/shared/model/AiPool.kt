@@ -50,10 +50,13 @@ data class AiKey(
   val endpoint: String
     get() = baseUrl?.trim()?.takeIf { it.isNotEmpty() } ?: provider.defaultBaseUrl
 
-  /** [model], else the free tier's model, else the provider's suggested one. */
+  /**
+   * [model] (a retired one gives its successor), else the free tier's model, else the provider's
+   * suggested one.
+   */
   val defaultModel: String
     get() =
-      model?.trim()?.takeIf { it.isNotEmpty() }
+      model?.trim()?.takeIf { it.isNotEmpty() }?.let(FreeAiCatalog::current)
         ?: FreeAiCatalog.of(provider)?.model
         ?: provider.suggestedModel
 
@@ -171,6 +174,22 @@ data class AiRouting(
         keys.any { it.id == r.keyId }
     }
 
+  /**
+   * [task]'s list, then every other source that is set up (added keys by free quota, the CLIs while
+   * on, this computer): when the chosen ones all fail or rest, the work still gets done.
+   */
+  fun withFallbacks(task: AiTask, keys: List<AiKey>): List<AiRoute> {
+    val chosen = forTask(task, keys)
+    val others =
+      keys.sortedBy { FreeAiCatalog.rank(it.provider) }.map { AiRoute(it.id, it.defaultModel) } +
+        listOfNotNull(
+          AiRoute.OPEN_CODE.takeIf { openCode.enabled },
+          AiRoute.AGY.takeIf { agy.enabled },
+        ) +
+        AiRoute.LOCAL
+    return chosen + others.filter { o -> chosen.none { it.keyId == o.keyId } }
+  }
+
   companion object {
     /**
      * Public job text goes to the online keys first (most free quota first), then the OpenCode CLI
@@ -222,7 +241,7 @@ object FreeAiCatalog {
       FreeTier(
         AiProvider.NVIDIA,
         "https://build.nvidia.com/settings/api-keys",
-        "deepseek-ai/deepseek-v4.1-flash",
+        "z-ai/glm-5.3-flash",
         requestsPerMinute = 40,
         requestsPerDay = null,
         tokensPerDay = null,
@@ -242,7 +261,7 @@ object FreeAiCatalog {
       FreeTier(
         AiProvider.OPENROUTER,
         "https://openrouter.ai/settings/keys",
-        "nvidia/nemotron-3-super-120b-a12b:free",
+        "nvidia/nemotron-3-ultra-550b-a55b:free",
         requestsPerMinute = 20,
         requestsPerDay = 50,
         tokensPerDay = null,
@@ -272,6 +291,16 @@ object FreeAiCatalog {
     )
 
   fun of(provider: AiProvider): FreeTier? = TIERS.firstOrNull { it.provider == provider }
+
+  /** Free models their site retired, with the one to use instead (November 2026). */
+  private val RETIRED =
+    mapOf(
+      "deepseek-ai/deepseek-v4.1-flash" to "z-ai/glm-5.3-flash",
+      "nvidia/nemotron-3-super-120b-a12b:free" to "nvidia/nemotron-3-ultra-550b-a55b:free",
+    )
+
+  /** [model], or its successor when its site retired it. */
+  fun current(model: String): String = RETIRED[model.trim()] ?: model
 
   /** Position in the quota order; providers without a free tier come last. */
   fun rank(provider: AiProvider): Int =

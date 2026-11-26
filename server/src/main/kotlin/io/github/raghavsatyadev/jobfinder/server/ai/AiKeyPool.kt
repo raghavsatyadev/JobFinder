@@ -216,7 +216,8 @@ class AiKeyPool(
     keys.usage(today()).map { AiKeyUsage(it.keyId, it.requests, it.tokens) }
 
   /**
-   * [task]'s models in order; [main] is the main AI choice (usually this computer). The OpenCode
+   * [task]'s models in order, then every other set-up source as a fallback
+   * ([AiRouting.withFallbacks]); [main] is the main AI choice (usually this computer). The OpenCode
    * CLI comes as [OpenCodeClient.target] and the Antigravity CLI as [AgyClient.target] while they
    * are turned on.
    */
@@ -224,7 +225,7 @@ class AiKeyPool(
     val now = clock()
     val all = list()
     val routing = routing()
-    return routing.forTask(task, all).mapNotNull { route ->
+    return routing.withFallbacks(task, all).mapNotNull { route ->
       if (route.local) return@mapNotNull LlmTarget(main, null)
       // No key: LlmClient hands it to the OpenCode CLI, which keeps its own quota.
       // A bad route is skipped, never allowed to sink every other one.
@@ -250,7 +251,7 @@ class AiKeyPool(
       }
       health?.expiry(key.id, name, null)
       val secret = secrets.get(secretName(key.id)) ?: return@mapNotNull null
-      val model = route.model.ifBlank { key.defaultModel }
+      val model = FreeAiCatalog.current(route.model.ifBlank { key.defaultModel })
       runCatching {
         LlmTarget(
           LlmConfig(

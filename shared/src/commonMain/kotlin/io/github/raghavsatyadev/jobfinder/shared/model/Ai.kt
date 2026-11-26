@@ -22,8 +22,7 @@ enum class AiProvider(
   GEMINI("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash", true),
   @SerialName("openrouter")
   OPENROUTER("https://openrouter.ai/api/v1", "google/gemini-2.5-flash", true),
-  @SerialName("nvidia")
-  NVIDIA("https://integrate.api.nvidia.com/v1", "deepseek-ai/deepseek-v4.1-flash", true),
+  @SerialName("nvidia") NVIDIA("https://integrate.api.nvidia.com/v1", "z-ai/glm-5.3-flash", true),
   @SerialName("groq") GROQ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b", true),
   /** Hugging Face Inference Providers: one key, many open models, small monthly free credits. */
   @SerialName("huggingface")
