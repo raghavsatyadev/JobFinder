@@ -7,6 +7,7 @@ import io.github.raghavsatyadev.jobfinder.server.scan.ServerEvents
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -15,6 +16,9 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
 
 /**
@@ -38,21 +42,33 @@ class NewJobsRecheck(
   /** Jobs whose check failed, and until when they are passed over. */
   private val passOver = ConcurrentHashMap<Long, Long>()
 
+  /** Jobs being checked now, so a second worker never takes the same one. */
+  private val inFlight = ConcurrentHashMap.newKeySet<Long>()
+
+  /** Pages read again one at a time: the job sites see no more than before. */
+  private val pages = Mutex()
+
+  /**
+   * Checks up to [CHECKS_AT_ONCE] jobs side by side, a short [gap] between starts: the AI models
+   * pace themselves, so the checks spread over all of them at once.
+   */
   fun start(scope: CoroutineScope) {
     scope.launch {
       delay(START)
-      var moved = 0
+      val moved = AtomicInteger()
+      val checks = Semaphore(CHECKS_AT_ONCE)
       while (true) {
         pause.awaitResumed()
         if (scanner?.state?.value?.scanning == true) {
           delay(BUSY_WAIT)
           continue
         }
+        checks.acquire()
         val next =
           try {
             val now = clock()
             passOver.entries.removeIf { it.value <= now }
-            jobs.nextToRecheck(matching.key(), passOver.keys.toList())
+            jobs.nextToRecheck(matching.key(), (passOver.keys + inFlight).toList())
           } catch (e: CancellationException) {
             throw e
           } catch (e: Exception) {
@@ -60,20 +76,29 @@ class NewJobsRecheck(
             null
           }
         if (next == null) {
-          if (moved > 0) announce(moved).also { moved = 0 }
-          delay(IDLE)
+          checks.release()
+          if (inFlight.isEmpty()) {
+            moved.getAndSet(0).takeIf { it > 0 }?.let(::announce)
+            delay(IDLE)
+          } else delay(gap)
           continue
         }
-        try {
-          if (!recheck(next.id)) passOver[next.id] = clock() + FAILED_WAIT.inWholeMilliseconds
-          else if (jobs.get(next.id)?.status != JobStatus.NEW.wire) moved++
-        } catch (e: CancellationException) {
-          throw e
-        } catch (e: Exception) {
-          log.warn("Checking job {} again failed: {}", next.id, e.message)
-          passOver[next.id] = clock() + FAILED_WAIT.inWholeMilliseconds
+        inFlight += next.id
+        launch {
+          try {
+            if (!recheck(next.id)) passOver[next.id] = clock() + FAILED_WAIT.inWholeMilliseconds
+            else if (jobs.get(next.id)?.status != JobStatus.NEW.wire) moved.incrementAndGet()
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Exception) {
+            log.warn("Checking job {} again failed: {}", next.id, e.message)
+            passOver[next.id] = clock() + FAILED_WAIT.inWholeMilliseconds
+          } finally {
+            inFlight -= next.id
+            checks.release()
+          }
+          if (moved.get() >= ANNOUNCE_EVERY) announce(moved.getAndSet(0))
         }
-        if (moved >= ANNOUNCE_EVERY) announce(moved).also { moved = 0 }
         delay(gap)
       }
     }
@@ -86,7 +111,7 @@ class NewJobsRecheck(
       // Reading the page again stores the description and runs the filter.
       val read =
         try {
-          scanner?.scanJob(id)
+          pages.withLock { scanner?.scanJob(id) }
         } catch (e: CancellationException) {
           throw e
         } catch (e: Exception) {
@@ -124,5 +149,6 @@ class NewJobsRecheck(
     val BUSY_WAIT = 1.minutes
     val FAILED_WAIT = 1.hours
     const val ANNOUNCE_EVERY = 5
+    const val CHECKS_AT_ONCE = 6
   }
 }

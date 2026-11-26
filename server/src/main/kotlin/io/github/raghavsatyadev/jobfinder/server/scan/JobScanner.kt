@@ -5,6 +5,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabase
 import io.github.raghavsatyadev.jobfinder.server.db.toModel
 import io.github.raghavsatyadev.jobfinder.server.parsing.custom.CustomScanPolicy
 import io.github.raghavsatyadev.jobfinder.server.service.ApiException
+import io.github.raghavsatyadev.jobfinder.server.service.DescriptionRead
 import io.github.raghavsatyadev.jobfinder.server.service.JobIngestService
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiErrorCode
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
@@ -12,6 +13,7 @@ import io.github.raghavsatyadev.jobfinder.shared.model.Job
 import io.github.raghavsatyadev.jobfinder.shared.model.JobStatus
 import io.github.raghavsatyadev.jobfinder.shared.model.ScanState
 import io.github.raghavsatyadev.jobfinder.shared.model.SiteProvider
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
 import org.slf4j.LoggerFactory
 
 /**
@@ -230,39 +233,70 @@ class JobScanner(
   }
 
   /**
-   * Reads the descriptions of [jobs] one at a time, incognito-capable sites in the incognito
-   * browser. Each job is saved as soon as it is read, so a scan that stops redoes at most the job
-   * it was on. A job the user moved meanwhile is skipped. Returns the jobs as they are afterwards;
-   * a job whose page could not be loaded comes back unchanged, and a job whose posting was gone is
-   * left out (it was deleted).
+   * Reads the descriptions of [jobs]: each site's pages one at a time with the usual pause, the
+   * sites side by side, incognito-capable sites in the incognito browser. Each job's AI check runs
+   * on in the background (at most [CHECKS_AT_ONCE]) while the next page is read, so the checks
+   * spread over all the AI models at once. Each job is saved as soon as it is checked, so a scan
+   * that stops redoes at most the jobs it was on. A job the user moved meanwhile is skipped.
+   * Returns the jobs as they are afterwards; a job whose page could not be loaded comes back
+   * unchanged, and a job whose posting was gone is left out (it was deleted).
    */
   private suspend fun describe(jobs: List<Job>): List<Job> {
     if (jobs.isEmpty()) return emptyList()
     val incognitoSites =
       db.sitesDao().listAll().filter { it.incognitoSupport }.map { it.id }.toSet()
-    val described = mutableListOf<Job>()
-    for (job in jobs) {
-      if (!open.get()) break
-      if (db.jobsDao().get(job.id)?.status != JobStatus.PROCESSING.wire) {
-        _state.update { it.copy(jobsDone = it.jobsDone + 1) }
-        publishState()
-        continue
+    val described = ConcurrentLinkedQueue<Job>()
+    val checks = Semaphore(CHECKS_AT_ONCE)
+    coroutineScope {
+      for ((siteId, siteJobs) in jobs.groupBy { it.siteId }) {
+        launch {
+          for (job in siteJobs) {
+            if (!open.get()) break
+            if (db.jobsDao().get(job.id)?.status != JobStatus.PROCESSING.wire) {
+              jobDone()
+              continue
+            }
+            when (val page = readOne(job, siteId in incognitoSites)) {
+              is Page.Done -> {
+                page.job?.let(described::add)
+                jobDone()
+              }
+              is Page.Read -> {
+                checks.acquire()
+                launch {
+                  try {
+                    described += check(job, page.read)
+                  } finally {
+                    checks.release()
+                    jobDone()
+                  }
+                }
+              }
+            }
+            delay(pacing.betweenJobs())
+          }
+        }
       }
-      describeOne(job, job.siteId in incognitoSites)?.let { described += it }
     }
-    return described
+    return described.toList()
   }
 
-  /** [job] after its page was read, or `null` when the posting was gone and the job deleted. */
-  private suspend fun describeOne(job: Job, incognito: Boolean): Job? =
+  /** What reading one job's page gave. */
+  private sealed interface Page {
+    class Read(val read: DescriptionRead) : Page
+
+    /** Nothing to check: the job unchanged, or `null` when the posting was gone and deleted. */
+    class Done(val job: Job?) : Page
+  }
+
+  private suspend fun readOne(job: Job, incognito: Boolean): Page =
     try {
       scraper.scrape(job.externalUrl, DESCRIPTION_SCROLLS, incognito) { page ->
-        if (!open.get()) return@scrape job
-        if (GonePosting.matches(page) && removeGone(job)) return@scrape null
-        val result = ingest.ingestDescription(job.id, page.html, isLastRetry = page.isLast)
-        if (result.parseFailed && !page.isLast) throw ParseFailedException(job.externalUrl)
-        delay(pacing.betweenJobs())
-        result.job
+        if (!open.get()) return@scrape Page.Done(job)
+        if (GonePosting.matches(page) && removeGone(job)) return@scrape Page.Done(null)
+        val read = ingest.readDescription(job.id, page.html, isLastRetry = page.isLast)
+        if (read.parseFailed) throw ParseFailedException(job.externalUrl)
+        Page.Read(read)
       }
     } catch (e: Exception) {
       if (e is CancellationException) throw e
@@ -273,11 +307,23 @@ class JobScanner(
         e.message,
         e,
       )
-      job
-    } finally {
-      _state.update { it.copy(jobsDone = it.jobsDone + 1) }
-      publishState()
+      Page.Done(job)
     }
+
+  /** [job] after the AI checked its [read] page; unchanged when the check could not be saved. */
+  private suspend fun check(job: Job, read: DescriptionRead): Job =
+    try {
+      ingest.finishDescription(read).job
+    } catch (e: Exception) {
+      if (e is CancellationException) throw e
+      log.error("Could not check job {} ({}): {}", job.id, job.title, e.message, e)
+      job
+    }
+
+  private fun jobDone() {
+    _state.update { it.copy(jobsDone = it.jobsDone + 1) }
+    publishState()
+  }
 
   /**
    * Deletes [job] when its page says the posting is gone and the user has not touched it (new,
@@ -355,6 +401,9 @@ class JobScanner(
 
     /** Scrolls of a job page. */
     const val DESCRIPTION_SCROLLS = 1
+
+    /** Jobs whose AI check runs while the next pages are read. */
+    private const val CHECKS_AT_ONCE = 6
 
     private const val MS_PER_SECOND = 1_000
 

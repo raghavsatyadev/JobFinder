@@ -39,16 +39,20 @@ import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import io.github.raghavsatyadev.jobfinder.ui.pairing.ConnectionBanner
 import io.github.raghavsatyadev.jobfinder.ui.pairing.ConnectionDoctorDialog
 import io.github.raghavsatyadev.jobfinder.ui.pairing.PairingScreen
+import io.github.raghavsatyadev.jobfinder.ui.platform.AiProblems
 import io.github.raghavsatyadev.jobfinder.ui.platform.ConnectionDoctor
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhoneCopy
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhonePairing
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
+import io.github.raghavsatyadev.jobfinder.ui.settings.AiProblemsWarning
 import io.github.raghavsatyadev.jobfinder.ui.setup.SetupDialog
 import io.github.raghavsatyadev.jobfinder.ui.theme.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.merge
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 
@@ -67,7 +71,14 @@ fun App(navigation: Flow<TopLevel> = emptyFlow()) {
   val setup = remember(koin) { koin.getOrNull<SetupAssistant>() }
   AppTheme {
     if (pairing == null) {
-      AppShell(navigation = navigation)
+      // "Open settings" in the AI warning switches tabs the way a notification does.
+      val local = remember { MutableSharedFlow<TopLevel>(extraBufferCapacity = 1) }
+      val tabs = remember(navigation) { merge(navigation, local) }
+      AppShell(navigation = tabs)
+      val aiProblems = remember(koin) { koin.getOrNull<AiProblems>() }
+      if (aiProblems != null) {
+        AiProblemsWarning(aiProblems) { local.tryEmit(TopLevel.Settings) }
+      }
       if (setup != null) {
         val setupVisible by setup.visible.collectAsStateWithLifecycle()
         if (setupVisible) SetupDialog()

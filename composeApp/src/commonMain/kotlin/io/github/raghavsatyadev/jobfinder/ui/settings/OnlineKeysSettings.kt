@@ -64,6 +64,7 @@ import io.github.raghavsatyadev.jobfinder.resources.task_parsing
 import io.github.raghavsatyadev.jobfinder.resources.task_tips
 import io.github.raghavsatyadev.jobfinder.resources.task_translate
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
+import io.github.raghavsatyadev.jobfinder.shared.model.AiProblemKind
 import io.github.raghavsatyadev.jobfinder.shared.model.AiTask
 import io.github.raghavsatyadev.jobfinder.shared.model.FreeAiCatalog
 import io.github.raghavsatyadev.jobfinder.ui.components.WavyProgress
@@ -195,6 +196,10 @@ internal fun KeyRow(key: AiKey, state: OnlineKeysUiState, onEvent: (OnlineKeysUi
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
       ExpiryLine(key, state.pool.now)
+      // An expired key already says so above.
+      state.pool.problems
+        .firstOrNull { it.routeId == key.id && it.kind != AiProblemKind.KEY_EXPIRED }
+        ?.let { AiProblemLine(it) }
     }
     TextButton(
       onClick = { onEvent(OnlineKeysUiEvent.EditKey(key.id)) },

@@ -2,6 +2,7 @@ package io.github.raghavsatyadev.jobfinder.ui.platform
 
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKeyUsage
+import io.github.raghavsatyadev.jobfinder.shared.model.AiProblem
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRouting
 import io.github.raghavsatyadev.jobfinder.shared.model.BackupApiKey
 
@@ -18,6 +19,8 @@ data class AiKeysState(
   val openCode: OpenCodeStatus = OpenCodeStatus(),
   /** Whether the Antigravity CLI (`agy`) is installed on this computer. */
   val agy: AgyStatus = AgyStatus(),
+  /** The models that keep failing now, by route id. */
+  val problems: List<AiProblem> = emptyList(),
 )
 
 /** The OpenCode CLI on this computer: [version] as it reports it, e.g. "v2.0.31". */

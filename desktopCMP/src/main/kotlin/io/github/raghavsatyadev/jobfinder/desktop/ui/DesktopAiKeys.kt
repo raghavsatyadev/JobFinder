@@ -2,6 +2,7 @@ package io.github.raghavsatyadev.jobfinder.desktop.ui
 
 import io.github.raghavsatyadev.jobfinder.server.ai.AddKeyResult
 import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
+import io.github.raghavsatyadev.jobfinder.server.ai.AiHealth
 import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.SecretStore
@@ -21,6 +22,7 @@ class DesktopAiKeys(
   private val secrets: SecretStore,
   private val openCode: OpenCodeServer? = null,
   private val agy: AgyClient? = null,
+  private val health: AiHealth? = null,
 ) : AiKeys {
   override suspend fun load(): AiKeysState =
     AiKeysState(
@@ -31,6 +33,7 @@ class DesktopAiKeys(
       System.currentTimeMillis(),
       openCodeStatus(),
       agyStatus(),
+      health?.problems?.value.orEmpty(),
     )
 
   private suspend fun openCodeStatus(): OpenCodeStatus {

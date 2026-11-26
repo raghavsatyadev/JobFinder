@@ -210,6 +210,7 @@ class OpenCodeClient(
           model = model.ifBlank { OpenCodeModels.DEFAULT },
         ),
         AiRoute.OPEN_CODE_ID,
+        "OpenCode",
       )
 
     private fun prompt(system: String, user: String, schema: JsonObject): String = buildString {

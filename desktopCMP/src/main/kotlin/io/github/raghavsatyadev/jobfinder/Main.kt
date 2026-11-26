@@ -52,6 +52,7 @@ import io.github.raghavsatyadev.jobfinder.desktop.system.TrayMenuItem
 import io.github.raghavsatyadev.jobfinder.desktop.system.WindowMotion
 import io.github.raghavsatyadev.jobfinder.desktop.ui.AppWindowFrame
 import io.github.raghavsatyadev.jobfinder.desktop.ui.AppWindowIcon
+import io.github.raghavsatyadev.jobfinder.desktop.ui.DesktopAiProblems
 import io.github.raghavsatyadev.jobfinder.desktop.ui.LoginBrowserState
 import io.github.raghavsatyadev.jobfinder.desktop.ui.LoginBrowserWindow
 import io.github.raghavsatyadev.jobfinder.desktop.ui.MainWindowRequests
@@ -87,6 +88,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.LinksRepository
 import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import io.github.raghavsatyadev.jobfinder.ui.pairing.PairingApprovalDialog
 import io.github.raghavsatyadev.jobfinder.ui.pairing.RestoreApprovalDialog
+import io.github.raghavsatyadev.jobfinder.ui.platform.AiProblems
 import io.github.raghavsatyadev.jobfinder.ui.platform.DesktopFeatures
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.theme.AppTheme
@@ -399,6 +401,7 @@ private fun desktopModule(runtime: CefRuntime, dataDir: File) = module {
     TrayIcon.create(APP_NAME, menu) { windows.show() }
   }
   single { SetupMemory(dataDir.resolve(SETUP_FILE).toPath()) }
+  single<AiProblems> { DesktopAiProblems(get(), dataDir.resolve(AI_MUTE_FILE).toPath()) }
   single<SetupAssistant> {
     val scope = this
     val windows = get<MainWindowRequests>()
@@ -460,6 +463,7 @@ private suspend fun signInTo(
 
 /** What the setup assistant remembers, in the data folder. */
 private const val SETUP_FILE = "setup"
+private const val AI_MUTE_FILE = "ai-warnings-muted.txt"
 
 /** The main window's first size, in dp. */
 private const val MAIN_WIDTH = 1280

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_problems_title">Some AI models do not work</string>
+    <string name="ai_problems_hint">Meanwhile the work goes to the other models in its list.</string>
+    <string name="ai_problem_refused">%1$s refused the key. Make a new key on the site and add it again.</string>
+    <string name="ai_problem_expired">%1$s: the key expired. Make a new key and add it.</string>
+    <string name="ai_problem_failing">%1$s failed %2$d times in a row: %3$s</string>
+    <string name="ai_problems_open_settings">Open settings</string>
+    <string name="ai_problems_dismiss">Dismiss</string>
+    <string name="ai_problems_mute">Mute for a day</string>
+</resources>

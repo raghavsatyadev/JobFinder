@@ -26,6 +26,14 @@ data class ListIngestResult(
 /** Result of [JobIngestService.ingestDescription]. */
 data class DescriptionIngestResult(val job: Job, val parseFailed: Boolean)
 
+/** A job's page as read ([JobIngestService.readDescription]), before the AI check. */
+class DescriptionRead(
+  val job: Job,
+  val updated: Job,
+  val provider: SiteProvider,
+  val parseFailed: Boolean,
+)
+
 /**
  * Stores what a scan read from a page: the old `scan-urls` (job lists) and `scan-job-description`
  * edge functions, minus subscriptions and the per-user scoping.
@@ -127,17 +135,27 @@ class JobIngestService(
     html: String,
     isLastRetry: Boolean = true,
   ): DescriptionIngestResult {
+    val read = readDescription(jobId, html, isLastRetry)
+    return if (read.parseFailed) DescriptionIngestResult(read.job, parseFailed = true)
+    else finishDescription(read)
+  }
+
+  /**
+   * The details on a job's page, not yet checked by the AI or saved. `parseFailed` when the page
+   * had no description and another read follows ([isLastRetry] false).
+   */
+  suspend fun readDescription(jobId: Long, html: String, isLastRetry: Boolean): DescriptionRead {
     val job = db.jobsDao().get(jobId)?.toModel() ?: notFound("Job $jobId")
     val site = db.sitesDao().get(job.siteId)?.toModel() ?: notFound("Site ${job.siteId}")
     val updates = parsers.parseDescription(site, html)
-    var updated =
+    val updated =
       job.copy(
         description = updates.description ?: job.description,
         salary = if (job.salary.isNullOrEmpty()) updates.salary else job.salary,
         tags = (job.tags + updates.tags.orEmpty()).distinct(),
       )
     if (updated.description == null && !isLastRetry) {
-      return DescriptionIngestResult(job, parseFailed = true)
+      return DescriptionRead(job, updated, site.provider, parseFailed = true)
     }
     if (updates.description == null) {
       log.error(
@@ -147,12 +165,19 @@ class JobIngestService(
       )
       saveDump(job.externalUrl, html, null)
     }
-    val decision = matching.evaluate(updated)
-    updated = updated.copy(status = decision.status, excludeReason = decision.excludeReason)
+    return DescriptionRead(job, updated, site.provider, parseFailed = false)
+  }
+
+  /** Checks a [read] page with the AI and saves the job with its new status. */
+  suspend fun finishDescription(read: DescriptionRead): DescriptionIngestResult {
+    val job = read.job
+    val decision = matching.evaluate(read.updated)
+    val updated =
+      read.updated.copy(status = decision.status, excludeReason = decision.excludeReason)
     db
       .jobsDao()
       .updateAfterDescriptionScan(
-        id = jobId,
+        id = job.id,
         description = updated.description,
         salary = updated.salary,
         tagsJson = JsonColumnConverters.encodeStringList(updated.tags),
@@ -161,8 +186,8 @@ class JobIngestService(
         matchedWith = decision.checkedWith,
         updatedAt = clock(),
       )
-    log.info("[{}] {} {}", site.provider.wire, updated.status.wire, job.title)
-    val stored = db.jobsDao().get(jobId)?.toModel() ?: updated
+    log.info("[{}] {} {}", read.provider.wire, updated.status.wire, job.title)
+    val stored = db.jobsDao().get(job.id)?.toModel() ?: updated
     return DescriptionIngestResult(stored, parseFailed = updated.description == null)
   }
 

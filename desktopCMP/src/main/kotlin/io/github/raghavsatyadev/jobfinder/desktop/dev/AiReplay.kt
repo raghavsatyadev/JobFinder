@@ -4,6 +4,7 @@ import io.github.raghavsatyadev.jobfinder.desktop.secrets.DpapiSecretStore
 import io.github.raghavsatyadev.jobfinder.server.ai.AccuracyCheck
 import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
 import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
+import io.github.raghavsatyadev.jobfinder.server.ai.AiLanes
 import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmConfig
@@ -77,7 +78,7 @@ private suspend fun replay(
   val agy = AgyClient()
   val requests = AtomicInteger()
   val counter = AiUsageRecorder { _, _ -> requests.incrementAndGet() }
-  val client = LlmClient(http, Semaphore(1), pool, openCode, agy) { LlmConfig() }
+  val client = LlmClient(http, Semaphore(1), pool, openCode, agy, AiLanes()) { LlmConfig() }
 
   val samples = AccuracyCheck(db, http).samples()
   val resume = samples.resume

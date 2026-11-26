@@ -1,25 +1,10 @@
 package io.github.raghavsatyadev.jobfinder.desktop.server
 
-import io.github.raghavsatyadev.jobfinder.desktop.models.DesktopLocalModels
-import io.github.raghavsatyadev.jobfinder.desktop.models.GgufDownload
-import io.github.raghavsatyadev.jobfinder.desktop.models.HttpOllamaModels
-import io.github.raghavsatyadev.jobfinder.desktop.models.HuggingFace
-import io.github.raghavsatyadev.jobfinder.desktop.models.ModelCheckStore
-import io.github.raghavsatyadev.jobfinder.desktop.models.PcProfiler
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DesktopDeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DpapiSecretStore
-import io.github.raghavsatyadev.jobfinder.desktop.setup.PowerShell
-import io.github.raghavsatyadev.jobfinder.server.ai.AccuracyCheck
-import io.github.raghavsatyadev.jobfinder.server.ai.AgyClient
-import io.github.raghavsatyadev.jobfinder.server.ai.AiKeyPool
-import io.github.raghavsatyadev.jobfinder.server.ai.AiService
-import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.ai.JobReports
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
-import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
-import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.ai.PromptBook
-import io.github.raghavsatyadev.jobfinder.server.ai.PromptTrials
 import io.github.raghavsatyadev.jobfinder.server.ai.SecretStore
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabase
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabaseFactory
@@ -39,7 +24,6 @@ import io.github.raghavsatyadev.jobfinder.server.nativehost.JobUrlLookup
 import io.github.raghavsatyadev.jobfinder.server.nativehost.NativeHostLink
 import io.github.raghavsatyadev.jobfinder.server.parsing.JobPageParsers
 import io.github.raghavsatyadev.jobfinder.server.parsing.custom.OllamaCustomJobsParser
-import io.github.raghavsatyadev.jobfinder.server.parsing.custom.RoomAiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalJobsRepository
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalLinksRepository
 import io.github.raghavsatyadev.jobfinder.server.repository.LocalMatchingRepository
@@ -80,7 +64,6 @@ import io.github.raghavsatyadev.jobfinder.server.service.translate.TranslationSe
 import io.github.raghavsatyadev.jobfinder.shared.api.ServerEvent
 import io.github.raghavsatyadev.jobfinder.shared.backup.DeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.shared.model.PromptId
-import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.AtsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.BackupRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
@@ -98,7 +81,6 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.SitesRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TipsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.TranslationRepository
 import io.github.raghavsatyadev.jobfinder.ui.help.helpMarkdown
-import io.github.raghavsatyadev.jobfinder.ui.platform.LocalModels
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -107,7 +89,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.sync.Semaphore
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -157,55 +138,7 @@ fun serverModule(dataDir: File) = module {
       dataDir.resolve(SECRETS_DIR).resolve(DesktopDeviceBackupKeys.NAME).toPath(),
     )
   }
-  single { AiService(get(), get()) }
-  single<LocalModels> {
-    val http = LlmClient.defaultHttpClient()
-    DesktopLocalModels(
-      ollama = HttpOllamaModels(http),
-      huggingFace = HuggingFace(http),
-      download = GgufDownload(http, dataDir.resolve(MODELS_DIR)),
-      profiler = PcProfiler(PowerShell())::profile,
-      accuracy = AccuracyCheck(get(), http),
-      checks = ModelCheckStore(dataDir.resolve(MODEL_CHECKS_FILE)),
-    )
-  }
-  // The online keys the user added and which model does which work.
-  single {
-    val db = get<ServerDatabase>()
-    AiKeyPool(db.aiKeysDao(), db.settingsDao(), get(), LlmClient.defaultHttpClient())
-  }
-  // One client for every LLM call: its semaphore lets one request at a time reach the main model,
-  // so
-  // the custom parser and matching never make Ollama swap models mid-scan; online keys run in
-  // parallel. It reads the AI choice from Settings before every call.
-  single {
-    val ai = get<AiService>()
-    LlmClient(LlmClient.defaultHttpClient(), Semaphore(1), get<AiKeyPool>(), get(), get()) {
-      ai.config()
-    }
-  }
-  // The user's signed-in Antigravity CLI (agy) as a model source: one child per call.
-  single { AgyClient() }
-  // The user's OpenCode CLI as a free model source: started at its first call, stopped on exit.
-  single {
-    OpenCodeServer(dataDir.resolve(OPENCODE_DIR).toPath(), LlmClient.defaultHttpClient())
-  } onClose
-    {
-      it?.close()
-    }
-  single { OpenCodeClient(get(), LlmClient.defaultHttpClient()) }
-  single<AiUsageRecorder> { RoomAiUsageRecorder(get<ServerDatabase>().aiUsageDao()) }
-  // The AI instructions, as edited in Settings; read before every call.
-  single {
-    val db = get<ServerDatabase>()
-    PromptTrials(db.jobsDao(), db.resumeDao(), db.advancedMatchingDao(), get())
-  }
-  single {
-    val scope = this
-    PromptBook(get<ServerDatabase>().aiPromptsDao()) { id, text ->
-      scope.get<PromptTrials>().run(id, text)
-    }
-  } bind AiPromptsRepository::class
+  includes(aiServerModule(dataDir))
   single {
     JobPageParsers(
       customParser =
@@ -485,11 +418,9 @@ private val ATS_SCOPE = named("atsScope")
 private const val DB_FILE = "jobfinder.db"
 private const val NOTES_DIR = "notes"
 private const val SECRETS_DIR = "secrets"
+
 /** The OpenCode child's own (empty) config folder, so the user's global config stays out. */
-private const val OPENCODE_DIR = "opencode"
 /** Partial downloads of models added from a link; empty once Ollama has them. */
-private const val MODELS_DIR = "models"
-private const val MODEL_CHECKS_FILE = "model-checks.json"
 private const val BACKUP_DIR = "backups"
 /** Set by the installer's launcher; empty when run from the build. */
 private const val APP_VERSION_PROPERTY = "jpackage.app-version"

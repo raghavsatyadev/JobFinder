@@ -60,6 +60,7 @@ import io.github.raghavsatyadev.jobfinder.resources.keys_tokens_per_day
 import io.github.raghavsatyadev.jobfinder.resources.keys_unknown
 import io.github.raghavsatyadev.jobfinder.resources.opencode_chip
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
+import io.github.raghavsatyadev.jobfinder.shared.model.AiProblem
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRoute
 import io.github.raghavsatyadev.jobfinder.shared.model.AiTask
 import io.github.raghavsatyadev.jobfinder.shared.model.FreeAiCatalog
@@ -288,6 +289,8 @@ internal fun RouteRow(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
+      val routeId = route.keyId ?: AiProblem.LOCAL_ID
+      pool.problems.firstOrNull { it.routeId == routeId }?.let { AiProblemLine(it) }
     }
     IconButton(
       onClick = { onEvent(OnlineKeysUiEvent.Move(task, route, -1)) },

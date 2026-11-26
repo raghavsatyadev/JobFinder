@@ -7,6 +7,7 @@ import io.github.raghavsatyadev.jobfinder.server.db.SettingsDefaults
 import io.github.raghavsatyadev.jobfinder.shared.api.ApiJson
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKey
 import io.github.raghavsatyadev.jobfinder.shared.model.AiKeyUsage
+import io.github.raghavsatyadev.jobfinder.shared.model.AiProblem
 import io.github.raghavsatyadev.jobfinder.shared.model.AiProvider
 import io.github.raghavsatyadev.jobfinder.shared.model.AiRouting
 import io.github.raghavsatyadev.jobfinder.shared.model.AiTask
@@ -32,8 +33,24 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-/** One model to try for a call: on an added key, or ([keyId] `null`) the main AI choice. */
-class LlmTarget(val config: LlmConfig, val keyId: String?)
+/**
+ * One model to try for a call: on an added key, or ([keyId] `null`) the main AI choice. [name] is
+ * what the user sees for it; [requestsPerMinute] paces its lane ([AiLanes]).
+ */
+class LlmTarget(
+  val config: LlmConfig,
+  val keyId: String?,
+  val name: String = LOCAL_NAME,
+  val requestsPerMinute: Int? = null,
+) {
+  /** The route id [AiHealth] and [AiLanes] know it by. */
+  val routeId: String
+    get() = keyId ?: AiProblem.LOCAL_ID
+
+  companion object {
+    const val LOCAL_NAME = "This computer"
+  }
+}
 
 /** What adding a key found. */
 sealed interface AddKeyResult {
@@ -58,6 +75,8 @@ class AiKeyPool(
   private val http: HttpClient,
   private val clock: () -> Long = System::currentTimeMillis,
   private val zone: ZoneId = ZoneId.systemDefault(),
+  /** Hears about keys that expired, for the warnings. */
+  private val health: AiHealth? = null,
 ) {
   private val lock = Mutex()
   private val minute = ConcurrentHashMap<String, ArrayDeque<Long>>()
@@ -129,6 +148,7 @@ class AiKeyPool(
     keys.deleteUsage(id)
     minute.remove(id)
     restUntil.remove(id)
+    health?.forget(id)
   }
 
   /**
@@ -213,8 +233,13 @@ class AiKeyPool(
       // No key either: LlmClient hands it to agy, which rests on its own limits.
       if (route.agy) return@mapNotNull AgyClient.target(route.model.ifBlank { routing.agy.model })
       val key = all.firstOrNull { it.id == route.keyId } ?: return@mapNotNull null
+      val name = key.label ?: LlmWire.name(key.provider)
       // The site no longer takes it.
-      if (key.expired(now)) return@mapNotNull null
+      if (key.expired(now)) {
+        health?.expiry(key.id, name, key.expiresAt)
+        return@mapNotNull null
+      }
+      health?.expiry(key.id, name, null)
       val secret = secrets.get(secretName(key.id)) ?: return@mapNotNull null
       val model = route.model.ifBlank { key.defaultModel }
       runCatching {
@@ -227,6 +252,8 @@ class AiKeyPool(
             requestTimeoutMs = ONLINE_TIMEOUT_MS,
           ),
           key.id,
+          name,
+          key.requestsPerMinute,
         )
       }
         .getOrNull()

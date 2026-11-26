@@ -260,6 +260,7 @@ class AgyClient(
           model = model.ifBlank { AgyModels.DEFAULT },
         ),
         AiRoute.AGY_ID,
+        "Antigravity",
       )
 
     private fun prompt(system: String, user: String, schema: JsonObject): String = buildString {
