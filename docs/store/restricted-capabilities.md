@@ -1,5 +1,21 @@
 # JobFinder: restricted capabilities for Store certification
 
+## Chosen plan (decided 2026-11-27)
+
+1. **Submit with `unvirtualizedResources`** (this package as built). It keeps the shared data folder
+   with the MSI and the browser extension's native messaging, and needs no code change.
+2. **If certification rejects it:** reply once in Partner Center with the native messaging reason
+   below. If it is rejected again, ship a **virtualized** build:
+   - remove `unvirtualizedResources` and the two `desktop6` lines, bump the version;
+   - add the one-time first-run copy of `%LOCALAPPDATA%\jobfinder-data` into the package's folder;
+   - for the extension, use **option b**: Settings → Browser extension shows the two `reg add`
+     commands (and writes the host manifest outside the package) for the user to run once. It needs
+     the least code, adds no extra prompts or host permissions, and leaves the Chrome Web Store
+     listing unchanged.
+3. **Keep the MSI** on GitHub Releases as the full-featured download in every case.
+
+Options a and c below stay as later improvements, not part of the plan.
+
 The package (`desktopCMP/msix/AppxManifest.xml`) declares two restricted capabilities. After the
 `.msix` is uploaded, Partner Center asks why each is needed (Submission options → Restricted
 capabilities). Paste the text below; it also fits in "Notes for certification".

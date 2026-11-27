@@ -29,7 +29,12 @@ Store listing uses the same URL. It goes live only after the site repo
 ## Product declarations
 
 - Tick **This product incorporates generative AI features** (ATS reviews, resume edits and form
-  answers are written by an AI model).
+  answers are written by an AI model). If the form asks for details, or in Notes for certification:
+  "Prompts are controlled by the user: the AI filter and AI instructions are the user's own words, and
+  each AI task works only on the user's jobs and resume. AI output is shown as an editable
+  suggestion (ATS review, resume edits, form answers); nothing is applied, sent or submitted without
+  the user. The default model runs locally (Ollama); online models are used only with the user's own
+  keys."
 - Leave "allows purchases outside the Store commerce system" unticked (the app sells nothing).
 - Leave the accessibility declaration unticked unless the Narrator/High Contrast checks are done.
 - Leave "install to alternate drives" and "OneDrive backups" at their defaults (checked).
@@ -38,11 +43,11 @@ Store listing uses the same URL. It goes live only after the site repo
 
 ## Short description (≤ 270 chars recommended)
 
-Finds new jobs from your saved LinkedIn, Indeed, Glassdoor and other job board searches as soon as they are posted, filters out the ones you don't want with AI, and scores your resume against each job. No account; your data stays on your PC.
+Finds new jobs from your saved job board searches as soon as they are posted (works with LinkedIn, Indeed, Glassdoor and more), filters out the ones you don't want with AI, and scores your resume against each job. No account; your data stays on your PC.
 
 ## Description (plain text, ≤ 10,000 chars, no URLs)
 
-JobFinder checks your saved job searches on LinkedIn, Indeed, Glassdoor and other job boards, and shows you the new jobs as soon as they are posted, so you can be one of the first to apply. A local AI model reads each new job, filters out the ones you do not want, and scores how well your resume matches the rest.
+JobFinder checks your saved searches on the job boards you use, and shows you the new jobs as soon as they are posted, so you can be one of the first to apply. A local AI model reads each new job, filters out the ones you do not want, and scores how well your resume matches the rest.
 
 There is no account and no server. Your searches, jobs, resume and notes stay on your computer.
 
@@ -74,7 +79,7 @@ JobFinder does not apply to jobs for you. It finds them early; you apply yoursel
 
 ## Product features (≤ 20, each ≤ 200 chars, no bullets)
 
-1. Checks your saved searches on LinkedIn, Indeed, Glassdoor, Naukri, Dice and more, every hour to once a day
+1. Checks your saved job board searches every hour to once a day; works with LinkedIn, Indeed, Glassdoor, Naukri, Dice and more
 2. Shows new jobs as soon as they are posted, with a notification
 3. AI filter: describe the jobs to skip in plain words, and see why each job was filtered out
 4. ATS review for every job: match score, found and missing keywords, and the top fixes
@@ -89,8 +94,8 @@ JobFinder does not apply to jobs for you. It finds them early; you apply yoursel
 
 ## Keywords (≤ 7, each ≤ 40 chars, ≤ 21 words in total)
 
-job search · job alerts · ATS resume checker · resume match · LinkedIn jobs · job tracker · AI job filter
-(7 terms, 16 words)
+job search · job alerts · ATS resume checker · resume match · job board alerts · job tracker · AI job filter
+(7 terms, 17 words; job board names appear only in "works with" wording, never as keywords)
 
 ## What's new in this version
 
@@ -106,8 +111,8 @@ Folder `docs/store/screenshots/`, in this order, with these captions (≤ 200 ch
 4. `04-improve.png`: Improve your resume for this job with exact before-and-after edits
 5. `05-searches.png`: Your saved searches on any job board
 6. `06-ai-filters.png`: Describe the jobs to skip in plain words
-7. `07-free-ai.png`: Free online AI keys, used in the order you choose
-8. `08-agents.png`: Let Claude Code, Gemini CLI or Codex set up JobFinder for you
+7. `07-free-ai.png`: Free AI: tools on your computer or free online keys, used in the order you choose
+8. `08-agents.png`: Let Claude Code, Gemini CLI, Codex or Cursor set up JobFinder for you
 
 They were rendered with the app's own `demoTour` on its built-in sample data (no personal data),
 from the same code as the 0.0.60 package. Regenerate with

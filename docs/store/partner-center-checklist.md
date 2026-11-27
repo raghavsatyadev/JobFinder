@@ -38,8 +38,13 @@ In Partner Center → Apps and games → JobFinderApp → **Start your submissio
    - [ ] Restricted capabilities: paste the runFullTrust and unvirtualizedResources texts.
    - [ ] Notes for certification: "No account or sign-in is needed. The app works offline; job
      searches need a job board link (for example a LinkedIn jobs search URL) and optionally the
-     user's own job board sign-in. The local AI model (Ollama) is downloaded on first run and is
-     optional for reviewing the UI."
+     user's own job board sign-in. The app reads job boards only through the user's own sign-ins
+     in its built-in browser, the same pages the user sees when searching; it has no server and
+     does not collect or resell job board data. The local AI model (Ollama) is downloaded on first
+     run and is optional for reviewing the UI. Generative AI: prompts are user-controlled (the AI
+     filter and instructions are the user's own words) and every AI output is an editable
+     suggestion that is never applied or submitted without the user. The Android app and the
+     JobFinder Helper browser extension are optional companions; reviewers do not need either."
 7. [ ] **Submit for certification.** Expect 1–3 business days. If certification rejects
    unvirtualizedResources, follow the fallback in `restricted-capabilities.md` and tell me.
 
