@@ -1,90 +1,154 @@
+/* Material 3 Expressive look, in the JobFinder app's teal scheme. */
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #1b1b1f;
-  --muted: #5d5e66;
-  --border: #d6d6dc;
-  --accent: #3355cc;
+  --primary: #006a6a;
+  --on-primary: #ffffff;
+  --primary-container: #9cf1f0;
+  --on-primary-container: #002020;
+  --secondary-container: #cce8e7;
+  --on-secondary-container: #051f1f;
+  --surface: #f4fbfa;
+  --surface-low: #eef5f4;
+  --surface-high: #e3e9e8;
+  --on-surface: #161d1d;
+  --on-surface-variant: #3f4948;
+  --outline: #6f7979;
+  --outline-variant: #bec9c8;
   --ok: #2e7d32;
   --warn: #b26a00;
-  --bad: #c62828;
-  font: 14px/1.45 system-ui, 'Segoe UI', sans-serif;
+  --bad: #ba1a1a;
+  font: 16px/1.5 'Google Sans Flex', 'Google Sans', 'Roboto Flex', Roboto, 'Segoe UI Variable Text', 'Segoe UI',
+    system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1b1b1f;
-    --fg: #e6e6eb;
-    --muted: #a5a6ad;
-    --border: #3a3a42;
-    --accent: #8fa6ff;
+    --primary: #80d5d4;
+    --on-primary: #003737;
+    --primary-container: #004f4f;
+    --on-primary-container: #9cf1f0;
+    --secondary-container: #324b4b;
+    --on-secondary-container: #cce8e7;
+    --surface: #0e1514;
+    --surface-low: #161d1d;
+    --surface-high: #252b2b;
+    --on-surface: #dde4e3;
+    --on-surface-variant: #bec9c8;
+    --outline: #889392;
+    --outline-variant: #3f4948;
     --ok: #81c784;
     --warn: #ffb74d;
-    --bad: #ef9a9a;
+    --bad: #ffb4ab;
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  accent-color: var(--accent);
+  background: var(--surface);
+  color: var(--on-surface);
+  accent-color: var(--primary);
 }
 
-body.popup main {
-  width: 320px;
-  padding: 12px 16px;
-}
-
-body.options main {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-
-h1 {
-  font-size: 1.25rem;
-  margin: 0 0 12px;
-}
-
-h2 {
-  font-size: 1rem;
-  margin: 0 0 6px;
-}
-
-section {
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-}
-
-p {
-  margin: 0 0 8px;
+h1,
+h2,
+p,
+dl,
+dd {
+  margin: 0;
 }
 
 .hint {
-  color: var(--muted);
+  color: var(--on-surface-variant);
 }
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Header ---------- */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-bar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+/* ---------- Cards ---------- */
+
+section {
+  background: var(--surface-low);
+  border-radius: 24px;
+  padding: 16px 20px;
+}
+
+h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* ---------- Connection status ---------- */
 
 .status {
   display: grid;
   grid-template-columns: auto 1fr;
-  column-gap: 8px;
-  align-items: baseline;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--surface-high);
+}
+
+.status [data-part='label'] {
+  font-weight: 600;
 }
 
 .status .hint {
   grid-column: 2;
+  font-size: 0.875rem;
+}
+
+.status .download {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--primary);
+  color: var(--on-primary, #fff);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.status .download[hidden] {
+  display: none;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: var(--muted);
+  background: var(--outline);
+}
+
+.status[data-state='connected'] {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
 }
 
 .status[data-state='connected'] .dot {
   background: var(--ok);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 25%, transparent);
 }
 
 .status[data-state='app_not_running'] .dot {
@@ -102,59 +166,260 @@ p {
   display: none;
 }
 
+/* ---------- Buttons ---------- */
+
 button {
   font: inherit;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--fg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  min-height: 40px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
   cursor: pointer;
+  transition: border-radius 150ms ease, filter 150ms ease;
 }
 
-button.link {
-  border: none;
-  padding: 0;
-  color: var(--accent);
-  text-decoration: underline;
+button:hover {
+  filter: brightness(0.96);
+}
+
+button:active {
+  border-radius: 12px;
+}
+
+button.filled {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+button.text {
+  background: transparent;
+  color: var(--primary);
+  padding: 0 12px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
+
+/* ---------- Switch rows ---------- */
 
 .toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 4px 0 8px;
+  gap: 16px;
+  min-height: 56px;
   cursor: pointer;
+}
+
+.toggle span {
+  flex: 1;
+}
+
+.toggle input {
+  order: 2;
+}
+
+input[role='switch'] {
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  margin: 0;
+  border-radius: 16px;
+  border: 2px solid var(--outline);
+  background: var(--surface-high);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+input[role='switch']::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--outline);
+  transform: translateY(-50%);
+  transition: all 150ms ease;
+}
+
+input[role='switch']:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+input[role='switch']:checked::before {
+  left: 22px;
+  width: 24px;
+  height: 24px;
+  background: var(--on-primary);
+}
+
+input[role='switch']:disabled {
+  opacity: 0.5;
 }
 
 .site-list {
   list-style: none;
-  margin: 0;
+  margin: 8px 0 0;
   padding: 0;
 }
+
+.site-list li + li,
+.toggle + .toggle {
+  border-top: 1px solid var(--outline-variant);
+}
+
+/* ---------- Job details ---------- */
 
 dl {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 2px 12px;
-  margin: 0;
+  gap: 4px 16px;
 }
 
 dt {
-  color: var(--muted);
+  color: var(--on-surface-variant);
 }
 
-dd {
-  margin: 0;
+#job-score {
+  font-weight: 700;
+  color: var(--primary);
 }
 
-footer {
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
+/* ---------- Popup ---------- */
+
+body.popup main {
+  width: 340px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+body.popup {
+  font-size: 15px;
+}
+
+body.popup h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+body.popup section {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.popup section[aria-label='Connection'] {
+  background: none;
+  padding: 0;
+}
+
+body.popup section[aria-label='This site'] {
+  padding: 0 16px;
+}
+
+body.popup footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---------- Settings page ---------- */
+
+/* Larger type than the popup: the page fills a whole tab. */
+body.options {
+  font-size: 18px;
+}
+
+/* Cards flow into as many columns as fit, packed top to bottom like a masonry
+   grid, so a short card never leaves a gap beside a tall one. */
+body.options main {
+  padding: 40px clamp(20px, 4vw, 64px) 64px;
+  columns: 3 480px;
+  column-gap: 20px;
+}
+
+body.options main > section {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+/* Header spans every column. */
+body.options .app-bar {
+  column-span: all;
+  margin-bottom: 28px;
+}
+
+body.options .app-bar img {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+
+body.options h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+body.options section {
+  padding: 28px 32px;
+  border-radius: 28px;
+}
+
+body.options h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+body.options section > .hint {
+  margin-bottom: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+body.options .toggle {
+  min-height: 64px;
+  font-size: 1.0625rem;
+}
+
+body.options button {
+  font-size: 1rem;
+  min-height: 48px;
+  padding: 0 24px;
+}
+
+body.options .status {
+  margin-bottom: 4px;
+  font-size: 1.0625rem;
+}
+
+body.options .status .hint {
+  font-size: 0.9375rem;
+}
+
+body.options section > button {
+  margin-top: 8px;
+}
+
+body.options #test-result {
+  margin-top: 8px;
 }

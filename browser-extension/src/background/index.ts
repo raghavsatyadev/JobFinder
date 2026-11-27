@@ -10,6 +10,10 @@ import { NativeLink } from './nativeLink';
 import { PageReader } from './pageReader';
 import { readSignIns } from './signIns';
 
+/** The store build has no cookies permission, so sign-in sharing is not available there. */
+const SIGNINS_LEFT_OUT =
+  'Sign-in sharing is not in the store version of JobFinder Helper. Sign in inside the JobFinder app instead.';
+
 const link = new NativeLink(onHostMessage);
 const reader = new PageReader((msg) => link.send(msg));
 const jobs = new JobLookup(link);
@@ -24,7 +28,8 @@ function onHostMessage(msg: HostToExt): void {
       reader.enqueue(msg);
       break;
     case 'getCookies':
-      void readSignIns(msg).then((reply) => link.send(reply));
+      if (__SIGNINS__) void readSignIns(msg).then((reply) => link.send(reply));
+      else link.send(errorMsg('no_permission', SIGNINS_LEFT_OUT, typeof msg.id === 'string' ? msg.id : undefined));
       break;
     case 'answersSaved':
     case 'answers':

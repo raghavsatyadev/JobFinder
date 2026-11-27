@@ -3,6 +3,9 @@ export const HOST_NAME = 'io.github.raghavsatyadev.jobfinder';
 
 export const PROTOCOL_VERSION = 1;
 
+/** Where to get the JobFinder desktop app, shown when it is not installed. */
+export const APP_DOWNLOAD_URL = 'https://github.com/raghavsatyadev/JobFinder/releases/latest';
+
 /** Reconnect backoff; the alarm is a safety net because timers die when the worker sleeps. */
 export const RECONNECT = { minMs: 1_000, maxMs: 60_000, alarmName: 'reconnect', alarmMinutes: 1 };
 

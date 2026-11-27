@@ -67,14 +67,19 @@ the first 32 hex digits of the SHA-256 of the public key (DER), with digits 0–
 ## Store package
 
 ```sh
-npm run package                # build, then dist-zip/jobfinder-helper-<version>.zip (no `key`)
+npm run package                # store build (dist-store/), then dist-zip/jobfinder-helper-<version>.zip (no `key`)
 npm run package:first-upload   # also ...-first-upload.zip with dev-key.pem as key.pem
 ```
+
+The store build (`node build.mjs --store`) leaves out sign-in sharing: no `cookies` permission, no
+cookie code, no Sign-ins section in the options page. The sideload build (`npm run build`, dist/,
+which the app ships) keeps it. `package.mjs` refuses a zip with any cookie code left in it.
 
 Or `./gradlew :desktopCMP:packageExtension`; CI: `.github/workflows/browser-extension.yml`. The
 Chrome Web Store rejects a manifest with `key`, so the zip drops it. A `key.pem` at the zip root of
 the **first** upload of a new item makes the store keep this id; never put a `.pem` in a later
-upload. Edge Add-ons assigns its own id: add it to `allowed_origins` (`NativeHostRegistration.kt`).
+upload. Edge Add-ons assigns its own id, known only after the first Edge upload: then add it to
+`allowed_origins` (`NativeHostRegistration.kt`) and ship an app release before publishing on Edge.
 Raise `version` in `package.json` before every upload. Listing text, privacy policy and images:
 [store/](store/).
 

@@ -1,5 +1,6 @@
-// Zips dist/ for the Chrome Web Store and Edge Add-ons: dist-zip/jobfinder-helper-<version>.zip.
-// Run `npm run build` first (`npm run package` does both). The manifest `key` is dropped, because
+// Zips dist-store/ for the Chrome Web Store and Edge Add-ons: dist-zip/jobfinder-helper-<version>.zip.
+// Run `npm run build:store` first (`npm run package` does both). The store build has no sign-in
+// sharing: no `cookies` permission and no cookie code. The manifest `key` is dropped, because
 // the Chrome Web Store rejects a package that has one.
 //
 // `--first-upload` also writes jobfinder-helper-<version>-first-upload.zip with dev-key.pem as
@@ -11,7 +12,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { join, relative, sep } from 'node:path';
 import { crc32, deflateRawSync } from 'node:zlib';
 
-const DIST = 'dist';
+const DIST = 'dist-store';
 const OUT = 'dist-zip';
 const DEV_ID = 'cnleajglbkmfgfkfihheoacmojpklpop';
 const firstUpload = process.argv.includes('--first-upload');
@@ -21,7 +22,7 @@ function fail(message) {
   process.exit(1);
 }
 
-if (!existsSync(join(DIST, 'manifest.json'))) fail('dist/manifest.json is missing: run `npm run build` first.');
+if (!existsSync(join(DIST, 'manifest.json'))) fail('dist-store/manifest.json is missing: run `npm run build:store` first.');
 
 /** Every file under dir, as zip paths with forward slashes, sorted for a stable zip. */
 function listFiles(dir) {
@@ -44,14 +45,17 @@ if (!/^(0|[1-9]\d{0,4})(\.(0|[1-9]\d{0,4})){0,3}$/.test(version) || version.spli
 }
 if (/^[0.]+$/.test(version)) fail('version must not be all zeros.');
 // The store build asks for host access only at run time; a fixed host list means an e2e build.
-if (manifest.host_permissions) fail('dist/ has host_permissions: that is an e2e build. Run `npm run build`.');
+if (manifest.host_permissions) fail('dist-store/ has host_permissions: that is an e2e build. Run `npm run build:store`.');
+if (JSON.stringify(manifest).includes('"cookies"')) fail('the manifest asks for cookies: run `npm run build:store`.');
 delete manifest.key;
 
 const files = listFiles(DIST).filter((f) => f !== 'manifest.json');
 const bad = files.filter((f) => /(^|\/)\.|\.pem$|\.map$|\.ts$/.test(f));
-if (bad.length) fail(`dist/ has files that must not ship: ${bad.join(', ')}`);
+if (bad.length) fail(`dist-store/ has files that must not ship: ${bad.join(', ')}`);
 const background = readFileSync(join(DIST, 'background.js'), 'utf8');
-if (background.includes('function fakeHostReply')) fail('background.js has the e2e fake app: run `npm run build`.');
+if (background.includes('function fakeHostReply')) fail('background.js has the e2e fake app: run `npm run build:store`.');
+const cookieCode = files.filter((f) => f.endsWith('.js') && /chrome\.cookies|cookies\.getAll|\["cookies"\]/.test(readFileSync(join(DIST, f), 'utf8')));
+if (cookieCode.length) fail(`${cookieCode.join(', ')} still has sign-in sharing code: run \`npm run build:store\`.`);
 
 /** A minimal zip (deflate, no zip64): enough for a few hundred kB of extension files. */
 function zip(entries) {

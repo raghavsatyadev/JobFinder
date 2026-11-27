@@ -83,17 +83,22 @@ function onClick(e: Event): void {
   const text = [button.textContent, button.getAttribute('value'), button.getAttribute('aria-label')].join(' ');
   const isSubmit = (button as HTMLButtonElement).type === 'submit';
   if (!isSubmit && !SEND_WORDS.test(text)) return;
-  const form = (button as HTMLButtonElement).form ?? button.closest('form');
+  // A form, or failing that the dialog the button sits in (LinkedIn's Easy Apply has no <form>).
+  const scope = (button as HTMLButtonElement).form ?? button.closest('form, dialog, [role="dialog"]');
+  // Outside any form or dialog, a word like "Apply" opens a form rather than sending one
+  // (LinkedIn's "Easy Apply" button and job cards): reading the whole page there would save the
+  // search filters as answers.
+  if (!scope && !isSubmit) return;
   // Without a form, a lone search box is not an application: ask for two answers.
-  void save(button.ownerDocument, form ?? undefined, form ? 1 : 2);
+  void save(button.ownerDocument, scope ?? undefined, scope ? 1 : 2);
 }
 
-async function save(doc: Document, form: HTMLFormElement | undefined, minFields: number): Promise<void> {
+async function save(doc: Document, scope: Element | undefined, minFields: number): Promise<void> {
   const now = Date.now();
   if (now - lastSave < DEBOUNCE_MS) return;
   // Read the values now, before the page clears or leaves the form.
-  const docs = form ? [doc] : liveDocs();
-  const fields = collectFields(docs, true, form).filter((f) => f.value && f.inputType !== 'file');
+  const docs = scope ? [doc] : liveDocs();
+  const fields = collectFields(docs, true, scope).filter((f) => f.value && f.inputType !== 'file');
   if (fields.length < minFields) return;
   lastSave = now;
   if (!(await isRecordingAnswers())) return;

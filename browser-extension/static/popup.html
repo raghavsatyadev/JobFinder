@@ -8,13 +8,17 @@
   </head>
   <body class="popup">
     <main>
-      <h1>JobFinder</h1>
+      <header class="app-bar">
+        <img src="icons/icon48.png" alt="" />
+        <h1>JobFinder</h1>
+      </header>
 
       <section aria-label="Connection">
         <div id="status" class="status" role="status" aria-live="polite">
           <span class="dot" aria-hidden="true"></span>
           <p data-part="label">Connecting…</p>
           <p data-part="hint" class="hint" hidden></p>
+          <a data-part="download" class="download" target="_blank" rel="noopener" hidden>Download the JobFinder app</a>
         </div>
         <button id="retry" type="button">Try again</button>
       </section>
@@ -35,7 +39,7 @@
       <section id="form-section" aria-labelledby="form-heading" hidden>
         <h2 id="form-heading">Application form</h2>
         <p class="hint">Fills empty fields with answers you gave on earlier forms. It never sends the form.</p>
-        <button id="autofill" type="button">Autofill</button>
+        <button id="autofill" type="button" class="filled">Autofill</button>
         <p id="autofill-result" role="status" aria-live="polite"></p>
       </section>
 
@@ -47,7 +51,7 @@
       </section>
 
       <footer>
-        <button id="open-options" type="button" class="link">Settings</button>
+        <button id="open-options" type="button" class="text">Settings</button>
       </footer>
     </main>
     <script src="popup.js"></script>

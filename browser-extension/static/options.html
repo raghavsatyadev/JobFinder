@@ -8,7 +8,10 @@
   </head>
   <body class="options">
     <main>
-      <h1>JobFinder Helper settings</h1>
+      <header class="app-bar">
+        <img src="icons/icon128.png" alt="" />
+        <h1>JobFinder Helper settings</h1>
+      </header>
 
       <section aria-labelledby="connection-heading">
         <h2 id="connection-heading">Connection</h2>
@@ -20,26 +23,17 @@
           <span class="dot" aria-hidden="true"></span>
           <p data-part="label">Connecting…</p>
           <p data-part="hint" class="hint" hidden></p>
+          <a data-part="download" class="download" target="_blank" rel="noopener" hidden>Download the JobFinder app</a>
         </div>
         <label class="toggle">
           <input id="bridge-toggle" type="checkbox" role="switch" />
           <span>Connect to the JobFinder app</span>
         </label>
-        <button id="test" type="button">Test connection</button>
+        <button id="test" type="button" class="filled">Test connection</button>
         <p id="test-result" class="hint" aria-live="polite"></p>
       </section>
 
-      <section aria-labelledby="sites-heading">
-        <h2 id="sites-heading">Sites</h2>
-        <p class="hint">
-          On sites you turn on, the extension checks whether the page you open is a job saved in JobFinder and shows it
-          on the toolbar icon. The browser asks for permission once per site. Other sites can be turned on from the
-          toolbar popup.
-        </p>
-        <ul id="site-list" class="site-list"></ul>
-      </section>
-
-      <section aria-labelledby="signins-heading">
+      <section id="signins-section" aria-labelledby="signins-heading" hidden>
         <h2 id="signins-heading">Sign-ins</h2>
         <p class="hint">
           Already signed in to LinkedIn and other job boards in this browser? Share those sign-ins, and JobFinder can copy
@@ -50,6 +44,16 @@
           <input id="signins-toggle" type="checkbox" role="switch" />
           <span>Share my job board sign-ins with JobFinder</span>
         </label>
+      </section>
+
+      <section aria-labelledby="sites-heading">
+        <h2 id="sites-heading">Sites</h2>
+        <p class="hint">
+          On sites you turn on, the extension checks whether the page you open is a job saved in JobFinder and shows it
+          on the toolbar icon. The browser asks for permission once per site. Other sites can be turned on from the
+          toolbar popup.
+        </p>
+        <ul id="site-list" class="site-list"></ul>
       </section>
 
       <section aria-labelledby="forms-heading">

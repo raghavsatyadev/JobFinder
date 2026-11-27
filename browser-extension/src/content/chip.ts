@@ -63,7 +63,7 @@ export class FieldButtons {
     clearTimeout(this.hideTimer);
     this.pinned = false;
     this.field = target;
-    this.show(target.ownerDocument);
+    this.show(target);
     this.renderButtons();
     this.place();
   }
@@ -77,8 +77,12 @@ export class FieldButtons {
     }, 250);
   }
 
-  private show(doc: Document): void {
-    if (this.host && this.host.ownerDocument === doc && this.host.isConnected) return;
+  private show(field: Control): void {
+    const doc = field.ownerDocument;
+    // A modal <dialog> (LinkedIn's Easy Apply) sits in the top layer and makes everything outside it
+    // inert, so the buttons must live inside the dialog to be seen and clicked.
+    const parent = field.closest('dialog[open]') ?? doc.body ?? doc.documentElement;
+    if (this.host && this.host.parentElement === parent && this.host.isConnected) return;
     this.host?.remove();
     const host = doc.createElement('jobfinder-helper');
     host.setAttribute('data-jobfinder', 'buttons');
@@ -90,7 +94,7 @@ export class FieldButtons {
     host.addEventListener('mousedown', (e) => {
       if (!(e.composedPath()[0] instanceof (doc.defaultView ?? window).HTMLTextAreaElement)) e.preventDefault();
     });
-    (doc.body ?? doc.documentElement).append(host);
+    parent.append(host);
     this.host = host;
     this.root = root;
   }
@@ -121,8 +125,15 @@ export class FieldButtons {
     const below = rect.bottom + 4;
     const height = host.getBoundingClientRect().height || 36;
     const top = below + height > (view?.innerHeight ?? 0) && rect.top > height + 4 ? rect.top - height - 4 : below;
+    const left = Math.max(4, rect.left);
     host.style.top = `${Math.round(top)}px`;
-    host.style.left = `${Math.round(Math.max(4, rect.left))}px`;
+    host.style.left = `${Math.round(left)}px`;
+    // Inside a transformed parent, `fixed` is relative to that parent: correct by the drift.
+    const at = host.getBoundingClientRect();
+    if (Math.abs(at.top - top) > 1 || Math.abs(at.left - left) > 1) {
+      host.style.top = `${Math.round(2 * top - at.top)}px`;
+      host.style.left = `${Math.round(2 * left - at.left)}px`;
+    }
   }
 
   private box(): HTMLElement {

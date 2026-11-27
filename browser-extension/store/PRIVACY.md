@@ -24,12 +24,16 @@ handles and where that data goes.
 | What you type into job application forms (for example name, email, phone, answers to questions) | Only on sites you turned on, when you send a form; with "Save my answers" on | So Autofill can fill the same answers next time | The JobFinder app, where you can view, edit and delete them (Settings → Form answers) |
 | Form questions, for AI help | Only when you press AI help | To draft an answer for you to edit | The JobFinder app (see "AI help" below) |
 | Text of a job page | Only with the fallback reader on, when the JobFinder app asks for a page it cannot open itself | To add the job's details to JobFinder | The JobFinder app |
-| Sign-in cookies of job boards | Only with "Share my job board sign-ins" on, and only for job sites you turned on | So the JobFinder app's own browser is signed in to those job boards and you do not sign in twice | The JobFinder app |
 | Your settings and the connection state | Always | To remember your choices | Stored in the browser (`chrome.storage.local`) |
 
 The extension never saves or fills passwords, card or bank details, or ID numbers (such as
-passport, Aadhaar, PAN or social security numbers). It never sends a form for you. It never reads
-cookies of sites you have not turned on.
+passport, Aadhaar, PAN or social security numbers). It never sends a form for you. The version in
+the Chrome Web Store and Edge Add-ons does not read cookies at all.
+
+A version installed by the JobFinder app itself (not from a store) has one more feature, off by
+default: "Share my job board sign-ins". With it on, it copies the sign-in cookies of job sites you
+turned on to the JobFinder app's own browser on your computer, so you do not sign in twice. It never
+reads cookies of other sites.
 
 ## AI help
 

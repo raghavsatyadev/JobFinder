@@ -34,6 +34,6 @@ test('popup shows that the JobFinder app cannot be reached', async () => {
 
   const status = popup.locator('#status');
   await expect(status).toHaveAttribute('data-state', /^(host_not_installed|app_not_running)$/);
-  await expect(status).toContainText(/helper is not installed|app is not running/);
+  await expect(status).toContainText(/desktop app is not installed|app is not running/);
   await expect(popup.getByRole('button', { name: 'Try again' })).toBeVisible();
 });

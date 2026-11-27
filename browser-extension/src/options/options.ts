@@ -72,6 +72,7 @@ async function initReader(): Promise<void> {
 }
 
 async function initSignIns(): Promise<void> {
+  byId('signins-section').hidden = false;
   const toggle = byId<HTMLInputElement>('signins-toggle');
   toggle.checked = await areSignInsShared();
   toggle.addEventListener('change', async () => {
@@ -95,4 +96,4 @@ void initConnection();
 void initForms();
 void initSites();
 void initReader();
-void initSignIns();
+if (__SIGNINS__) void initSignIns(); // The store build has no Sign-ins section.

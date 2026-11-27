@@ -219,14 +219,19 @@ val extensionResources by
 tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(extensionResources) }
 
 // The extension zip for the Chrome Web Store and Edge Add-ons:
-// browser-extension/dist-zip/jobfinder-helper-<version>.zip (scripts/package.mjs).
+// browser-extension/dist-zip/jobfinder-helper-<version>.zip. It is the store build (dist-store/,
+// no sign-in sharing), not the dist/ copy the app ships for sideloading.
 tasks.register<Exec>("packageExtension") {
   group = "build"
-  dependsOn(buildExtension)
   workingDir = extensionDir.asFile
-  commandLine(npm(), "run", "package:zip")
+  commandLine(npm(), "run", "package")
   environment("PATH", File(npm()).parent + File.pathSeparator + System.getenv("PATH").orEmpty())
-  inputs.dir(extensionDir.dir("dist"))
+  inputs.dir(extensionDir.dir("src"))
+  inputs.dir(extensionDir.dir("static"))
+  inputs.file(extensionDir.file("package.json"))
+  inputs.file(extensionDir.file("build.mjs"))
+  inputs.file(extensionDir.file("scripts/package.mjs"))
+  outputs.dir(extensionDir.dir("dist-store"))
   outputs.dir(extensionDir.dir("dist-zip"))
 }
 

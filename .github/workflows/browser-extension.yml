@@ -1,7 +1,7 @@
 name: Browser extension .zip
 
 # Manual or on a release tag: the JobFinder Helper zip for the Chrome Web Store and Edge Add-ons
-# (manifest `key` removed). Locally: `npm run package` in browser-extension, or
+# (store build: no sign-in sharing, manifest `key` removed). Locally: `npm run package` in browser-extension, or
 # `./gradlew :desktopCMP:packageExtension`. The first-upload zip with key.pem is never built here.
 on:
   workflow_dispatch:
