@@ -1,6 +1,8 @@
 package io.github.raghavsatyadev.jobfinder.desktop.ui
 
 import io.github.raghavsatyadev.jobfinder.desktop.browser.SignInChecker
+import io.github.raghavsatyadev.jobfinder.desktop.mcp.McpDesktopTools
+import io.github.raghavsatyadev.jobfinder.desktop.mcp.McpLocalModelTools
 import io.github.raghavsatyadev.jobfinder.desktop.scan.DesktopScanRepository
 import io.github.raghavsatyadev.jobfinder.desktop.server.RefreshingSettingsRepository
 import io.github.raghavsatyadev.jobfinder.server.http.ApiServerHost
@@ -28,6 +30,8 @@ val desktopUiModule = module {
   single<AiChoice> { DesktopAiChoice(get(), get()) }
   single<AiKeys> { DesktopAiKeys(get(), get(), getOrNull(), getOrNull(), getOrNull(), getOrNull()) }
   single<AgentAccess> { DesktopAgentAccess(get()) }
+  single { McpLocalModelTools(getKoin()) } onClose { it?.close() }
+  single { McpDesktopTools(getKoin(), get()) }
   single<ScanRepository> { DesktopScanRepository(get(), get(), get(), get()) }
   single<SettingsRepository> {
     val scope = this

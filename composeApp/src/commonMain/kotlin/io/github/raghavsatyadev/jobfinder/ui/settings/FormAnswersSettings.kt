@@ -40,6 +40,9 @@ import io.github.raghavsatyadev.jobfinder.resources.form_answers_answer
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_change_failed
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_count
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete
+import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete_all
+import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete_all_text
+import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete_all_title
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete_text
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_delete_title
 import io.github.raghavsatyadev.jobfinder.resources.form_answers_edit
@@ -82,6 +85,7 @@ data class FormAnswersUiState(
   val editing: FormAnswer? = null,
   val draft: String = "",
   val confirmDelete: FormAnswer? = null,
+  val confirmDeleteAll: Boolean = false,
 )
 
 sealed interface FormAnswersEvent {
@@ -104,6 +108,10 @@ sealed interface FormAnswersEvent {
   data object ConfirmDelete : FormAnswersEvent
 
   data object CancelDelete : FormAnswersEvent
+
+  data object AskDeleteAll : FormAnswersEvent
+
+  data object ConfirmDeleteAll : FormAnswersEvent
 }
 
 /** Settings → Form answers: the answers the browser extension saved, to read, edit and delete. */
@@ -123,7 +131,10 @@ class FormAnswersViewModel(private val repository: FormAnswersRepository) : View
       FormAnswersEvent.CancelEdit -> _state.update { it.copy(editing = null, draft = "") }
       FormAnswersEvent.SaveEdit -> saveEdit()
       is FormAnswersEvent.AskDelete -> _state.update { it.copy(confirmDelete = event.answer) }
-      FormAnswersEvent.CancelDelete -> _state.update { it.copy(confirmDelete = null) }
+      FormAnswersEvent.CancelDelete ->
+        _state.update { it.copy(confirmDelete = null, confirmDeleteAll = false) }
+      FormAnswersEvent.AskDeleteAll -> _state.update { it.copy(confirmDeleteAll = true) }
+      FormAnswersEvent.ConfirmDeleteAll -> deleteAll()
       FormAnswersEvent.ConfirmDelete -> delete()
     }
   }
@@ -157,6 +168,14 @@ class FormAnswersViewModel(private val repository: FormAnswersRepository) : View
       _state.update { s ->
         s.copy(answers = s.answers?.filterNot { it.id == answer.id })
       }
+    }
+  }
+
+  private fun deleteAll() {
+    _state.update { it.copy(confirmDeleteAll = false) }
+    change {
+      repository.deleteAllAnswers()
+      _state.update { it.copy(answers = emptyList(), query = "") }
     }
   }
 
@@ -230,6 +249,16 @@ fun FormAnswersContent(state: FormAnswersUiState, onEvent: (FormAnswersEvent) ->
       onDismiss = { onEvent(FormAnswersEvent.CancelDelete) },
     )
   }
+  if (state.confirmDeleteAll) {
+    ConfirmDialog(
+      icon = vectorResource(Res.drawable.ic_delete_filled),
+      title = stringResource(Res.string.form_answers_delete_all_title, state.answers?.size ?: 0),
+      text = stringResource(Res.string.form_answers_delete_all_text),
+      confirmLabel = stringResource(Res.string.form_answers_delete_all),
+      onConfirm = { onEvent(FormAnswersEvent.ConfirmDeleteAll) },
+      onDismiss = { onEvent(FormAnswersEvent.CancelDelete) },
+    )
+  }
 }
 
 @Composable
@@ -290,7 +319,18 @@ private fun AnswerList(
       )
     }
   }
-  Note(stringResource(Res.string.form_answers_count, answers.size))
+  Row(Modifier.fillMaxWidth().padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Note(stringResource(Res.string.form_answers_count, answers.size), Modifier.weight(1f))
+    TextButton(
+      onClick = { onEvent(FormAnswersEvent.AskDeleteAll) },
+      shapes = ButtonDefaults.shapes(),
+    ) {
+      Text(
+        stringResource(Res.string.form_answers_delete_all),
+        color = MaterialTheme.colorScheme.error,
+      )
+    }
+  }
   if (matching.isEmpty()) {
     Note(stringResource(Res.string.form_answers_none_found, query.trim()))
     return

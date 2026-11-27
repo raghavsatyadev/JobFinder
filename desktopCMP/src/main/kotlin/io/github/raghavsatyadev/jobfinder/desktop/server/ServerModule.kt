@@ -1,5 +1,6 @@
 package io.github.raghavsatyadev.jobfinder.desktop.server
 
+import io.github.raghavsatyadev.jobfinder.desktop.mcp.McpDesktopTools
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DesktopDeviceBackupKeys
 import io.github.raghavsatyadev.jobfinder.desktop.secrets.DpapiSecretStore
 import io.github.raghavsatyadev.jobfinder.server.ai.AiService
@@ -242,6 +243,11 @@ fun serverModule(dataDir: File) = module {
           ai = { koin.getOrNull<AiService>() },
           resumePdf = { koin.getOrNull<ResumePdfRepository>() },
           formAnswers = { koin.getOrNull<FormAnswersRepository>() },
+          backups = { koin.getOrNull<BackupRepository>() },
+          automaticBackups = { koin.getOrNull<BackupService>()?.automaticBackups().orEmpty() },
+          deviceKeys = { koin.getOrNull<DeviceBackupKeys>() },
+          // Bound only in the app, not in the server-only module.
+          desktopTools = koin.getOrNull<McpDesktopTools>()?.tools().orEmpty(),
         )
       ),
       get(),

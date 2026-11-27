@@ -8,6 +8,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AiLanes
 import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmConfig
+import io.github.raghavsatyadev.jobfinder.server.ai.LocalModelGate
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
 import io.github.raghavsatyadev.jobfinder.server.db.ServerDatabaseFactory
@@ -29,7 +30,6 @@ import kotlin.system.exitProcess
 import kotlin.time.TimeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -78,7 +78,7 @@ private suspend fun replay(
   val agy = AgyClient()
   val requests = AtomicInteger()
   val counter = AiUsageRecorder { _, _ -> requests.incrementAndGet() }
-  val client = LlmClient(http, Semaphore(1), pool, openCode, agy, AiLanes()) { LlmConfig() }
+  val client = LlmClient(http, LocalModelGate(), pool, openCode, agy, AiLanes()) { LlmConfig() }
 
   val samples = AccuracyCheck(db, http).samples()
   val resume = samples.resume

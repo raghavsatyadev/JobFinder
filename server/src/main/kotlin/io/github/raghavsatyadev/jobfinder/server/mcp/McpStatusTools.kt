@@ -115,6 +115,17 @@ internal object McpStatusTools {
         put("detailLayout", "set_detail_layout")
         put("formAnswers", "list_form_answers, update_form_answer")
         put("server", "set_server_settings")
+        put(
+          "backups",
+          "list_backups, export_settings_backup, export_full_backup, export_jobs_csv, read_backup, import_backup",
+        )
+        put("phonePairing", "get_phone_pairing, rotate_pairing_token")
+        put("agentAccess", "get_agent_access, rotate_agent_token")
+        put("siteSignIns", "check_sign_ins, open_sign_in, copy_browser_sign_ins")
+        put(
+          "localModels",
+          "get_pc_profile, list_local_models, search_huggingface_models, list_model_quants, get_model_size, add_local_model, check_local_model, get_local_model_progress, remove_local_model",
+        )
       }
     }
   }

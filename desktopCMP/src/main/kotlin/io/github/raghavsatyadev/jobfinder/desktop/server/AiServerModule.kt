@@ -15,6 +15,7 @@ import io.github.raghavsatyadev.jobfinder.server.ai.AiLanes
 import io.github.raghavsatyadev.jobfinder.server.ai.AiService
 import io.github.raghavsatyadev.jobfinder.server.ai.AiUsageRecorder
 import io.github.raghavsatyadev.jobfinder.server.ai.LlmClient
+import io.github.raghavsatyadev.jobfinder.server.ai.LocalModelGate
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeCatalog
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeClient
 import io.github.raghavsatyadev.jobfinder.server.ai.OpenCodeServer
@@ -25,7 +26,6 @@ import io.github.raghavsatyadev.jobfinder.server.parsing.custom.RoomAiUsageRecor
 import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.ui.platform.LocalModels
 import java.io.File
-import kotlinx.coroutines.sync.Semaphore
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -59,14 +59,15 @@ internal fun aiServerModule(dataDir: File) = module {
   single { AiHealth() }
   // One lane per kind of work and online model: each kind runs on all its models at once.
   single { AiLanes() }
-  // One client for every LLM call: its semaphore lets one request at a time reach the main model,
+  // One client for every LLM call: its gate lets one request at a time reach the main model (form
+  // answers first),
   // so the custom parser and matching never make Ollama swap models mid-scan; online keys run in
   // parallel lanes. It reads the AI choice from Settings before every call.
   single {
     val ai = get<AiService>()
     LlmClient(
       LlmClient.defaultHttpClient(),
-      Semaphore(1),
+      LocalModelGate(),
       get<AiKeyPool>(),
       get(),
       get(),

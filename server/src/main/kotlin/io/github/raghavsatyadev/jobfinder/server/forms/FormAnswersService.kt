@@ -82,6 +82,8 @@ class FormAnswersService(
 
   override suspend fun deleteAnswer(id: Long) = dao.delete(id)
 
+  override suspend fun deleteAllAnswers() = dao.deleteAll()
+
   /** Records what [fields] held when the form on [url] was sent. Sensitive fields are dropped. */
   suspend fun save(url: String, fields: List<FormField>): SaveResult {
     val site = siteOf(url) ?: return SaveResult(0, null)
@@ -94,9 +96,10 @@ class FormAnswersService(
         continue
       }
       val key = QuestionKeys.keyFor(field)
-      val same = dao.findSame(key, site, jobId, url)
+      // The same answer to the same question (email, phone…) is kept once, whatever the page.
+      val same = dao.findSame(key, site, jobId, url) ?: dao.findSameValue(key, site, value)
       if (same != null) {
-        if (same.value != value) dao.updateValue(same.id, value.take(MAX_VALUE_CHARS), now)
+        dao.updateValue(same.id, value.take(MAX_VALUE_CHARS), now)
       } else {
         dao.insert(
           FormAnswerEntity(

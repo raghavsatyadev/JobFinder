@@ -14,4 +14,7 @@ interface FormAnswersRepository {
   suspend fun updateAnswer(id: Long, value: String): FormAnswer
 
   suspend fun deleteAnswer(id: Long)
+
+  /** Deletes every saved answer. */
+  suspend fun deleteAllAnswers()
 }

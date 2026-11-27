@@ -11,6 +11,9 @@
     <string name="form_answers_count">Saved answers: %1$d</string>
     <string name="form_answers_edit">Edit answer</string>
     <string name="form_answers_delete">Delete answer</string>
+    <string name="form_answers_delete_all">Delete all</string>
+    <string name="form_answers_delete_all_title">Delete all %1$d answers?</string>
+    <string name="form_answers_delete_all_text">Autofill will have nothing to offer until you send forms again. This can't be undone.</string>
     <string name="form_answers_delete_title">Delete this answer?</string>
     <string name="form_answers_delete_text">Autofill will no longer offer “%1$s” for “%2$s”.</string>
     <string name="form_answers_answer">Answer</string>

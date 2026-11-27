@@ -86,6 +86,13 @@ interface FormAnswersDao {
   )
   suspend fun findSame(key: String, site: String, jobId: Long?, url: String): FormAnswerEntity?
 
+  /** An answer already saved with this exact [value] to this question on [site]. */
+  @Query(
+    "SELECT * FROM form_answers WHERE question_key = :key AND site = :site AND value = :value " +
+      "ORDER BY updated_at DESC LIMIT 1"
+  )
+  suspend fun findSameValue(key: String, site: String, value: String): FormAnswerEntity?
+
   @Insert suspend fun insert(answer: FormAnswerEntity): Long
 
   @Insert suspend fun insertAll(answers: List<FormAnswerEntity>)

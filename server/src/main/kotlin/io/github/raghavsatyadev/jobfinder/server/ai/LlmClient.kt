@@ -22,8 +22,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
 
@@ -36,15 +34,15 @@ import org.slf4j.LoggerFactory
  * choice). Each task has its own lane on each online model ([lanes]): a lane takes one request,
  * then rests a short random gap, and meanwhile the task's next call goes to its next free model. So
  * the work of one kind runs on all its models at once. A key out of quota, rate-limited or failing
- * hands the call to the next one. Calls to the main choice share one [semaphore], so the local
- * model gets one request at a time and Ollama never swaps models mid-scan. Exactly one retry on
- * timeout, 5xx or connection error. [config] (the main choice) is read on every call, so Settings
- * apply at once. A target of the OpenCode CLI ([AiRoute.OPEN_CODE_ID]) goes to [openCode], which
- * keeps its own quota and fallbacks; one of the Antigravity CLI ([AiRoute.AGY_ID]) goes to [agy].
+ * hands the call to the next one. Calls to the main choice share one [gate], so the local model
+ * gets one request at a time and Ollama never swaps models mid-scan. Exactly one retry on timeout,
+ * 5xx or connection error. [config] (the main choice) is read on every call, so Settings apply at
+ * once. A target of the OpenCode CLI ([AiRoute.OPEN_CODE_ID]) goes to [openCode], which keeps its
+ * own quota and fallbacks; one of the Antigravity CLI ([AiRoute.AGY_ID]) goes to [agy].
  */
 class LlmClient(
   private val http: HttpClient,
-  private val semaphore: Semaphore = Semaphore(1),
+  private val gate: LocalModelGate = LocalModelGate(),
   private val pool: AiKeyPool? = null,
   private val openCode: OpenCodeClient? = null,
   private val agy: AgyClient? = null,
@@ -57,8 +55,8 @@ class LlmClient(
   constructor(
     http: HttpClient,
     config: LlmConfig = LlmConfig(),
-    semaphore: Semaphore = Semaphore(1),
-  ) : this(http, semaphore, null, null, null, null, null, { config })
+    gate: LocalModelGate = LocalModelGate(),
+  ) : this(http, gate, null, null, null, null, null, { config })
 
   /**
    * How many calls of [task] are worth running side by side: one per online model in its list (at
@@ -209,7 +207,7 @@ class LlmClient(
           openCodeCli -> openCode!!.chat(target.config.model, system, user, schema)
           agyCli -> agy!!.chat(target.config.model, system, user, schema)
           keyId == null ->
-            semaphore.withPermit {
+            gate.withTurn(task) {
               chatWith(target.config, system, user, schemaName, schema, maxTokens, last)
             }
           else -> chatWith(target.config, system, user, schemaName, schema, maxTokens, last)
@@ -237,16 +235,17 @@ class LlmClient(
   }
 
   /** One call with [config] outside the shared queue's order, for the "Test" button. */
-  suspend fun test(config: LlmConfig, schema: JsonObject): ChatCompletion = semaphore.withPermit {
-    chatWith(
-      config,
-      "Answer with JSON only.",
-      """Reply with {"ok": true}.""",
-      "ConnectionTest",
-      schema,
-      200,
-    )
-  }
+  suspend fun test(config: LlmConfig, schema: JsonObject): ChatCompletion =
+    gate.withTurn(null) {
+      chatWith(
+        config,
+        "Answer with JSON only.",
+        """Reply with {"ok": true}.""",
+        "ConnectionTest",
+        schema,
+        200,
+      )
+    }
 
   /**
    * One model: one retry on a passing failure. A rate limit is waited out only when [last] (no
