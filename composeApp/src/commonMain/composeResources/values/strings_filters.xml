@@ -1,6 +1,6 @@
 <resources>
     <string name="filters_title">AI filters</string>
-    <string name="filters_intro">Tell the local AI which jobs to filter out. Each new job is checked against your prompt on this computer; nothing leaves it.</string>
+    <string name="filters_intro">Tell the AI which jobs to filter out. Your computer checks each new job against your words, with the AI you set up on it.</string>
     <string name="filters_prompt_title">What to filter out</string>
     <string name="filters_prompt_row_hint">Your own wishes: which jobs the AI filters out for you.</string>
     <string name="filters_prompt_label">Job description prompt</string>

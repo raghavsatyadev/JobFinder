@@ -1,0 +1,8 @@
+<resources>
+    <!-- Sample mode (Android): try the app without a computer -->
+    <string name="sample_entry_title">No computer nearby?</string>
+    <string name="sample_entry_text">Look around with sample jobs. Nothing is real and nothing leaves your phone.</string>
+    <string name="sample_entry_button">Try with sample jobs</string>
+    <string name="sample_banner_title">Sample jobs: nothing here is real</string>
+    <string name="sample_banner_exit">Pair a computer</string>
+</resources>

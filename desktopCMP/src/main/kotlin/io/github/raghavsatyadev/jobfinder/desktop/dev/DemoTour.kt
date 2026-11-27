@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.raghavsatyadev.jobfinder.App
 import io.github.raghavsatyadev.jobfinder.fakeRepositoriesModule
 import io.github.raghavsatyadev.jobfinder.initKoin
+import io.github.raghavsatyadev.jobfinder.ui.fake.DemoData
 import io.github.raghavsatyadev.jobfinder.ui.fake.FakeSetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import java.io.File

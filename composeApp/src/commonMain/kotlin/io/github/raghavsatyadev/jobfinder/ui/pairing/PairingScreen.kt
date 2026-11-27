@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -93,8 +94,11 @@ import io.github.raghavsatyadev.jobfinder.resources.pairing_scan
 import io.github.raghavsatyadev.jobfinder.resources.pairing_scan_failed
 import io.github.raghavsatyadev.jobfinder.resources.pairing_title
 import io.github.raghavsatyadev.jobfinder.ui.platform.PairingError
+import io.github.raghavsatyadev.jobfinder.ui.sample.SampleMode
+import io.github.raghavsatyadev.jobfinder.ui.sample.SampleModeEntry
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -116,7 +120,9 @@ val pairingUiModule = module {
 fun PairingScreen(viewModel: PairingViewModel = koinViewModel()) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   LaunchedEffect(viewModel) { viewModel.watchNetwork() }
-  PairingContent(state, viewModel::onEvent)
+  val koin = getKoin()
+  val sample = remember(koin) { koin.getOrNull<SampleMode>() }
+  PairingContent(state, viewModel::onEvent, sample = sample)
 }
 
 /** The stateless pairing screen, for [PairingScreen] and previews. */
@@ -125,6 +131,7 @@ fun PairingContent(
   state: PairingUiState,
   onEvent: (PairingUiEvent) -> Unit,
   modifier: Modifier = Modifier,
+  sample: SampleMode? = null,
 ) {
   Surface(modifier.fillMaxSize()) {
     Box(
@@ -177,6 +184,7 @@ fun PairingContent(
           if (state.saved.isNotEmpty()) SavedSection(state, onEvent)
           ManualSection(state, onEvent)
           ScanButton(state, onEvent)
+          if (sample != null && !state.canClose) SampleModeEntry(sample)
         }
       }
     }

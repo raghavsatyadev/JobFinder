@@ -26,10 +26,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
-  private val pairing: PhonePairing by inject()
+  /** Not bound in sample mode, where there is no computer to pair with. */
+  private val pairing: PhonePairing? by lazy { getKoin().getOrNull() }
   private val navigation =
     MutableSharedFlow<TopLevel>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
   private val localNetwork: LocalNetworkAccess by inject()
@@ -48,6 +50,10 @@ class MainActivity : ComponentActivity() {
       // Test tags become resource ids, so Maestro flows can find job cards.
       Box(Modifier.semantics { testTagsAsResourceId = true }) { App(navigation = navigation) }
     }
+    pairing?.let(::watchPairing)
+  }
+
+  private fun watchPairing(pairing: PhonePairing) {
     // Back on the pairing screen opened to add a computer returns to the app.
     val closeAdding =
       object : OnBackPressedCallback(false) {
@@ -80,6 +86,7 @@ class MainActivity : ComponentActivity() {
   private fun handle(intent: Intent) {
     if (intent.action == ACTION_OPEN_JOBS) navigation.tryEmit(TopLevel.Jobs)
     // Any app can send this link to a debug build, so it never replaces an existing pairing.
+    val pairing = pairing ?: return
     debugPairingCode(intent)
       ?.takeIf { pairing.address.value == null }
       ?.let { code -> lifecycleScope.launch { pairing.pair(code) } }

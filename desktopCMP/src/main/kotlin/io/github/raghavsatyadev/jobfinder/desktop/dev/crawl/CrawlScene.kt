@@ -29,13 +29,13 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.raghavsatyadev.jobfinder.App
-import io.github.raghavsatyadev.jobfinder.desktop.dev.DemoData
 import io.github.raghavsatyadev.jobfinder.desktop.dev.demoDesktopModule
 import io.github.raghavsatyadev.jobfinder.desktop.dev.demoStoresModule
 import io.github.raghavsatyadev.jobfinder.fakeRepositoriesModule
 import io.github.raghavsatyadev.jobfinder.initKoin
 import io.github.raghavsatyadev.jobfinder.shared.model.JobReportResult
 import io.github.raghavsatyadev.jobfinder.shared.repository.JobReportRepository
+import io.github.raghavsatyadev.jobfinder.ui.fake.DemoData
 import io.github.raghavsatyadev.jobfinder.ui.fake.FakeSetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.navigation.TopLevel
 import java.awt.Canvas

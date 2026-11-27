@@ -23,6 +23,7 @@ import io.github.raghavsatyadev.jobfinder.shared.repository.AiPromptsRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.FormAnswersRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumeImproveRepository
 import io.github.raghavsatyadev.jobfinder.shared.repository.ResumePdfRepository
+import io.github.raghavsatyadev.jobfinder.ui.fake.DemoData
 import io.github.raghavsatyadev.jobfinder.ui.fake.FakeSetupAssistant
 import io.github.raghavsatyadev.jobfinder.ui.fake.SampleData
 import io.github.raghavsatyadev.jobfinder.ui.jobs.JobFilterStore
@@ -186,6 +187,8 @@ private object DemoFormAnswers : FormAnswersRepository {
     answers.first { it.id == id }.copy(value = value)
 
   override suspend fun deleteAnswer(id: Long) = Unit
+
+  override suspend fun deleteAllAnswers() = Unit
 
   private fun answer(id: Long, site: String, label: String, value: String) =
     FormAnswer(

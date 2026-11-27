@@ -44,6 +44,8 @@ import io.github.raghavsatyadev.jobfinder.ui.platform.ConnectionDoctor
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhoneCopy
 import io.github.raghavsatyadev.jobfinder.ui.platform.PhonePairing
 import io.github.raghavsatyadev.jobfinder.ui.platform.SetupAssistant
+import io.github.raghavsatyadev.jobfinder.ui.sample.SampleMode
+import io.github.raghavsatyadev.jobfinder.ui.sample.SampleModeBanner
 import io.github.raghavsatyadev.jobfinder.ui.settings.AiProblemsWarning
 import io.github.raghavsatyadev.jobfinder.ui.setup.SetupDialog
 import io.github.raghavsatyadev.jobfinder.ui.theme.AppTheme
@@ -60,7 +62,7 @@ import org.koin.compose.getKoin
  * The whole UI, the same on desktop and Android. Koin must be started first. [navigation] switches
  * to a top-level destination from outside the UI (a click on a notification). On Android the
  * pairing screen shows instead until the phone is paired with a computer, or while adding one. On
- * desktop the setup assistant shows over the app while it is open.
+ * desktop the setup assistant shows over the app while it is open. In sample mode a banner says so.
  */
 @Composable
 fun App(navigation: Flow<TopLevel> = emptyFlow()) {
@@ -74,7 +76,15 @@ fun App(navigation: Flow<TopLevel> = emptyFlow()) {
       // "Open settings" in the AI warning switches tabs the way a notification does.
       val local = remember { MutableSharedFlow<TopLevel>(extraBufferCapacity = 1) }
       val tabs = remember(navigation) { merge(navigation, local) }
-      AppShell(navigation = tabs)
+      val sample = remember(koin) { koin.getOrNull<SampleMode>()?.takeIf { it.active } }
+      if (sample == null) {
+        AppShell(navigation = tabs)
+      } else {
+        Column {
+          SampleModeBanner(sample)
+          Box(Modifier.consumeWindowInsets(WindowInsets.statusBars)) { AppShell(navigation = tabs) }
+        }
+      }
       val aiProblems = remember(koin) { koin.getOrNull<AiProblems>() }
       if (aiProblems != null) {
         AiProblemsWarning(aiProblems) { local.tryEmit(TopLevel.Settings) }

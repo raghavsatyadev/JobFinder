@@ -1,4 +1,4 @@
-package io.github.raghavsatyadev.jobfinder.desktop.dev
+package io.github.raghavsatyadev.jobfinder.ui.fake
 
 import io.github.raghavsatyadev.jobfinder.shared.model.AtsSummary
 import io.github.raghavsatyadev.jobfinder.shared.model.Job
@@ -7,10 +7,9 @@ import io.github.raghavsatyadev.jobfinder.shared.model.ResumeEdit
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeImprovement
 import io.github.raghavsatyadev.jobfinder.shared.model.ResumeSection
 import io.github.raghavsatyadev.jobfinder.shared.model.WorkMode
-import io.github.raghavsatyadev.jobfinder.ui.fake.FakeBackend
-import io.github.raghavsatyadev.jobfinder.ui.fake.SampleData
+import kotlin.time.Clock
 
-/** The sample jobs with more new ones, so the tour's lists look lived in. */
+/** The sample jobs with more new ones, so the tour and the phone's sample mode look lived in. */
 object DemoData {
   private const val HOUR = 3_600_000L
 
@@ -25,7 +24,7 @@ object DemoData {
     )
 
   /** Moves the sample dates to today, so the jobs read as just found. */
-  private val shift = (System.currentTimeMillis() - SampleData.NOW) / HOUR * HOUR
+  private val shift = (Clock.System.now().toEpochMilliseconds() - SampleData.NOW) / HOUR * HOUR
 
   val jobs: List<Job> =
     (SampleData.jobs +
