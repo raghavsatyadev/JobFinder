@@ -37,3 +37,10 @@ Android 8+. Then follow [Get started](docs/guides/getting-started.md).
   [AI agents](docs/guides/ai-agents.md) · [phone](docs/guides/phone.md) ·
   [extension](docs/guides/browser-extension.md) · [backups](docs/guides/backups.md)
 - [Privacy](PRIVACY.md) · [Building and contributing](CONTRIBUTING.md) · [Credits](CREDITS.md)
+
+## Support
+
+Free to use. If it helps you, [pay by UPI (India)](https://raghavsatyadev.github.io/donate/) or scan:
+<!-- Add when the profile is live: [GitHub Sponsors](https://github.com/sponsors/raghavsatyadev) -->
+
+<img src="https://raghavsatyadev.github.io/donate/upi-qr.png" width="180" alt="UPI QR code for satyadev@goaxb">
