@@ -79,7 +79,6 @@ purposes").
 
 ```
 The extension needs the free JobFinder desktop app on the same computer. Without it, the popup shows "The JobFinder desktop app is not installed" with a download link, and no feature works.
-Short video of the steps below (unlisted): VIDEO_LINK_TODO
 1. Install JobFinder for Windows from https://github.com/raghavsatyadev/JobFinder/releases (MSI), and start it once. It registers the native messaging host for Chrome and Edge.
 2. Open the extension popup: it shows "Connected to JobFinder <version>".
 3. In JobFinder, search for jobs and save one. In the extension options, turn on the job site (for example linkedin.com) and open that job: the toolbar icon shows the score.
@@ -102,9 +101,6 @@ All in [images/](images/). 1280×800 suits both stores.
 Screenshots 3 and 4 use a real job (Deliveroo, Senior Software Engineer - Android): the LinkedIn job
 page with the app's saved data, and the same job's Greenhouse application form filled with sample
 answers (Ada Lovelace). The form was never sent.
-
-Before publishing, replace `VIDEO_LINK_TODO` in the test instructions with an unlisted video
-(1 to 2 minutes): popup connected, badge on a saved job, Autofill on a form.
 
 ## Uploading
 
