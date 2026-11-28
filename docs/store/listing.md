@@ -70,7 +70,7 @@ YOUR PHONE AND YOUR BROWSER
 The free JobFinder Android app shows your jobs on your phone over your home Wi-Fi and notifies you about new ones; nothing goes through the internet. The optional JobFinder Helper extension for Chrome and Edge shows a job's ATS score on the toolbar, keeps your answers to application forms and fills them in again for you to check, and copies your job board sign-ins to the app when you ask.
 
 LET YOUR AI AGENT SET IT UP
-Claude Code, Gemini CLI, Codex, Cursor and other MCP agents on your computer can craft your searches, AI filter and instructions, and set up free AI keys.
+Claude Code, Gemini CLI, Codex, Cursor and other MCP agents on your computer can write your searches, AI filter and instructions, and set up free AI keys.
 
 KEEP EVERYTHING TIDY AND SAFE
 Sort by date or ATS score, filter by board, search, label and work mode, star, archive or delete with one click or a keyboard shortcut. Back up everything to one locked file, and export your jobs to CSV.
@@ -84,7 +84,7 @@ JobFinder does not apply to jobs for you. It finds them early; you apply yoursel
 3. AI filter: describe the jobs to skip in plain words, and see why each job was filtered out
 4. ATS review for every job: match score, found and missing keywords, and the top fixes
 5. Improve your resume for a job with exact before-and-after edits that never invent skills
-6. ATS-friendly resume PDFs, tailored to a job
+6. ATS-friendly resume PDFs made for one job
 7. Company ratings, pay and a ghost-job check
 8. Free AI only: a local model by default, or free online keys with no payment card
 9. Android app on your home Wi-Fi, with new-job notifications

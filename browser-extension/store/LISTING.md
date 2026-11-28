@@ -23,7 +23,7 @@ What it does
 • Application forms. On sites you turn on, the extension can remember what you type into a job application form when you send it. Next time, Autofill fills empty fields from those answers, and AI help drafts an answer from your resume and the job for you to edit. Neither ever sends a form for you. Passwords, card and bank details and ID numbers are never saved or filled.
 • Fallback reader. Some job sites block the JobFinder app. If you turn on the fallback reader, the app can ask the browser to open such a page in a background tab, read its text and close it again.
 
-Private by design
+Privacy
 • It talks only to the JobFinder app on this PC, through the browser's native messaging. It opens no network ports and has no servers of its own.
 • Nothing is granted at install: the browser asks for permission per site when you turn a site on.
 • No analytics, no ads, no tracking, no account.
