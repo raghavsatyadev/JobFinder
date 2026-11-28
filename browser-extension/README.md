@@ -78,8 +78,8 @@ which the app ships) keeps it. `package.mjs` refuses a zip with any cookie code 
 Or `./gradlew :desktopCMP:packageExtension`; CI: `.github/workflows/browser-extension.yml`. The
 Chrome Web Store rejects a manifest with `key`, so the zip drops it. A `key.pem` at the zip root of
 the **first** upload of a new item makes the store keep this id; never put a `.pem` in a later
-upload. Edge Add-ons assigns its own id, known only after the first Edge upload: then add it to
-`allowed_origins` (`NativeHostRegistration.kt`) and ship an app release before publishing on Edge.
+upload. Edge Add-ons assigns its own id: `bhlgbhbkomplehemejkaipddkjcjjdol`, already in
+`ALLOWED_ORIGINS` (`NativeHostRegistration.kt`); ship an app release with it before publishing on Edge.
 Raise `version` in `package.json` before every upload. Listing text, privacy policy and images:
 [store/](store/).
 

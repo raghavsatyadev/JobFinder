@@ -119,11 +119,11 @@ The key stays out of git. A copy is in the user's Drive folder (JobFinder → Ch
 
 ## Edge id: after the first Edge upload
 
-Edge gives the extension its own id (shown in Partner Center for the extension, and in its Edge
-store URL). Until the app allows that id, the Edge store build gets "forbidden" from the native
-host. Then:
+Edge gave the extension its own id: `bhlgbhbkomplehemejkaipddkjcjjdol` (CRX ID in Partner Center,
+Store ID 0RDCKFZ3SFJR). Until the app allows that id, the Edge store build gets "forbidden" from the
+native host. Then:
 
-1. Add `chrome-extension://<edge-id>/` to `ALLOWED_ORIGINS` in
+1. Done: `chrome-extension://bhlgbhbkomplehemejkaipddkjcjjdol/` is in `ALLOWED_ORIGINS` in
    `desktopCMP/src/main/kotlin/.../desktop/nativehost/NativeHostRegistration.kt` (next to the
    Chrome id).
 2. Ship a JobFinder app release; the app rewrites the host manifest on start.

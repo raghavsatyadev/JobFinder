@@ -100,8 +100,15 @@ object NativeHostRegistration {
   private const val MSIX_ALIAS = "jobfinder.exe"
   private const val DESCRIPTION = "JobFinder native host"
   private const val REG_TIMEOUT_S = 10L
-  /** The JobFinder Helper extension ids the host accepts. */
-  private val ALLOWED_ORIGINS = listOf("chrome-extension://cnleajglbkmfgfkfihheoacmojpklpop/")
+  /**
+   * The JobFinder Helper extension ids the host accepts: Chrome Web Store (and unpacked dev), Edge
+   * Add-ons.
+   */
+  private val ALLOWED_ORIGINS =
+    listOf(
+      "chrome-extension://cnleajglbkmfgfkfihheoacmojpklpop/",
+      "chrome-extension://bhlgbhbkomplehemejkaipddkjcjjdol/",
+    )
   /** Chrome's and Edge's folders under `~/Library/Application Support`. */
   private val MAC_BROWSER_DIRS = listOf("Google/Chrome", "Microsoft Edge")
   private val REGISTRY_KEYS =
